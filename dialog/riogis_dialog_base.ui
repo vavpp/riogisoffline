@@ -1,0 +1,195 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<ui version="4.0">
+ <class>RioGISDialogBase</class>
+ <widget class="QDialog" name="RioGISDialogBase">
+  <property name="geometry">
+   <rect>
+    <x>0</x>
+    <y>0</y>
+    <width>384</width>
+    <height>436</height>
+   </rect>
+  </property>
+  <property name="windowTitle">
+   <string>RioGIS</string>
+  </property>
+  <property name="windowIcon">
+   <iconset>
+    <normaloff>:/plugins/riogis/icon.png</normaloff>:/plugins/riogis/icon.png</iconset>
+  </property>
+  <layout class="QGridLayout" name="gridLayout">
+   <item row="1" column="0" colspan="4">
+    <widget class="QLabel" name="textBrukerInfo">
+     <property name="text">
+      <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;&lt;span style=&quot; color:#e20000;&quot;&gt;Ingen bruker-info er satt! &lt;/span&gt;&lt;/p&gt;&lt;p&gt;&lt;span style=&quot; color:#e20000;&quot;&gt;Trykk på &lt;/span&gt;&lt;span style=&quot; font-weight:600; color:#e20000;&quot;&gt;&amp;quot;Legg til bruker-info...&amp;quot;&lt;/span&gt;&lt;span style=&quot; color:#e20000;&quot;&gt; for å legge til. &lt;/span&gt;&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
+     </property>
+    </widget>
+   </item>
+   <item row="5" column="2">
+    <widget class="QLabel" name="label_4">
+     <property name="text">
+      <string/>
+     </property>
+    </widget>
+   </item>
+   <item row="10" column="0">
+    <widget class="QLabel" name="label_2">
+     <property name="text">
+      <string>Sett lednings-status til</string>
+     </property>
+    </widget>
+   </item>
+   <item row="8" column="0">
+    <widget class="QLabel" name="lblSelectCleaned">
+     <property name="text">
+      <string>Rengjort</string>
+     </property>
+    </widget>
+   </item>
+   <item row="8" column="1" colspan="3">
+    <widget class="QComboBox" name="cmbSelectPrewashed"/>
+   </item>
+   <item row="12" column="3">
+    <widget class="QDialogButtonBox" name="button_box">
+     <property name="orientation">
+      <enum>Qt::Horizontal</enum>
+     </property>
+     <property name="standardButtons">
+      <set>QDialogButtonBox::Cancel|QDialogButtonBox::Ok</set>
+     </property>
+    </widget>
+   </item>
+   <item row="11" column="0">
+    <widget class="QLabel" name="label">
+     <property name="text">
+      <string>Velg ledning i kart</string>
+     </property>
+    </widget>
+   </item>
+   <item row="11" column="2" colspan="2">
+    <widget class="QLabel" name="textLedningValgt">
+     <property name="text">
+      <string>Ingen ledning er valgt</string>
+     </property>
+    </widget>
+   </item>
+   <item row="6" column="0">
+    <widget class="QLabel" name="lblSelectWeather">
+     <property name="text">
+      <string>Avrenning</string>
+     </property>
+    </widget>
+   </item>
+   <item row="11" column="1">
+    <widget class="QPushButton" name="btnSelectMapClick">
+     <property name="text">
+      <string>+</string>
+     </property>
+    </widget>
+   </item>
+   <item row="10" column="1" colspan="3">
+    <widget class="QComboBox" name="cmbSelectStatus"/>
+   </item>
+   <item row="6" column="1" colspan="3">
+    <widget class="QComboBox" name="cmbSelectWeather"/>
+   </item>
+   <item row="3" column="0" colspan="4">
+    <widget class="Line" name="line">
+     <property name="orientation">
+      <enum>Qt::Horizontal</enum>
+     </property>
+    </widget>
+   </item>
+   <item row="5" column="0">
+    <widget class="QLabel" name="label_3">
+     <property name="text">
+      <string>Opprett/Reset Kart</string>
+     </property>
+    </widget>
+   </item>
+   <item row="7" column="0">
+    <widget class="QLabel" name="lblSelectPurpose">
+     <property name="text">
+      <string>Inspeksjonsformål</string>
+     </property>
+    </widget>
+   </item>
+   <item row="5" column="3">
+    <widget class="QPushButton" name="btnSync">
+     <property name="text">
+      <string>Synkroniser database (kan ta opptil flere minutter)</string>
+     </property>
+    </widget>
+   </item>
+   <item row="7" column="1" colspan="3">
+    <widget class="QComboBox" name="cmbSelectPurpose"/>
+   </item>
+   <item row="9" column="0">
+    <widget class="QLabel" name="lblSelectStandard">
+     <property name="text">
+      <string>Inspeksjonsstandard</string>
+     </property>
+    </widget>
+   </item>
+   <item row="9" column="1" colspan="3">
+    <widget class="QComboBox" name="cmbSelectStandard"/>
+   </item>
+   <item row="5" column="1">
+    <widget class="QPushButton" name="btnReset">
+     <property name="text">
+      <string>Last på nytt</string>
+     </property>
+    </widget>
+   </item>
+   <item row="2" column="3">
+    <widget class="QPushButton" name="btnSelectSettingsFile">
+     <property name="text">
+      <string>Legg til bruker-info...</string>
+     </property>
+    </widget>
+   </item>
+   <item row="2" column="0">
+    <widget class="QLabel" name="label_5">
+     <property name="text">
+      <string>Spesifiser innstillinger:</string>
+     </property>
+    </widget>
+   </item>
+  </layout>
+ </widget>
+ <resources/>
+ <connections>
+  <connection>
+   <sender>button_box</sender>
+   <signal>accepted()</signal>
+   <receiver>RioGISDialogBase</receiver>
+   <slot>accept()</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>25</x>
+     <y>25</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>25</x>
+     <y>25</y>
+    </hint>
+   </hints>
+  </connection>
+  <connection>
+   <sender>button_box</sender>
+   <signal>rejected()</signal>
+   <receiver>RioGISDialogBase</receiver>
+   <slot>reject()</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>25</x>
+     <y>25</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>25</x>
+     <y>25</y>
+    </hint>
+   </hints>
+  </connection>
+ </connections>
+</ui>
