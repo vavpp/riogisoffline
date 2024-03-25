@@ -6,7 +6,7 @@
 name=RioGIS 2
 qgisMinimumVersion=3.0
 description=Eksport av VA data til WinCan VX.
-version=0.3
+version=0.0.1
 author=Paal Pedersen
 email=paal.pedersen@vav.oslo.kommune.no
 
