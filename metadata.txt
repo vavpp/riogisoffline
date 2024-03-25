@@ -6,14 +6,14 @@
 name=RioGIS 2
 qgisMinimumVersion=3.0
 description=Eksport av VA data til WinCan VX.
-version=0.2
+version=0.3
 author=Paal Pedersen
-email=paalped@gmail.com
+email=paal.pedersen@vav.oslo.kommune.no
 
 about=This Exports attributes of a given feature to a config text file.
 
-tracker=https://github.com/paalped/riogis/issues
-repository=https://github.com/paalped/riogis
+tracker=https://github.com/vavpp/riogisoffline/issues
+repository=https://github.com/vavpp/riogisoffline
 # End of mandatory metadata
 
 # Recommended items:
@@ -25,7 +25,7 @@ hasProcessingProvider=no
 # Tags are comma separated with spaces allowed
 tags=attribute, table, txt, export, vector
 
-homepage=https://paalped.github.io/riogis
+homepage=https://github.com/vavpp/riogisoffline
 category=Vector
 icon=icon.png
 # experimental flag
