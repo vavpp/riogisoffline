@@ -2,7 +2,7 @@
 
 from qgis.core import QgsGeometry, QgsPointXY
 from qgis.gui import QgsMapToolEmitPoint
-from qgis.PyQt.QtCore import QSettings, QTranslator, QCoreApplication
+from qgis.PyQt.QtCore import QSettings, QTranslator, QCoreApplication, Qt
 from qgis.PyQt.QtGui import QIcon
 from qgis.PyQt.QtWidgets import QAction
 
@@ -11,6 +11,7 @@ from .resources import *
 
 # Import the code for the dialog
 from .riogis_dialog import RioGISDialog
+from .riogis_dockedwidget import RioGISDocked
 from .settings_dialog import SettingsDialog
 from .syncronizer import Syncronizer
 
@@ -119,13 +120,16 @@ class RioGIS:
 
     def initiate_gui_elements(self):
         """ Initiates GUI elements the first time the plugin runs """
-        self.dlg = RioGISDialog()
+        #self.dlg = RioGISDialog()
+        self.dlg = RioGISDocked()
         self.sync = Syncronizer()
         self.populate_select_values()
 
         self.dlg.btnSelectMapClick.clicked.connect(self.handle_map_click)
         self.dlg.btnReset.clicked.connect(self.refresh_map)
         self.dlg.btnSync.clicked.connect(self.sync.sync_now)
+
+        self.dlg.btnEksport.clicked.connect(self._handle_export)
 
         selectFileDialog = SettingsDialog()
 
@@ -135,6 +139,18 @@ class RioGIS:
             self.setup_user_settings()
         
         self.dlg.btnSelectSettingsFile.clicked.connect(_handle_settings_button_click)
+
+    def _handle_export(self):
+        if self.map_has_been_clicked:
+            self.iface.mapCanvas().unsetMapTool(self.mapTool)
+        
+        if self.map_has_been_clicked and self.data and self.data.get("PipeID"):
+                self.write_output_file()
+                self.update_feature_status()
+                printSuccessMessage("Lagret som: " + self.filename)
+
+                self.dlg.textLedningValgt.setText("")
+
 
     def unload(self):
         for action in self.actions:
@@ -176,7 +192,9 @@ class RioGIS:
         data["workorder"] = ""
         if not data.get('form'):
             data['form'] = ""
-        printInfoMessage("Ledning valgt: " + str(data))
+
+        # TODO only print when pressing new feature?
+        printInfoMessage(f'Ledning valgt: LSID {data["lsid"]} (fra PSID {data["from_psid"]} til {data["to_psid"]}), {data["streetname"]}, {data["fcodegroup"]}')
 
         old_keys = set(data.keys())
         map_keys = set(self.mapper.keys())
@@ -193,6 +211,7 @@ class RioGIS:
         self.canvas = self.iface.mapCanvas()
         self.mapTool = QgsMapToolEmitPoint(self.canvas)
         self.mapTool.canvasClicked.connect(self.export_feature)
+        # TODO unset when reclick this button?
         self.canvas.setMapTool(self.mapTool)
 
     def select_feature(self, point):
@@ -301,7 +320,6 @@ class RioGIS:
             self.map_attributes(data)
 
     def show_selected_feature(self, data):
-        # lsid isy_project_reference project_name
         text = f"LSID: {data['lsid']}, Gate: {data['streetname']}"
         self.dlg.textLedningValgt.setText(text)
 
@@ -338,6 +356,10 @@ class RioGIS:
         if self.first_start:
             self.first_start = False
         self.initiate_gui_elements()
+
+        self.iface.addDockWidget(Qt.RightDockWidgetArea, self.dlg) 
+
+        return 
 
         self.dlg.show()
         result = self.dlg.exec_()
