@@ -1,5 +1,5 @@
 
-from .utils import get_plugin_dir, load_json, printWarningMessage, get_user_settings_path
+import riogisoffline.plugin.utils as utils
 import os
 import textwrap
 
@@ -7,7 +7,7 @@ from qgis.PyQt import uic, QtWidgets
 from qgis.PyQt.QtCore import Qt
 
 FORM_CLASS, _ = uic.loadUiType(
-    get_plugin_dir("dialog/riogis_dialog_base.ui")
+    utils.get_plugin_dir("dialog/riogis_dialog_base.ui")
 )
 
 class RioGISDialog(QtWidgets.QDialog, FORM_CLASS):
@@ -24,16 +24,16 @@ class RioGISDialog(QtWidgets.QDialog, FORM_CLASS):
 
         # TODO ? legg til prompt med ja/nei om synkronisering siden kan ta lang tid
 
-        if os.path.exists(get_user_settings_path()):
+        if os.path.exists(utils.get_user_settings_path()):
             self.btnSelectSettingsFile.setText(self.settingsButtonText)
 
-            user_settings = load_json(get_user_settings_path())
+            user_settings = utils.load_json(utils.get_user_settings_path())
             self.textBrukerInfo.setText(self.format_user_settings(user_settings))
 
 
     def accept(self):
-        if not os.path.exists(get_user_settings_path()):
-            printWarningMessage("Legg til bruker-info!")
+        if not os.path.exists(utils.get_user_settings_path()):
+            utils.printWarningMessage("Legg til bruker-info!")
             return
         
         self.done(1)

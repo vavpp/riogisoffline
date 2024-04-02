@@ -10,7 +10,6 @@ from qgis.PyQt.QtWidgets import QAction
 from .resources import *
 
 # Import the code for the dialog
-from .riogis_dialog import RioGISDialog
 from .riogis_dockedwidget import RioGISDocked
 from .settings_dialog import SettingsDialog
 from .syncronizer import Syncronizer
@@ -19,16 +18,7 @@ import os.path
 import configparser
 import datetime
 
-from .utils import (
-    printWarningMessage, 
-    printSuccessMessage, 
-    printInfoMessage,
-    load_json, 
-    get_plugin_dir, 
-    get_user_settings_path, 
-    get_settings_path, 
-    get_db_name
-    )
+import riogisoffline.plugin.utils as utils
 
 
 class RioGIS:
@@ -40,7 +30,7 @@ class RioGIS:
         self.iface = iface
 
         # initialize plugin directory
-        self.plugin_dir = get_plugin_dir()
+        self.plugin_dir = utils.get_plugin_dir()
 
         self.setup()
 
@@ -130,6 +120,8 @@ class RioGIS:
         self.dlg.btnSync.clicked.connect(self.sync.sync_now)
 
         self.dlg.btnEksport.clicked.connect(self._handle_export)
+        # disable export-button until a feature is selected
+        self.dlg.btnEksport.setEnabled(False)
 
         selectFileDialog = SettingsDialog()
 
@@ -147,7 +139,7 @@ class RioGIS:
         if self.map_has_been_clicked and self.data and self.data.get("PipeID"):
                 self.write_output_file()
                 self.update_feature_status()
-                printSuccessMessage("Lagret som: " + self.filename)
+                utils.printSuccessMessage("Lagret som: " + self.filename)
 
                 self.dlg.textLedningValgt.setText("")
 
@@ -158,16 +150,16 @@ class RioGIS:
             self.iface.removeToolBarIcon(action)
 
     def setup(self):
-        settings = get_settings_path()
-        self.settings = load_json(settings)
+        settings = utils.get_settings_path()
+        self.settings = utils.load_json(settings)
         self.mapper = self.settings["mapping"]
 
         self.setup_user_settings()
 
     def setup_user_settings(self):
-        user_settings_path = get_user_settings_path()
+        user_settings_path = utils.get_user_settings_path()
         if os.path.exists(user_settings_path): 
-            self.settings.update(load_json(user_settings_path))
+            self.settings.update(utils.load_json(user_settings_path))
 
     def load_select_elements(self):
         """ Leser ui_models i settings.json og lager en mapping dictionary"""
@@ -194,7 +186,7 @@ class RioGIS:
             data['form'] = ""
 
         # TODO only print when pressing new feature?
-        printInfoMessage(f'Ledning valgt: LSID {data["lsid"]} (fra PSID {data["from_psid"]} til {data["to_psid"]}), {data["streetname"]}, {data["fcodegroup"]}')
+        utils.printInfoMessage(f'Ledning valgt: LSID {data["lsid"]} (fra PSID {data["from_psid"]} til {data["to_psid"]}), {data["streetname"]}, {data["fcodegroup"]}')
 
         old_keys = set(data.keys())
         map_keys = set(self.mapper.keys())
@@ -269,15 +261,15 @@ class RioGIS:
 
     def refresh_map(self):
         
-        if not os.path.exists(get_user_settings_path()): 
-            printWarningMessage("Legg til bruker-innstillinger (bruker_settings.json)!")
+        if not os.path.exists(utils.get_user_settings_path()): 
+            utils.printWarningMessage("Legg til bruker-innstillinger (bruker_settings.json)!")
             return
 
         userfolder = self.settings["userfolder"]
         filename = self.settings["project_filename"]
         project_filename = os.path.join(userfolder, filename)
 
-        source = get_db_name()
+        source = utils.get_db_name()
         bg = self.settings["background_url"].split("/")[-1].strip()
         source_filepath = os.path.join(userfolder, source)
         bg_filepath = os.path.join(userfolder, bg)
@@ -315,12 +307,14 @@ class RioGIS:
         self.select_feature(point)
 
         if self.feature:
+            self.dlg.btnEksport.setEnabled(True)
+
             data = self.get_feature_data()
             self.show_selected_feature(data)
             self.map_attributes(data)
 
     def show_selected_feature(self, data):
-        text = f"LSID: {data['lsid']}, Gate: {data['streetname']}"
+        text = f"<strong>LSID: {data['lsid']}, Gate: {data['streetname']}</strong>"
         self.dlg.textLedningValgt.setText(text)
 
     def populate_select_values(self):
@@ -345,11 +339,7 @@ class RioGIS:
             self.layer = self.iface.activeLayer()
 
     def run(self):
-        """ Run when user clicks plugin icon """
-        
-        # TODO ? nytt ikon? Oslo kommune?
-        
-
+        """ Run when user clicks plugin icon """   
         # Create the dialog with elements (after translation) and keep reference
         # Only create GUI ONCE in callback, so that it will only load when the plugin is started
 
@@ -359,18 +349,4 @@ class RioGIS:
 
         self.iface.addDockWidget(Qt.RightDockWidgetArea, self.dlg) 
 
-        return 
-
-        self.dlg.show()
-        result = self.dlg.exec_()
-
-        if self.map_has_been_clicked:
-            self.iface.mapCanvas().unsetMapTool(self.mapTool)
-
-        if not result:
-            return
-        
-        if self.map_has_been_clicked and self.data and self.data.get("PipeID"):
-                self.write_output_file()
-                self.update_feature_status()
-                printSuccessMessage("Lagret som: " + self.filename)
+    

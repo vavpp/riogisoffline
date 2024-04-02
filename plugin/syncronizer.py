@@ -5,30 +5,30 @@ import os
 import requests
 
 from qgis.core import QgsVectorLayer
-from .utils import printInfoMessage, get_plugin_dir, load_json, printWarningMessage, get_user_settings_path, get_settings_path, get_db_name, printCriticalMessage
+import riogisoffline.plugin.utils as utils
 from .azure_blob_storage_connection import AzureBlobStorageConnection
 
 
 class Syncronizer:
     def __init__(self):
-        #printInfoMessage('init sync')
-        self.plugin_dir =get_plugin_dir
-        self._settings = get_settings_path()
-        self._user_settings = get_user_settings_path()
+        #utils.printInfoMessage('init sync')
+        self.plugin_dir =utils.get_plugin_dir
+        self._settings = utils.get_settings_path()
+        self._user_settings = utils.get_user_settings_path()
 
     def _setup(self):
         # read builtin-settings
-        settings = load_json(self._settings)
+        settings = utils.load_json(self._settings)
         self._layer_definitions = settings["layer_definitions"]
         
         # read user settings
-        user_settings = load_json(self._user_settings)
+        user_settings = utils.load_json(self._user_settings)
         self._filepath = user_settings["userfolder"]
         if not os.path.exists(self._filepath):
             os.makedirs(self._filepath, exist_ok=True)
         y = datetime.datetime.now().strftime("%Y")
         self._background_url = user_settings["background_url"].format(year=y)
-        self._filename = os.path.join(self._filepath, get_db_name())
+        self._filename = os.path.join(self._filepath, utils.get_db_name())
         bg_file = self._background_url.split("/")[-1]
         root, ext = os.path.splitext(self._filename)
         self._up_filename = root + "_update" + ext
@@ -39,11 +39,11 @@ class Syncronizer:
     def _download(url, filename):
         response = requests.get(url)
         if response.status_code == 200:
-            printInfoMessage('download ok')
+            utils.printInfoMessage('download ok')
             with open(filename, "wb") as file:
                 file.write(response.content)
         else:
-            printInfoMessage(f"Failed to download the new file {filename} from {url}")
+            utils.printInfoMessage(f"Failed to download the new file {filename} from {url}")
     
     def _download_blob(self, file_name):
         azure_connection = AzureBlobStorageConnection(self.azure_key)
@@ -54,6 +54,7 @@ class Syncronizer:
         if os.path.exists(self._filename):
             self._download_blob(self._up_filename)
         else:
+            # TODO copy if no main db, so you dont need to download twice
             self._download_blob(self._filename)
             self._download_blob(self._up_filename)
         
@@ -74,14 +75,14 @@ class Syncronizer:
     @staticmethod
     def _update(active_layer_name, source_filepath, file2_path, idstr):
         # Get the active layer from the QGIS interface
-        #printInfoMessage(f'Update {active_layer_name} from {file2_path} using {idstr}')
+        #utils.printInfoMessage(f'Update {active_layer_name} from {file2_path} using {idstr}')
         active_layer = QgsVectorLayer(
                         f"{source_filepath}|layername={active_layer_name}",
                         active_layer_name,
                         "ogr")
         # Check if the active layer is valid
         if active_layer is None:
-            printWarningMessage("Active layer not found in the project.")
+            utils.printWarningMessage("Active layer not found in the project.")
             return
 
         # Load the layer from file2.gpkg
@@ -90,7 +91,7 @@ class Syncronizer:
         )
         # Check if the second layer was loaded successfully
         if not second_layer.isValid():
-             printWarningMessage(f"Failed to load the layer from {file2_path}")
+             utils.printWarningMessage(f"Failed to load the layer from {file2_path}")
              return
         
         
@@ -114,9 +115,9 @@ class Syncronizer:
                 new_features.append(feature)
 
         if new_features:
-            printInfoMessage(f"{active_layer_name}: {len([f.id() for f in new_features])} nye features")
+            utils.printInfoMessage(f"{active_layer_name}: {len([f.id() for f in new_features])} nye features")
         else:
-            printInfoMessage(f"{active_layer_name}: Ingen ny data")
+            utils.printInfoMessage(f"{active_layer_name}: Ingen ny data")
         
         old_feature_list = [f.id() for f in active_layer.getFeatures()]
 
@@ -128,23 +129,22 @@ class Syncronizer:
 
         new_feature_list = [f.id() for f in active_layer.getFeatures()]
         if new_features and len(old_feature_list) == len(new_feature_list):
-            printCriticalMessage(f"Feil i synkronisering: {len(new_feature_list)} burde være {len(old_feature_list) + len(new_features)}")
+            utils.printCriticalMessage(f"Feil i synkronisering: {len(new_feature_list)} burde være {len(old_feature_list) + len(new_features)}")
 
         # Refresh the active layer to see the changes
         active_layer.triggerRepaint()
 
-        printInfoMessage(f"{active_layer_name}: Features copied successfully.")
+        utils.printInfoMessage(f"{active_layer_name}: Features copied successfully.")
 
     def sync_now(self):
         
         if not os.path.exists(self._user_settings): 
-            printWarningMessage("Legg til bruker-innstillinger (bruker_settings.json)!")
+            utils.printWarningMessage("Legg til bruker-innstillinger (bruker_settings.json)!")
             return
         
         self._setup()
 
         # Download new datafiles
-        printInfoMessage('Laster ned data...')
         self._fetch()
         
         # If the updated file is different proceed
@@ -153,4 +153,4 @@ class Syncronizer:
             for layer_name, idstr in layer_definition.items():
                 self._update(layer_name, self._filename, self._up_filename, idstr)
 
-        printInfoMessage("Synkronisering gjennomført")
+        utils.printInfoMessage("Synkronisering gjennomført")

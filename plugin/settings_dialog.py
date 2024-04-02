@@ -5,10 +5,10 @@ from qgis.PyQt import uic, QtWidgets
 from qgis.PyQt.QtCore import Qt
 
 from .user_settings_generator import UserSettingsGenerator
-from .utils import get_plugin_dir, load_json, get_user_settings_path
+import riogisoffline.plugin.utils as utils
 
 FORM_CLASS, _ = uic.loadUiType(
-    get_plugin_dir("dialog/riogis_dialog_settings.ui")
+    utils.get_plugin_dir("dialog/riogis_dialog_settings.ui")
 )
 
 class SettingsDialog(QtWidgets.QDialog, FORM_CLASS):
@@ -21,11 +21,11 @@ class SettingsDialog(QtWidgets.QDialog, FORM_CLASS):
         user_settings_generator = UserSettingsGenerator(self)
         self.btnSubmitSettingsFile.clicked.connect(lambda: user_settings_generator.run())
 
-        user_settings_path = get_user_settings_path()
+        user_settings_path = utils.get_user_settings_path()
         
         if os.path.exists(user_settings_path):
 
-            user_settings = load_json(user_settings_path)
+            user_settings = utils.load_json(user_settings_path)
 
             self._set_line_edit_text(self.lineOperator, "operator", user_settings)
             self._set_line_edit_text(self.lineBGURL, "background_url", user_settings)

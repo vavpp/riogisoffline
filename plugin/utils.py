@@ -3,7 +3,9 @@ from qgis.core import Qgis
 import os
 import json
 
-default_message_duration = 2
+# TODO add printing that is only in log, not in message bar
+
+default_message_duration = 3
 
 def get_plugin_dir(path_to_join=None):
 
