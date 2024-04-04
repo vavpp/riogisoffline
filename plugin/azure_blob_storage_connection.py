@@ -17,7 +17,7 @@ class AzureBlobStorageConnection:
 
     def download_db(self, file_name):
         
-        blob_client = self.blob_service_client.get_blob_client(container="offlinesecure", blob=f"latest/{utils.utils.get_db_name()}")
+        blob_client = self.blob_service_client.get_blob_client(container="offlinesecure", blob=f"latest/{utils.get_db_name()}")
         
         with open(file=file_name, mode="wb") as blob:
             download_stream = blob_client.download_blob()
