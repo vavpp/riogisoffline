@@ -1,3 +1,5 @@
+name: Build and publish RioGIS plugin to public Qgis plugin repo
+
 on:
   push:
     branches: [main]
