@@ -1,6 +1,6 @@
 on:
-  release:
-    types: published
+  push_request:
+    branches: [main]
 
 jobs:
   build:
