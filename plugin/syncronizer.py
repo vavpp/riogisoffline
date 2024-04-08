@@ -71,7 +71,7 @@ class Syncronizer:
 
             short_file_name = file_name
             if "\\" in file_name:
-                short_file_name = file_name.split("\\")[-1]
+                short_file_name = file_name.split(os.sep)[-1]
 
             self.signal_new_process_name(f"Laster ned {short_file_name}...")
 
