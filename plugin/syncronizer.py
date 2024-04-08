@@ -37,7 +37,7 @@ class Syncronizer:
 
         short_file_name = filename
         if os.sep in filename:
-            short_file_name = filename.split("\\")[-1]
+            short_file_name = filename.split(os.sep)[-1]
 
         self.signal_new_process_name(f"Laster ned {short_file_name}...")
 
@@ -70,7 +70,7 @@ class Syncronizer:
         for file_name in file_names:
 
             short_file_name = file_name
-            if "\\" in file_name:
+            if os.sep in file_name:
                 short_file_name = file_name.split(os.sep)[-1]
 
             self.signal_new_process_name(f"Laster ned {short_file_name}...")
