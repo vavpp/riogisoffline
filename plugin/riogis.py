@@ -12,7 +12,8 @@ from .resources import *
 # Import the code for the dialog
 from .riogis_dockedwidget import RioGISDocked
 from .settings_dialog import SettingsDialog
-from .syncronizer import Syncronizer
+from .worker import Worker
+from .azure_blob_storage_connection import AzureBlobStorageConnection
 
 import os.path
 import configparser
@@ -110,14 +111,13 @@ class RioGIS:
 
     def initiate_gui_elements(self):
         """ Initiates GUI elements the first time the plugin runs """
-        #self.dlg = RioGISDialog()
         self.dlg = RioGISDocked()
-        self.sync = Syncronizer()
         self.populate_select_values()
 
         self.dlg.btnSelectMapClick.clicked.connect(self.handle_map_click)
         self.dlg.btnReset.clicked.connect(self.refresh_map)
-        self.dlg.btnSync.clicked.connect(self.sync.sync_now)
+
+        self.dlg.btnSync.clicked.connect(self.startSyncWorker)
 
         self.dlg.btnEksport.clicked.connect(self._handle_export)
         # disable export-button until a feature is selected
@@ -185,7 +185,6 @@ class RioGIS:
         if not data.get('form'):
             data['form'] = ""
 
-        # TODO only print when pressing new feature?
         utils.printInfoMessage(f'Ledning valgt: LSID {data["lsid"]} (fra PSID {data["from_psid"]} til {data["to_psid"]}), {data["streetname"]}, {data["fcodegroup"]}')
 
         old_keys = set(data.keys())
@@ -203,8 +202,29 @@ class RioGIS:
         self.canvas = self.iface.mapCanvas()
         self.mapTool = QgsMapToolEmitPoint(self.canvas)
         self.mapTool.canvasClicked.connect(self.export_feature)
-        # TODO unset when reclick this button?
         self.canvas.setMapTool(self.mapTool)
+
+    def export_feature(self, point, mouse_button):
+        self.select_feature(point)
+
+        if self.feature:
+            self.dlg.btnEksport.setEnabled(True)
+
+            data = self.get_feature_data()
+            self.show_selected_feature(data)
+            self.map_attributes(data)
+        else:
+            self.show_selected_feature(None)
+            self.dlg.btnEksport.setEnabled(False)
+
+    def show_selected_feature(self, data):
+        if not data:
+            text = "Ingen ledning er valgt"
+            self.dlg.textLedningValgt.setText(text) 
+            return
+        
+        text = f"<strong>LSID: {data['lsid']}, Gate: {data['streetname']}</strong>"
+        self.dlg.textLedningValgt.setText(text)
 
     def select_feature(self, point):
         """Select layer and get nearest feature
@@ -225,6 +245,7 @@ class RioGIS:
         ]
         
         if not nearest_feature_distances:
+            self.feature = None
             return
 
         min_dist = min(nearest_feature_distances)
@@ -303,20 +324,6 @@ class RioGIS:
         with open(self.filename, "w") as f:
             config.write(f, space_around_delimiters=False)
 
-    def export_feature(self, point, mouse_button):
-        self.select_feature(point)
-
-        if self.feature:
-            self.dlg.btnEksport.setEnabled(True)
-
-            data = self.get_feature_data()
-            self.show_selected_feature(data)
-            self.map_attributes(data)
-
-    def show_selected_feature(self, data):
-        text = f"<strong>LSID: {data['lsid']}, Gate: {data['streetname']}</strong>"
-        self.dlg.textLedningValgt.setText(text)
-
     def populate_select_values(self):
         models = self.settings["ui_models"]
         for _, item in models.items():
@@ -339,9 +346,11 @@ class RioGIS:
             self.layer = self.iface.activeLayer()
 
     def run(self):
-        """ Run when user clicks plugin icon """   
+        """ Run when user clicks plugin icon """         
         # Create the dialog with elements (after translation) and keep reference
         # Only create GUI ONCE in callback, so that it will only load when the plugin is started
+        
+        # TODO Split some gui-things into riogis_dockedwidget
 
         if self.first_start:
             self.first_start = False
@@ -349,4 +358,78 @@ class RioGIS:
 
         self.iface.addDockWidget(Qt.RightDockWidgetArea, self.dlg) 
 
-    
+    def startSyncWorker(self):
+
+        # TODO move out of riogis maybe?
+
+        if not os.path.exists(utils.get_user_settings_path()): 
+            utils.printWarningMessage("Legg til bruker-innstillinger (bruker_settings.json)!")
+            return
+        
+        azure_connection = AzureBlobStorageConnection(self.settings["azure_key"])
+
+        if not azure_connection.connected:
+            return
+        
+        utils.printInfoMessage("Starter synkronisering")
+
+        # create a new worker instance
+        
+        worker = Worker(azure_connection)
+
+        # start the worker in a new thread
+        thread = QtCore.QThread(self.dlg)
+        worker.moveToThread(thread)
+
+        worker.finished.connect(self.workerFinished)
+        worker.error.connect(self.workerError)
+
+        from qgis.PyQt.QtWidgets import QProgressBar
+        self.bar = QProgressBar()
+        self.bar.setRange(0, 100)
+        self.iface.mainWindow().statusBar().addWidget(self.bar, stretch=2)
+        
+        worker.progress.connect(
+            lambda p: self.bar.setValue(p)
+        )
+
+        def set_new_process(text):
+            self.bar.setValue(0)
+            self.bar.setFormat(f"{text} - %p%")
+
+        worker.process_name.connect(set_new_process)
+
+        worker.info.connect(lambda msg: utils.printInfoMessage(msg))
+
+
+        thread.started.connect(worker.run)
+        thread.start()
+
+        self.thread = thread
+        self.worker = worker
+
+        # disable buttons when running
+        self.dlg.btnSync.setEnabled(False)
+
+
+
+    def workerFinished(self):
+        # clean up the worker and thread
+        self.worker.deleteLater()
+        self.thread.quit()
+        self.thread.wait()
+        self.thread.deleteLater()
+
+        # enable buttons when finished
+        self.dlg.btnSync.setEnabled(True)
+
+        self.iface.mainWindow().statusBar().removeWidget(self.bar)
+        utils.printSuccessMessage("Synkronisering gjennomført!")
+
+    def workerError(self, e, exception_string):
+        utils.printCriticalMessage('Worker thread raised an exception:\n{}'.format(exception_string))
+
+        self.workerFinished()
+
+    def workerWarning(self, msg):
+        utils.printWarningMessage(msg)

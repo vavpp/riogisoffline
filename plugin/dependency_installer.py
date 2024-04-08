@@ -8,7 +8,6 @@ class DependencyInstaller:
     def __init__(self):
         self.exe = sys.executable.replace('qgis-bin', 'python')
 
-        # TODO ? better dependency handling?
         self.target = utils.get_plugin_dir("dep")
         self.requirements_path = utils.get_plugin_dir("requirements.txt")
 
