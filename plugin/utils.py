@@ -86,4 +86,4 @@ def set_busy_cursor(set_busy=True):
     if set_busy:
         QtWidgets.QApplication.setOverrideCursor(QtGui.QCursor(QtCore.Qt.BusyCursor))
     else:
-        QtWidgets.QApplication.setOverrideCursor(QtGui.QCursor(QtCore.Qt.ArrowCursor))    
+        QtWidgets.QApplication.restoreOverrideCursor()
