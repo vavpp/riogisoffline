@@ -2,7 +2,7 @@
 
 from qgis.core import QgsGeometry, QgsPointXY
 from qgis.gui import QgsMapToolEmitPoint
-from qgis.PyQt.QtCore import QSettings, QTranslator, QCoreApplication
+from qgis.PyQt.QtCore import QSettings, QTranslator, QCoreApplication, Qt
 from qgis.PyQt.QtGui import QIcon
 from qgis.PyQt.QtWidgets import QAction
 
@@ -10,24 +10,16 @@ from qgis.PyQt.QtWidgets import QAction
 from .resources import *
 
 # Import the code for the dialog
-from .riogis_dialog import RioGISDialog
+from .riogis_dockedwidget import RioGISDocked
 from .settings_dialog import SettingsDialog
-from .syncronizer import Syncronizer
+from .worker import Worker
+from .azure_blob_storage_connection import AzureBlobStorageConnection
 
 import os.path
 import configparser
 import datetime
 
-from .utils import (
-    printWarningMessage, 
-    printSuccessMessage, 
-    printInfoMessage,
-    load_json, 
-    get_plugin_dir, 
-    get_user_settings_path, 
-    get_settings_path, 
-    get_db_name
-    )
+import riogisoffline.plugin.utils as utils
 
 
 class RioGIS:
@@ -39,7 +31,7 @@ class RioGIS:
         self.iface = iface
 
         # initialize plugin directory
-        self.plugin_dir = get_plugin_dir()
+        self.plugin_dir = utils.get_plugin_dir()
 
         self.setup()
 
@@ -119,13 +111,17 @@ class RioGIS:
 
     def initiate_gui_elements(self):
         """ Initiates GUI elements the first time the plugin runs """
-        self.dlg = RioGISDialog()
-        self.sync = Syncronizer()
+        self.dlg = RioGISDocked()
         self.populate_select_values()
 
         self.dlg.btnSelectMapClick.clicked.connect(self.handle_map_click)
         self.dlg.btnReset.clicked.connect(self.refresh_map)
-        self.dlg.btnSync.clicked.connect(self.sync.sync_now)
+
+        self.dlg.btnSync.clicked.connect(self.startSyncWorker)
+
+        self.dlg.btnEksport.clicked.connect(self._handle_export)
+        # disable export-button until a feature is selected
+        self.dlg.btnEksport.setEnabled(False)
 
         selectFileDialog = SettingsDialog()
 
@@ -136,22 +132,34 @@ class RioGIS:
         
         self.dlg.btnSelectSettingsFile.clicked.connect(_handle_settings_button_click)
 
+    def _handle_export(self):
+        if self.map_has_been_clicked:
+            self.iface.mapCanvas().unsetMapTool(self.mapTool)
+        
+        if self.map_has_been_clicked and self.data and self.data.get("PipeID"):
+                self.write_output_file()
+                self.update_feature_status()
+                utils.printSuccessMessage("Lagret som: " + self.filename)
+
+                self.dlg.textLedningValgt.setText("")
+
+
     def unload(self):
         for action in self.actions:
             self.iface.removePluginVectorMenu("&RioGIS", action)
             self.iface.removeToolBarIcon(action)
 
     def setup(self):
-        settings = get_settings_path()
-        self.settings = load_json(settings)
+        settings = utils.get_settings_path()
+        self.settings = utils.load_json(settings)
         self.mapper = self.settings["mapping"]
 
         self.setup_user_settings()
 
     def setup_user_settings(self):
-        user_settings_path = get_user_settings_path()
+        user_settings_path = utils.get_user_settings_path()
         if os.path.exists(user_settings_path): 
-            self.settings.update(load_json(user_settings_path))
+            self.settings.update(utils.load_json(user_settings_path))
 
     def load_select_elements(self):
         """ Leser ui_models i settings.json og lager en mapping dictionary"""
@@ -176,7 +184,8 @@ class RioGIS:
         data["workorder"] = ""
         if not data.get('form'):
             data['form'] = ""
-        printInfoMessage("Ledning valgt: " + str(data))
+
+        utils.printInfoMessage(f'Ledning valgt: LSID {data["lsid"]} (fra PSID {data["from_psid"]} til {data["to_psid"]}), {data["streetname"]}, {data["fcodegroup"]}')
 
         old_keys = set(data.keys())
         map_keys = set(self.mapper.keys())
@@ -194,6 +203,28 @@ class RioGIS:
         self.mapTool = QgsMapToolEmitPoint(self.canvas)
         self.mapTool.canvasClicked.connect(self.export_feature)
         self.canvas.setMapTool(self.mapTool)
+
+    def export_feature(self, point, mouse_button):
+        self.select_feature(point)
+
+        if self.feature:
+            self.dlg.btnEksport.setEnabled(True)
+
+            data = self.get_feature_data()
+            self.show_selected_feature(data)
+            self.map_attributes(data)
+        else:
+            self.show_selected_feature(None)
+            self.dlg.btnEksport.setEnabled(False)
+
+    def show_selected_feature(self, data):
+        if not data:
+            text = "Ingen ledning er valgt"
+            self.dlg.textLedningValgt.setText(text) 
+            return
+        
+        text = f"<strong>LSID: {data['lsid']}, Gate: {data['streetname']}</strong>"
+        self.dlg.textLedningValgt.setText(text)
 
     def select_feature(self, point):
         """Select layer and get nearest feature
@@ -214,6 +245,7 @@ class RioGIS:
         ]
         
         if not nearest_feature_distances:
+            self.feature = None
             return
 
         min_dist = min(nearest_feature_distances)
@@ -250,15 +282,15 @@ class RioGIS:
 
     def refresh_map(self):
         
-        if not os.path.exists(get_user_settings_path()): 
-            printWarningMessage("Legg til bruker-innstillinger (bruker_settings.json)!")
+        if not os.path.exists(utils.get_user_settings_path()): 
+            utils.printWarningMessage("Legg til bruker-innstillinger (bruker_settings.json)!")
             return
 
         userfolder = self.settings["userfolder"]
         filename = self.settings["project_filename"]
         project_filename = os.path.join(userfolder, filename)
 
-        source = get_db_name()
+        source = utils.get_db_name()
         bg = self.settings["background_url"].split("/")[-1].strip()
         source_filepath = os.path.join(userfolder, source)
         bg_filepath = os.path.join(userfolder, bg)
@@ -292,19 +324,6 @@ class RioGIS:
         with open(self.filename, "w") as f:
             config.write(f, space_around_delimiters=False)
 
-    def export_feature(self, point, mouse_button):
-        self.select_feature(point)
-
-        if self.feature:
-            data = self.get_feature_data()
-            self.show_selected_feature(data)
-            self.map_attributes(data)
-
-    def show_selected_feature(self, data):
-        # lsid isy_project_reference project_name
-        text = f"LSID: {data['lsid']}, Gate: {data['streetname']}"
-        self.dlg.textLedningValgt.setText(text)
-
     def populate_select_values(self):
         models = self.settings["ui_models"]
         for _, item in models.items():
@@ -327,28 +346,90 @@ class RioGIS:
             self.layer = self.iface.activeLayer()
 
     def run(self):
-        """ Run when user clicks plugin icon """
-        
-        # TODO ? nytt ikon? Oslo kommune?
-        
-
+        """ Run when user clicks plugin icon """         
         # Create the dialog with elements (after translation) and keep reference
         # Only create GUI ONCE in callback, so that it will only load when the plugin is started
+        
+        # TODO Split some gui-things into riogis_dockedwidget
 
         if self.first_start:
             self.first_start = False
         self.initiate_gui_elements()
 
-        self.dlg.show()
-        result = self.dlg.exec_()
+        self.iface.addDockWidget(Qt.RightDockWidgetArea, self.dlg) 
 
-        if self.map_has_been_clicked:
-            self.iface.mapCanvas().unsetMapTool(self.mapTool)
+    def startSyncWorker(self):
 
-        if not result:
+        # TODO move out of riogis maybe?
+
+        if not os.path.exists(utils.get_user_settings_path()): 
+            utils.printWarningMessage("Legg til bruker-innstillinger (bruker_settings.json)!")
             return
         
-        if self.map_has_been_clicked and self.data and self.data.get("PipeID"):
-                self.write_output_file()
-                self.update_feature_status()
-                printSuccessMessage("Lagret som: " + self.filename)
+        azure_connection = AzureBlobStorageConnection(self.settings["azure_key"])
+
+        if not azure_connection.connected:
+            return
+        
+        utils.printInfoMessage("Starter synkronisering")
+
+        # create a new worker instance
+        
+        worker = Worker(azure_connection)
+
+        # start the worker in a new thread
+        thread = QtCore.QThread(self.dlg)
+        worker.moveToThread(thread)
+
+        worker.finished.connect(self.workerFinished)
+        worker.error.connect(self.workerError)
+
+        from qgis.PyQt.QtWidgets import QProgressBar
+        self.bar = QProgressBar()
+        self.bar.setRange(0, 100)
+        self.iface.mainWindow().statusBar().addWidget(self.bar, stretch=2)
+        
+        worker.progress.connect(
+            lambda p: self.bar.setValue(p)
+        )
+
+        def set_new_process(text):
+            self.bar.setValue(0)
+            self.bar.setFormat(f"{text} - %p%")
+
+        worker.process_name.connect(set_new_process)
+
+        worker.info.connect(lambda msg: utils.printInfoMessage(msg))
+
+
+        thread.started.connect(worker.run)
+        thread.start()
+
+        self.thread = thread
+        self.worker = worker
+
+        # disable buttons when running
+        self.dlg.btnSync.setEnabled(False)
+
+
+
+    def workerFinished(self):
+        # clean up the worker and thread
+        self.worker.deleteLater()
+        self.thread.quit()
+        self.thread.wait()
+        self.thread.deleteLater()
+
+        # enable buttons when finished
+        self.dlg.btnSync.setEnabled(True)
+
+        self.iface.mainWindow().statusBar().removeWidget(self.bar)
+        utils.printSuccessMessage("Synkronisering gjennomført!")
+
+    def workerError(self, e, exception_string):
+        utils.printCriticalMessage('Worker thread raised an exception:\n{}'.format(exception_string))
+
+        self.workerFinished()
+
+    def workerWarning(self, msg):
+        utils.printWarningMessage(msg)

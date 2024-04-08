@@ -12,7 +12,7 @@ from qgis.core import (
     QgsVectorLayerSimpleLabeling
 )
 from qgis.utils import iface
-from .utils import printInfoMessage
+import riogisoffline.plugin.utils as utils
 
 
 bg_filepath = os.getenv('BACKGROUND_MAP')
@@ -323,7 +323,7 @@ class MapRefresher:
         # Save the project as a .qgz file
         project.write()
 
-        printInfoMessage("Map refreshed")
+        utils.printInfoMessage("Map refreshed")
 
         return project
     

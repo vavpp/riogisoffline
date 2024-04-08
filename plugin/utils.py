@@ -1,9 +1,11 @@
-from qgis.utils import iface
-from qgis.core import Qgis
 import os
 import json
 
-default_message_duration = 2
+from qgis.utils import iface
+from qgis.core import Qgis
+from qgis.PyQt import QtGui, QtWidgets, QtCore
+
+default_message_duration = 3
 
 def get_plugin_dir(path_to_join=None):
 
@@ -30,7 +32,7 @@ def printInfoMessage(message, message_duration=default_message_duration):
     """
 
     iface.messageBar().pushMessage(
-            "Info", f"{message}", level=Qgis.Info, duration=message_duration
+            "", message, level=Qgis.Info, duration=message_duration
        )
     
 def printWarningMessage(message, message_duration=default_message_duration):
@@ -41,7 +43,7 @@ def printWarningMessage(message, message_duration=default_message_duration):
     """
 
     iface.messageBar().pushMessage(
-            "Warning", f"{message}", level=Qgis.Warning, duration=message_duration
+            "", message, level=Qgis.Warning, duration=message_duration
        )
     
 def printCriticalMessage(message, message_duration=default_message_duration):
@@ -52,7 +54,7 @@ def printCriticalMessage(message, message_duration=default_message_duration):
     """
 
     iface.messageBar().pushMessage(
-            "Critical", f"{message}", level=Qgis.Critical, duration=message_duration
+            "", message, level=Qgis.Critical, duration=message_duration
        )
     
 def printSuccessMessage(message, message_duration=default_message_duration):
@@ -63,7 +65,7 @@ def printSuccessMessage(message, message_duration=default_message_duration):
     """
 
     iface.messageBar().pushMessage(
-            "Success", f"{message}", level=Qgis.Success, duration=message_duration
+            "", message, level=Qgis.Success, duration=message_duration
        )
 
 def get_user_settings_path():
@@ -74,3 +76,14 @@ def get_settings_path():
 
 def get_db_name():
     return "oslo_offline.db"
+
+def set_busy_cursor(set_busy=True):
+    """Set cursor to BusyCursor (or back to ArrowCursor)
+
+    Args:
+        set_busy (bool, optional): Sets BusyCursor if True, and ArrowCursor if False. Defaults to True.
+    """
+    if set_busy:
+        QtWidgets.QApplication.setOverrideCursor(QtGui.QCursor(QtCore.Qt.BusyCursor))
+    else:
+        QtWidgets.QApplication.setOverrideCursor(QtGui.QCursor(QtCore.Qt.ArrowCursor))    
