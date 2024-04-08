@@ -36,7 +36,7 @@ class Syncronizer:
     def _download(self, url, filename):
 
         short_file_name = filename
-        if "\\" in filename:
+        if os.sep in filename:
             short_file_name = filename.split("\\")[-1]
 
         self.signal_new_process_name(f"Laster ned {short_file_name}...")
