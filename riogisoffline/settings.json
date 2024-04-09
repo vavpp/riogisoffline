@@ -1,0 +1,104 @@
+{
+    "ui_models": {
+        "weather": {
+            "ui": "cmbSelectWeather",
+            "keys": [
+                "Ingen avrenning",
+                "Regn",
+                "Snøsmelting"
+            ],
+            "values": [
+                "A",
+                "B",
+                "C"
+            ]
+        },
+        "prewashed": {
+            "ui": "cmbSelectPrewashed",
+            "keys": [
+                "Ja",
+                "Nei"
+            ],
+            "values": [
+                "J",
+                "N"
+            ]
+        },
+        "purpose": {
+            "ui": "cmbSelectPurpose",
+            "keys": [
+                "Sluttkontroll for nyanlegg",
+                "Kontroll ved garantitidens utløp",
+                "Rutinekontroll ved garantitidens utløp",
+                "Mistanke om materialtekniske problemer",
+                "Mistanke om driftsmessige problemer",
+                "Mistanke om innlekkingsproblemer",
+                "Sluttkontroll etter rehabilitering eller reparasjon",
+                "Eierskifte",
+                "Invisteringsplanlegging",
+                "Stikkprøve Undersøkelse",
+                "Andre, se anmerkningsfelt"
+            ],
+            "values": [
+                "A",
+                "B",
+                "C",
+                "D",
+                "E",
+                "F",
+                "G",
+                "H",
+                "I",
+                "J",
+                "Z"
+            ]
+        },
+        "codesystem": {
+            "ui": "cmbSelectStandard",
+            "keys": [
+                "145"
+            ],
+            "values": [
+                "145"
+            ]
+        },
+        "status": {
+            "ui": "cmbSelectStatus",
+            "keys": [
+                "Under utførelse",
+                "Fullført"
+            ],
+            "values": [
+                "2",
+                "4"
+            ]
+        }
+    },
+    "mapping": {
+        "weather": "Weather",
+        "purpose": "Purpose",
+        "prewashed": "PreWashed",
+        "codesystem": "CodeSystem",
+        "datenow": "Date",
+        "orderid": "OrderID",
+        "workorder": "Workorder",
+        "operator": "Signature",
+        "form": "PipeForm",
+        "lsid": "PipeID",
+        "from_psid": "FromPointNo",
+        "to_psid": "ToPointNo",
+        "streetname": "Street",
+        "project_area_id": "ArchiveRef",
+        "fcode": "PipeFeature",
+        "material": "Material",
+        "dim": "Dimension",
+        "length": "PipeLength",
+        "status": "InternalStatus"
+    },
+    "feature_name": "Bestillinger",
+    "layer_definitions": {
+        "Bestillinger": "lsid",
+        "Prosjekt": "project_area_id"
+    },
+    "project_filename": "riogis.qgz"
+}
