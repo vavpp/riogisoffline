@@ -29,10 +29,10 @@ jobs:
         run: pip3 install qgis-plugin-ci
 
       - name: List current working dir
-        run: ls
+        run: ls -a
       
       - name: List parent working dir
-        run: ls ..
+        run: ls .. -a
 
       - name: List current WD
         run: ls
