@@ -31,6 +31,12 @@ jobs:
       - name: My Greetings
         run: echo "Hello Bitch!"
 
+      - name: List current WD
+        run: ls
+
+      - name: List parent WD
+        run: ls ..
+
       - name: Deploy plugin
         run: >-
           qgis-plugin-ci
