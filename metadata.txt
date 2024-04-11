@@ -5,12 +5,12 @@
 [general]
 name=RioGIS 2
 qgisMinimumVersion=3.0
-description=Eksport av VA data til WinCan VX.
-version=0.0.1
-author=Paal Pedersen
-email=paal.pedersen@vav.oslo.kommune.no
+description=Export to WinCan.
+version=0.0.10
+author=Vann- og avløpsetaten Oslo kommune
+email=gis@vav.oslo.kommune.no
 
-about=This Exports attributes of a given feature to a config text file.
+about=This Exports attributes of a given feature to a Wincan consumable text file.
 
 tracker=https://github.com/vavpp/riogisoffline/issues
 repository=https://github.com/vavpp/riogisoffline
@@ -20,6 +20,10 @@ repository=https://github.com/vavpp/riogisoffline
 
 hasProcessingProvider=no
 # Uncomment the following line and add your changelog:
+# changelog=0.0.10
+  - Updated to a dockable widget.
+  - syncronizing data in threads
+  - Better estetics.
 # changelog=0.0.1
   - Initial launch
 
