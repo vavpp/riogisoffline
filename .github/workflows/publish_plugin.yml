@@ -34,6 +34,12 @@ jobs:
       - name: List parent working dir
         run: ls .. -a
 
+      - name: List current WD
+        run: ls
+
+      - name: List parent WD
+        run: ls ..
+
       - name: Deploy plugin
         run: >-
           qgis-plugin-ci
