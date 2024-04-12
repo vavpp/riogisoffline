@@ -3,13 +3,16 @@ name: Build and publish RioGIS plugin to public Qgis plugin repo
 on:
   release:
     types: published
-
+    
 jobs:
   build:
     runs-on: ${{matrix.os}}
     strategy:
       matrix:
         os: [ubuntu-latest]
+    
+    permissions:
+      packages: write
 
     steps:
       - uses: actions/checkout@v2
