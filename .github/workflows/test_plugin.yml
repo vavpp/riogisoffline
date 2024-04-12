@@ -70,3 +70,6 @@ jobs:
 
       - name: Black
         run: cd "${GITHUB_WORKSPACE}/${PLUGIN_PATH}" && black . --check
+    
+      - name: End Game
+        run: echo "Fin"
