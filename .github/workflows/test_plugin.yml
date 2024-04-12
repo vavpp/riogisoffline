@@ -3,16 +3,9 @@ name: Test riogisoffline plugin
 on:
   push:
     branches:
-      - master
+      - "*"
     paths:
-      - "qgis/examples/quick_api_interactive_proper/**"
-      - ".github/workflows/test_qgis_plugin.yaml"
-  pull_request:
-    branches:
-      - master
-    paths:
-      - "qgis/examples/quick_api_interactive_proper/**"
-      - ".github/workflows/test_qgis_plugin.yaml"
+      - ".github/workflows/test_plugin.yaml"
 
 env:
   # plugin name/directory where the code for the plugin is stored
