@@ -10,9 +10,6 @@ jobs:
     strategy:
       matrix:
         os: [ubuntu-latest]
-    
-    permissions:
-      packages: write
 
     steps:
       - uses: actions/checkout@v2
