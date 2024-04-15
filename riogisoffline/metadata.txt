@@ -6,7 +6,7 @@
 name=RioGIS 2
 qgisMinimumVersion=3.0
 description=Export to WinCan.
-version=0.0.10
+version=0.0.17
 author=Vann- og avløpsetaten Oslo kommune
 email=gis@vav.oslo.kommune.no
 
@@ -20,6 +20,10 @@ repository=https://github.com/vavpp/riogisoffline
 
 hasProcessingProvider=no
 # Uncomment the following line and add your changelog:
+# changelog=0.0.17
+  - removed experimental flag
+# changelog=0.0.16
+  - Changed where dependencies are installed.
 # changelog=0.0.10
   - Updated to a dockable widget.
   - syncronizing data in threads
@@ -34,7 +38,7 @@ homepage=https://github.com/vavpp/riogisoffline
 category=Vector
 icon=icon.png
 # experimental flag
-experimental=True
+experimental=false
 
 # deprecated flag (applies to the whole plugin, not just a single version)
 deprecated=False
