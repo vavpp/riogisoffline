@@ -41,8 +41,6 @@ def classFactory(iface):  # pylint: disable=invalid-name
     
     # Install requirements
     try:
-        import sys
-        sys.path = [os.path.join(pdir, 'dep')] + sys.path
         import azure
     except:
         from riogisoffline.plugin.dependency_installer import DependencyInstaller

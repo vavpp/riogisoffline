@@ -1,7 +1,5 @@
 
-import sys
 import riogisoffline.plugin.utils as utils
-sys.path = [utils.get_plugin_dir('dep')] + sys.path
 from azure.storage.blob import BlobServiceClient
 
 class AzureBlobStorageConnection:
