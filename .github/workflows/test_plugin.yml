@@ -3,16 +3,16 @@ name: Test riogisoffline plugin
 on:
   push:
     branches:
-      - "*"
+      - "**"
     paths:
       - ".github/workflows/test_plugin.yaml"
 
 env:
   # plugin name/directory where the code for the plugin is stored
-  PLUGIN_NAME: quick_api
-  PLUGIN_PATH: qgis/examples/quick_api_interactive_proper_testing
+  PLUGIN_NAME: riogisoffline
+  PLUGIN_PATH: riogisoffline/plugin
   # python notation to test running inside plugin
-  TESTS_RUN_FUNCTION: quick_api.test_suite.test_package
+  TESTS_RUN_FUNCTION: riogisoffline/test_riogisoffline/test_riogis.py
 
 jobs:
   Tests:
