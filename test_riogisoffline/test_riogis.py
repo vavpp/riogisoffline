@@ -50,3 +50,7 @@ def test_select_layer():
 
 def test_run():
     ...
+
+
+if __name__ == "__main__":
+    pytest.main()
