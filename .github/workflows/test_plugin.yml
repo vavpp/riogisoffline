@@ -5,6 +5,8 @@ on:
     branches:
       - "**"
     paths:
+      - "riogisoffline/**"
+      - "test_riogisoffline/**"
       - ".github/workflows/test_plugin.yaml"
 
 env:
