@@ -19,7 +19,7 @@ jobs:
       - name: Install dependencies
         run: |
           #python3 -m pip install -U pip setuptools
-          pip3 install -qr riogisoffline/requirements.txt pytest-cov
+          pip3 install -qr riogisoffline/requirements.txt pytest-cov pytest pytest-qgis
       - name: Run tests
         env:
           QGIS_IN_CI: 1
