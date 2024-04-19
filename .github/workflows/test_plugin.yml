@@ -4,63 +4,43 @@ on:
   push:
     branches:
       - "**"
-
-env:
-  # plugin name/directory where the code for the plugin is stored
-  PLUGIN_NAME: riogisoffline
-  PLUGIN_PATH: riogisoffline/plugin
-  # python notation to test running inside plugin
-  TESTS_RUN_FUNCTION: riogisoffline/test_riogisoffline/test_riogis.py
-
 jobs:
-  Tests:
+  tests:
     runs-on: ubuntu-latest
+    container:
+      image: qgis/qgis:${{ matrix.qgis-tags }}
     strategy:
       matrix:
-        docker_tags: [release-3_34, release-3_36, latest]
+        qgis-tags: [ release-3_28, release-3_34, latest ]
+      fail-fast: false
+
     steps:
-
-      - name: Checkout
-        uses: actions/checkout@v2
-
-      - name: Docker pull and create container
+      - uses: actions/checkout@v4
+      - name: Install dependencies
         run: |
-          docker pull qgis/qgis:${{ matrix.docker_tags }}
-          docker run -d --name qgis-testing-environment -v "${GITHUB_WORKSPACE}/${PLUGIN_PATH}":/test_riogisoffline -e DISPLAY=:99 qgis/qgis:${{ matrix.docker_tags }}
+          #python3 -m pip install -U pip setuptools
+          pip3 install -qr requirements.txt pytest-cov
+      - name: Run tests
+        env:
+          QGIS_IN_CI: 1
+        run: >
+          xvfb-run -s '+extension GLX -screen 0 1024x768x24'
+          pytest -v --cov src/pytest_qgis --cov-report=xml tests
 
-      - name: Docker set up QGIS
-        run: |
-          docker exec qgis-testing-environment sh -c "qgis_setup.sh $PLUGIN_NAME"
-          docker exec qgis-testing-environment sh -c "rm -f /root/.local/share/QGIS/QGIS3/profiles/default/python/plugins/$PLUGIN_NAME"
-          docker exec qgis-testing-environment sh -c "ln -s /test_riogisoffline/$PLUGIN_NAME /root/.local/share/QGIS/QGIS3/profiles/default/python/plugins/$PLUGIN_NAME"
-          docker exec qgis-testing-environment sh -c "pip3 install -r /test_riogisoffline/requirements.test.txt"
+      # Upload coverage report. Will not work if the repo is private
+      - name: Upload coverage to Codecov
+        if: ${{ matrix.qgis-tags == 'latest' && !github.event.repository.private }}
+        uses: codecov/codecov-action@v3
+        with:
+          token: ${{ secrets.CODECOV_TOKEN }}
+          file: ./coverage.xml
+          flags: pytest
+          fail_ci_if_error: false # set to true when upload is working
+          verbose: false
 
-      - name: Docker run plugin tests
-        run: |
-          docker exec qgis-testing-environment sh -c "qgis_testrunner.sh $TESTS_RUN_FUNCTION"
-
-  Lint:
+  code-style:
     runs-on: ubuntu-latest
     steps:
-
-      - name: Install Python
-        uses: actions/setup-python@v1
-        with:
-          python-version: '3.9'
-          architecture: 'x64'
-
-      - name: Checkout
-        uses: actions/checkout@v2
-
-      - name: Install packages
-        run: |
-          cd "${GITHUB_WORKSPACE}/${PLUGIN_PATH}" && pip install -r requirements.test.txt
-
-      - name: Flake8
-        run: cd "${GITHUB_WORKSPACE}/${PLUGIN_PATH}" && flake8 .
-
-      - name: Black
-        run: cd "${GITHUB_WORKSPACE}/${PLUGIN_PATH}" && black . --check
-    
-      - name: End Game
-        run: echo "Fin"
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v4
+      - uses: pre-commit/action@v3.0.0
