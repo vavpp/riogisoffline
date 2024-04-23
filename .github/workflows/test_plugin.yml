@@ -25,7 +25,6 @@ jobs:
           QGIS_IN_CI: 1
         run: |
           python3 -m pip install pytest pytest-cov pytest-qgis
-          >
           xvfb-run -s '+extension GLX -screen 0 1024x768x24'
           pytest -v --cov=riogisoffline --cov-report=xml test_riogisoffline
 
