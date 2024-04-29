@@ -16,6 +16,11 @@ jobs:
       
     steps:
       - uses: actions/checkout@v4
+      - name: Pull qgis image
+        run: docker pull qgis/qgis:${{ matrix.qgis-tags }}
+   
+      - name: Run tests
+        run: docker run --rm --net=host --volume `pwd`/riogisoffline:/app -w=/app qgis/qgis:${{ matrix.qgis-tags }} sh -c "pip3 install -qr /app/requirements.txt pytest && xvfb-run -s '+extension GLX -screen 0 1024x768x24' pytest -v"
       - name: Install dependencies
         run: |
           #python3 -m pip install -U pip setuptools
