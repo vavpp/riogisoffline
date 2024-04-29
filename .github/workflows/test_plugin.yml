@@ -16,6 +16,7 @@ jobs:
       
     steps:
       - uses: actions/checkout@v4
+      - uses: actions/docker@1
       - name: Pull qgis image
         run: docker pull qgis/qgis:${{ matrix.qgis-tags }}
    
