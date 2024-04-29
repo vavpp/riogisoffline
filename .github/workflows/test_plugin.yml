@@ -17,9 +17,9 @@ jobs:
     # Service containers to run with `container-job`
     services:
       xvfb-run:
-        image: xvfb-run
+        image: qgis/qgis:${{ matrix.qgis-tags }}
         options: >-
-          -a 0
+          xvfb-run -a 0
 
     steps:
       - uses: actions/checkout@v4
