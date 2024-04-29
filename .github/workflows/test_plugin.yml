@@ -45,7 +45,7 @@ jobs:
       - name: List files and dir inside Docker container
         env:
           QGIS_IN_CI: 1
-        run: docker run --rm --net=host --volume ./test_riogisoffline:/app -w /app qgis/qgis:${{ matrix.qgis-tags }} sh -c "ls -a && ls /app -a"
+        run: docker run --rm --net=host --volume=./test_riogisoffline:/app -w /app qgis/qgis:${{ matrix.qgis-tags }} sh -c "ls -a && ls /app -a"
       - name: Run tests
         env:
           QGIS_IN_CI: 1
