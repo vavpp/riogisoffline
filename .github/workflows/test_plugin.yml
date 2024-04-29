@@ -37,7 +37,12 @@ jobs:
         run: docker run hello-world
       - name: dockert pull qgis image
         run: docker pull qgis/qgis:${{ matrix.qgis-tags }}
-   
+      - name: List files and directories
+        run: |
+          ls -a
+          ls /app -a
+          ls / -a
+          find / -name "riogis"
       - name: Run tests
         env:
           QGIS_IN_CI: 1
