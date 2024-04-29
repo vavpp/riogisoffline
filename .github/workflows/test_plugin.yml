@@ -45,11 +45,11 @@ jobs:
       - name: List files and dir inside Docker container
         env:
           QGIS_IN_CI: 1
-        run: docker run --rm --net=host --volume=$(pwd):$(pwd) -w $(pwd) qgis/qgis:${{ matrix.qgis-tags }} $(pwd) sh -c "ls -a && ls / -a"
+        run: docker run --rm --net=host --volume $(pwd):/app -w /app qgis/qgis:${{ matrix.qgis-tags }} /app sh -c "ls -a && ls / -a"
       - name: Run tests
         env:
           QGIS_IN_CI: 1
-        run: docker run --rm --net=host --volume=$(pwd):$(pwd) -w $(pwd) qgis/qgis:${{ matrix.qgis-tags }} $(pwd) sh -c "python3 -m pip install -qr test_riogisoffline/requirements.test.txt && xvfb-run -s '+extension GLX -screen 0 1024x768x24' pytest -v --cov=riogisoffline --cov-report=xml test_riogisoffline"
+        run: docker run --rm --net=host --volume $(pwd):/app -w /app qgis/qgis:${{ matrix.qgis-tags }} /app sh -c "python3 -m pip install -qr test_riogisoffline/requirements.test.txt && xvfb-run -s '+extension GLX -screen 0 1024x768x24' pytest -v --cov=riogisoffline --cov-report=xml test_riogisoffline"
 
       # Upload coverage report. Will not work if the repo is private
       - name: Upload coverage to Codecov
