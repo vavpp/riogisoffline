@@ -24,8 +24,8 @@ jobs:
         env:
           QGIS_IN_CI: 1
         run: |
-          python3 -m pip install pytest pytest-cov pytest-qgis
           xvfb-run -a 0
+          python3 -m pip install pytest pytest-cov pytest-qgis
           python3 -m pytest -v --cov=riogisoffline --cov-report=xml test_riogisoffline
 
       # Upload coverage report. Will not work if the repo is private
