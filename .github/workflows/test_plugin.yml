@@ -33,15 +33,19 @@ jobs:
           apt-get update
       - name: Install Docker
         run: apt-get install -y docker-ce docker-ce-cli containerd.io docker-buildx-plugin docker-compose-plugin
-      - name: Test docker
+      - name: Test Docker
         run: docker run hello-world
-      - name: dockert pull qgis image
+      - name: Docker Pull qgis image
         run: docker pull qgis/qgis:${{ matrix.qgis-tags }}
       - name: List files and directories
         run: |
           ls -a
           ls / -a
           find / -name "riogis"
+      - name: List files and dir inside Docker container
+        env:
+          QGIS_IN_CI: 1
+        run: docker run --rm --net=host --volume ./:/app -w=/app qgis/qgis:${{ matrix.qgis-tags }} sh -c "ls -a"
       - name: Run tests
         env:
           QGIS_IN_CI: 1
