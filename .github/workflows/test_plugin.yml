@@ -13,11 +13,16 @@ jobs:
       matrix:
         qgis-tags: [ release-3_28, release-3_34, latest ]
       fail-fast: false
+      
+    # Service containers to run with `container-job`
+    services:
+      xvfb-run:
+        image: xvfb-run
+        options: >-
+          -a 0
 
     steps:
       - uses: actions/checkout@v4
-      - name: Setup XVFB Server
-        run: xvfb-run -a 0
       - name: Install dependencies
         run: |
           #python3 -m pip install -U pip setuptools
