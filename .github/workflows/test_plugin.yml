@@ -16,7 +16,8 @@ jobs:
       
     steps:
       - uses: actions/checkout@v4
-      - uses: actions/docker@1
+      - name: Set up Docker Buildx
+        uses: docker/setup-buildx-action@v3
       - name: Pull qgis image
         run: docker pull qgis/qgis:${{ matrix.qgis-tags }}
    
