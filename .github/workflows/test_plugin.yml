@@ -16,6 +16,8 @@ jobs:
 
     steps:
       - uses: actions/checkout@v4
+      - name: Setup XVFB Server
+        run: xvfb-run -a 0
       - name: Install dependencies
         run: |
           #python3 -m pip install -U pip setuptools
@@ -24,7 +26,6 @@ jobs:
         env:
           QGIS_IN_CI: 1
         run: |
-          xvfb-run -a 0
           python3 -m pip install pytest pytest-cov pytest-qgis
           python3 -m pytest -v --cov=riogisoffline --cov-report=xml test_riogisoffline
 
