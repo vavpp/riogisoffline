@@ -14,13 +14,6 @@ jobs:
         qgis-tags: [ release-3_28, release-3_34, latest ]
       fail-fast: false
       
-    # Service containers to run with `container-job`
-    services:
-      xvfb-run:
-        image: qgis/qgis:${{ matrix.qgis-tags }}
-        options: >-
-          xvfb-run -a 0
-
     steps:
       - uses: actions/checkout@v4
       - name: Install dependencies
