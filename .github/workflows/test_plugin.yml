@@ -39,24 +39,17 @@ jobs:
         run: docker pull qgis/qgis:${{ matrix.qgis-tags }}
       - name: List files and directories
         run: |
-          echo "Make dir"
-          mkdir /app
-          mkdir /app/test_riogisoffline
-          mkdir /app/riogisoffline
-          cp -r test_riogisoffline /app/test_riogisoffline
-          cp -r riogisoffline /app/riogisoffline
-          ls /app -a
-          cd /app
+          echo "List current directory"
           echo `pwd`
           ls $(pwd) -a
       - name: List files and dir inside Docker container
         env:
           QGIS_IN_CI: 1
-        run: docker run -v /app:/app -w /app qgis/qgis:${{ matrix.qgis-tags }} sh -c "ls -a && ls /app -a && echo `pwd`"
+        run: docker run --mount source=`pwd`,target=/app -w /app qgis/qgis:${{ matrix.qgis-tags }} sh -c "ls -a && ls /app -a && echo `pwd`"
       - name: Run tests
         env:
           QGIS_IN_CI: 1
-        run: docker run -v /app:/app -w /app qgis/qgis:${{ matrix.qgis-tags }} sh -c "python3 -m pip install -qr /app/test_riogisoffline/requirements.test.txt && xvfb-run -s '+extension GLX -screen 0 1024x768x24' pytest -v --cov=riogisoffline --cov-report=xml test_riogisoffline"
+        run: docker run --mount source=`pwd`,target=/app -w /app qgis/qgis:${{ matrix.qgis-tags }} sh -c "python3 -m pip install -qr /app/test_riogisoffline/requirements.test.txt && xvfb-run -s '+extension GLX -screen 0 1024x768x24' pytest -v --cov=riogisoffline --cov-report=xml test_riogisoffline"
 
       # Upload coverage report. Will not work if the repo is private
       - name: Upload coverage to Codecov
