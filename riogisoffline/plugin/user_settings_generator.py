@@ -31,6 +31,12 @@ class UserSettingsGenerator:
 
         with open(self.user_settings_path, "w", encoding='utf-8') as file:
             json.dump(self.user_settings_dict, file, ensure_ascii=False, indent=4)
+
+        userfolder = self.user_settings_dict["userfolder"]
+        backup = os.path.join(userfolder, 'bruker_settings.json')
+
+        with open(backup, "w", encoding='utf-8') as file:
+            json.dump(self.user_settings_dict, file, ensure_ascii=False, indent=4)
         
 
     def validate_input(self):
