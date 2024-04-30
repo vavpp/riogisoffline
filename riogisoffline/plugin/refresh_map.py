@@ -99,7 +99,7 @@ LAYERS = [
                         "rules": [
                             {
                                 "expression": "",
-                                "color": QColor(122, 122, 122, alpha=20),
+                                "color": QColor(122, 122, 122, alpha=200),
                                 "legend_label": "Kum",
                             }
                         ],
@@ -111,8 +111,8 @@ LAYERS = [
                     {
                         "rules": [
                             {
-                                "expression": "",
-                                "color": QColor(0, 0, 122, alpha=20),
+                                "expression": "\"fcode\" = 'VL'",
+                                "color": QColor(0, 0, 200, alpha=200),
                                 "legend_label": "Vannledning",
                             }
                         ],
@@ -124,9 +124,19 @@ LAYERS = [
                     {
                         "rules": [
                             {
-                                "expression": "",
-                                "color": QColor(234, 10, 122, alpha=20),
+                                "expression": "\"fcode\" = 'AF'",
+                                "color": QColor(234, 10, 0, alpha=200),
                                 "legend_label": "Avløpsledning",
+                            },
+                            {
+                                "expression": "\"fcode\" = 'SP'",
+                                "color": QColor(0, 200, 0, alpha=200),
+                                "legend_label": "Spillvannsledning",
+                            },
+                            {
+                                "expression": "\"fcode\" = 'OV'",
+                                "color": QColor(0, 0, 0, alpha=200),
+                                "legend_label": "Overvannsledning",
                             }
                         ],
                         "geometry": QgsVectorLayer(
