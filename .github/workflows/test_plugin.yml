@@ -50,10 +50,8 @@ jobs:
           cp -r riogisoffline /app/riogisoffline
           ls /app -a
           cd /app
-      - name: List files and dir inside Docker container
-        env:
-          QGIS_IN_CI: 1
-        run: docker run --mount type=bind,source=/app,target=/app -w /app qgis/qgis:${{ matrix.qgis-tags }} sh -c "ls -a && ls /app -a && echo `pwd`"
+          echo "List docker directory"
+          docker run --mount type=bind,source=/app,target=/app -w /app qgis/qgis:${{ matrix.qgis-tags }} sh -c "ls -a && ls /app -a && echo `pwd`"
       - name: Run tests
         env:
           QGIS_IN_CI: 1
