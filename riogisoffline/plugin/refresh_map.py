@@ -106,7 +106,7 @@ LAYERS = [
                         "geometry": QgsVectorLayer(
                             f"{source_filepath}|layername=Kum", "Kum", "ogr"
                         ),
-                        "label": "text",
+                        "label": "psid",
                     },
                     {
                         "rules": [
@@ -393,7 +393,7 @@ class MapRefresher:
         
         if name == "Bakgrunnskart":
             renderer.setReferenceScale(1000)
-        elif label == "text":
+        elif label == "psid":
             renderer.setReferenceScale(500)
         
         layer.setRenderer(renderer)
