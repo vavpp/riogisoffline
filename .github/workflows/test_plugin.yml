@@ -43,13 +43,9 @@ jobs:
           echo `pwd`
           ls $(pwd) -a
           echo "Make dir"
-          mkdir /home/test_riogisoffline
-          mkdir /home/riogisoffline
-          cp -r test_riogisoffline /home/test_riogisoffline
-          cp -r riogisoffline /home/riogisoffline
+          mkdir /app
+          echo "Mount fragment"
           mount -t nfs `pwd` /app
-          ls /app -a
-          cd /app
           echo "List docker directory"
           docker run -v /app:/app -w /app qgis/qgis:${{ matrix.qgis-tags }} sh -c "ls -a && ls /app -a && echo `pwd`"
       - name: Run tests
