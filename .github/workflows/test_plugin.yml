@@ -48,6 +48,8 @@ jobs:
           ls $(pwd) -a
           echo "Make dir"
           mkdir /app
+          chmod 755 /app -R
+          chmod 755 `pwd` -R
           echo "Mount fragment"
           mount -t nfs `pwd` /app
           echo "List docker directory"
