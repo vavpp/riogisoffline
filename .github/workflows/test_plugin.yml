@@ -51,7 +51,7 @@ jobs:
           ls /app -a
           cd /app
           echo "List docker directory"
-          docker run -v / /app -w /app qgis/qgis:${{ matrix.qgis-tags }} sh -c "ls -a && ls /app -a && echo `pwd`"
+          docker run -v /:/app -w /app qgis/qgis:${{ matrix.qgis-tags }} sh -c "ls -a && ls /app -a && echo `pwd`"
       - name: Run tests
         env:
           QGIS_IN_CI: 1
