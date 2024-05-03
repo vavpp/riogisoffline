@@ -48,7 +48,7 @@ jobs:
           echo "change mod"
           chmod 755 . -R
           echo "List docker user"
-          docker run -w /app qgis/qgis:${{ matrix.qgis-tags }} sh -c "echo whoami && echo groups"
+          docker run -w /app qgis/qgis:${{ matrix.qgis-tags }} sh -c "echo $(whoami) && echo $(groups)"
           #docker run -v .:/app -w /app qgis/qgis:${{ matrix.qgis-tags }} sh -c "ls -a && ls /app -a && echo `pwd`"
       - name: Run tests
         env:
