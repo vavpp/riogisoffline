@@ -47,10 +47,9 @@ jobs:
           ls . -a
           echo "change mod"
           chmod 755 . -R
-          echo "Chown"
-          chown . $(whoami):$(whoami)
-          echo "List docker directory"
-          docker run -v .:/app -w /app qgis/qgis:${{ matrix.qgis-tags }} sh -c "ls -a && ls /app -a && echo `pwd`"
+          echo "List docker user"
+          docker run -w /app qgis/qgis:${{ matrix.qgis-tags }} sh -c "echo whoami && echo groups"
+          #docker run -v .:/app -w /app qgis/qgis:${{ matrix.qgis-tags }} sh -c "ls -a && ls /app -a && echo `pwd`"
       - name: Run tests
         env:
           QGIS_IN_CI: 1
