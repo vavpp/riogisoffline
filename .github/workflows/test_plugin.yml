@@ -46,8 +46,7 @@ jobs:
           mkdir /app
           chmod 755 /app -R
           chmod 755 `pwd` -R
-          echo "Mount fragment"
-          mount -t nfs `pwd` /app
+
           echo "List docker directory"
           docker run -v /app:/app -w /app qgis/qgis:${{ matrix.qgis-tags }} sh -c "ls -a && ls /app -a && echo `pwd`"
       - name: Run tests
