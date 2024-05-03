@@ -40,16 +40,9 @@ jobs:
       - name: List files and directories
         run: |
           echo "List current directory"
-          echo .
-          echo $(whoami)
-          echo $(groups)
-          echo $( id -Gn whoami)
-          ls . -a
-          echo "change mod"
-          chmod 755 . -R
-          echo "List docker user"
+          find / -name "test_riogisoffline"
           docker run -w /app qgis/qgis:${{ matrix.qgis-tags }} sh -c "echo $(whoami) && echo $(groups)"
-          #docker run -v .:/app -w /app qgis/qgis:${{ matrix.qgis-tags }} sh -c "ls -a && ls /app -a && echo `pwd`"
+       
       - name: Run tests
         env:
           QGIS_IN_CI: 1
