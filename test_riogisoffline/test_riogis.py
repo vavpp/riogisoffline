@@ -1,3 +1,7 @@
+import os
+import sys
+
+sys.path = [os.path.abspath('..')]+sys.path
 from riogisoffline.plugin.riogis import RioGIS
 import pytest
 
