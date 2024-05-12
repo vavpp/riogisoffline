@@ -21,9 +21,13 @@ def test_pckg_in_syspath():
             passed =True
     assert passed
         
-# testing that tests work
-def test_testing():
-    assert 1 == 1
+# testing that import qgis work
+def test_import_qgis():
+    try:
+        from qgis.core import *
+        assert 1==1
+    except:
+        assert 1==2
 
 
 @pytest.fixture()
