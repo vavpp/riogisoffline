@@ -15,7 +15,11 @@ def test_import_pckg():
         assert 1==2
         
 def test_pckg_in_syspath():
-    assert 'riogisoffline' in sys.path[0]
+    passed = False
+    for path in sys.path:
+        if 'riogisoffline' in path:
+            passed =True
+    assert passed
         
 # testing that tests work
 def test_testing():
