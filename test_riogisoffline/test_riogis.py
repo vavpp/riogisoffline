@@ -24,7 +24,7 @@ def test_pckg_in_syspath():
 # testing that import qgis work
 def test_import_qgis():
     try:
-        from qgis.core import *
+        import qgis.core
         assert 1==1
     except:
         assert 1==2
