@@ -2,10 +2,21 @@ import os
 import sys
 
 sys.path = [os.path.abspath('..')]+sys.path
-print(os.listdir('..'))
+
 #from riogisoffline.plugin.riogis import RioGIS
 import pytest
 
+
+def test_import_pckg():
+    try:
+        import riogisoffline
+        assert 1 == 1
+    except:
+        assert 1==2
+        
+def test_pckg_in_syspath():
+    assert 'riogisoffline' in sys.path[0]
+        
 # testing that tests work
 def test_testing():
     assert 1 == 1
