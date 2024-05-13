@@ -1,0 +1,23 @@
+[build-system]
+requires = ["flit_core >=3.2,<4"]
+build-backend = "flit_core.buildapi"
+
+[project]
+name = "riogisoffline"
+version = "0.0.1"
+description = "This Exports attributes of a given feature to a Wincan consumable text file."
+authors = [
+  { name = "Vann- og avløpsetaten Oslo kommune", email = "gis@vav.oslo.kommune.no" },
+]
+license = { file = "riogisoffline\LICENSE" }
+readme = "riogisoffline\README.md"
+classifiers = [
+    "Programming Language :: Python :: 3",
+    "License :: OSI Approved :: MIT License",
+    "Operating System :: OS Independent",
+]
+requires-python = ">=3.7"
+
+[project.urls]
+"Homepage" = "https://github.com/pypa/riogisoffline"
+"Issues" = "https://github.com/pypa/riogisoffline/issues"
