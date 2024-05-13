@@ -48,7 +48,7 @@ jobs:
       - name: Run tests on host image
         run: |
           python3 -m venv venv
-          source ./venv/bin/activate
+          . ./venv/bin/activate
           pip install -qr ./test_riogisoffline/requirements.test.txt
           python -m pytest ./test_riogisoffline -cov --cov-report=xml:coverage.xml
         
