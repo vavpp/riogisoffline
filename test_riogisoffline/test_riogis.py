@@ -32,7 +32,10 @@ def test_import_qgis():
 
 @pytest.fixture()
 def setup_riogis():
-    assert 1 == 1
+    import riogisoffline
+    import qgis
+    import riogisoffline.plugin.riogis as rio
+    
 
 # test as many methods as possible
 
