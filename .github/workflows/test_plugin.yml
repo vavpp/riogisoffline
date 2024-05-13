@@ -47,7 +47,7 @@ jobs:
           docker run -w /app qgis/qgis:${{ matrix.qgis-tags }} sh -c "echo $(whoami) && echo $(groups)"
       - name: Run tests on host image
         run: |
-          python3 -m pip install -qr ./riogisoffline/test_riogisoffline/requirements.test.txt
+          python3 -m pip install -qr ./riogisoffline/test_riogisoffline/requirements.test.txt --break-system-packages
           python3 -m pytest ./riogisoffline/test_riogisoffline -cov --cov-report=xml:coverage.xml
         
       - name: Run tests in docker container
