@@ -38,7 +38,7 @@ def setup_riogis():
     import riogisoffline.plugin.utils as utils
     r = rio.RioGis()
     pdir = utils.get_plugin_dir()
-    print(pdir,flush=True)
+    assert pdir == 'your plugin dir'
 
 # test as many methods as possible
 
