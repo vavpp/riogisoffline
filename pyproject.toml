@@ -4,7 +4,6 @@ build-backend = "flit_core.buildapi"
 
 [project]
 name = "riogisoffline"
-version = "0.0.1"
 description = "This Exports attributes of a given feature to a Wincan consumable text file."
 authors = [
   { name = "Vann- og avløpsetaten Oslo kommune", email = "gis@vav.oslo.kommune.no" },
@@ -17,6 +16,7 @@ classifiers = [
     "Operating System :: OS Independent",
 ]
 requires-python = ">=3.7"
+dynamic = ["version"]
 
 [project.urls]
 "Homepage" = "https://github.com/pypa/riogisoffline"
