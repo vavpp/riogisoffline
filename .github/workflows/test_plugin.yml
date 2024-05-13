@@ -45,8 +45,12 @@ jobs:
           echo "List current directory"
           find / -name "test_riogisoffline"
           docker run -w /app qgis/qgis:${{ matrix.qgis-tags }} sh -c "echo $(whoami) && echo $(groups)"
-       
-      - name: Run tests
+      - name: Run tests on host image
+        run: |
+          python3 -m pip install -qr ./riogisoffline/test_riogisoffline/requirements.test.txt
+          python3 -m pytest ./riogisoffline/test_riogisoffline -cov --cov-report=xml:coverage.xml
+        
+      - name: Run tests in docker container
         env:
           QGIS_IN_CI: 1
         run: docker run -v /tmp:/report -w /app qgis/qgis:${{ matrix.qgis-tags }} sh -c "apt-get update && apt-get install -y git && git clone https://github.com/vavpp/riogisoffline.git && python3 -m pip install -qr /app/riogisoffline/test_riogisoffline/requirements.test.txt --user ${{matrix.pipcmd}} && xvfb-run -s '+extension GLX -screen 0 1024x768x24' python3 -m pytest /app/riogisoffline/test_riogisoffline -cov --cov-report=xml:/report/coverage.xml"
@@ -57,7 +61,7 @@ jobs:
         uses: codecov/codecov-action@v3
         with:
           token: ${{ secrets.CODECOV_TOKEN }}
-          file: /tmp/coverage.xml
+          file: coverage.xml
           flags: pytest
           fail_ci_if_error: false # set to true when upload is working
           verbose: false
