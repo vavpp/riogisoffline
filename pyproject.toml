@@ -1,6 +1,6 @@
 [build-system]
-requires = ["flit_core >=3.2,<4"]
-build-backend = "flit_core.buildapi"
+requires = ["setuptools>=64", "setuptools_scm>=8"]
+build-backend = "setuptools.build_meta"
 
 [project]
 name = "riogisoffline"
@@ -17,6 +17,7 @@ classifiers = [
 ]
 requires-python = ">=3.7"
 dynamic = ["version"]
+[tool.setuptools_scm]
 
 [project.urls]
 "Homepage" = "https://github.com/pypa/riogisoffline"
