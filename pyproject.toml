@@ -9,8 +9,8 @@ description = "This Exports attributes of a given feature to a Wincan consumable
 authors = [
   { name = "Vann- og avløpsetaten Oslo kommune", email = "gis@vav.oslo.kommune.no" },
 ]
-license = { file = "riogisoffline\LICENSE" }
-readme = "riogisoffline\README.md"
+license = { file = "riogisoffline/LICENSE" }
+readme = "riogisoffline/README.md"
 classifiers = [
     "Programming Language :: Python :: 3",
     "License :: OSI Approved :: MIT License",
