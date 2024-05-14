@@ -27,7 +27,7 @@ jobs:
         run: |
           #python3 -m venv venv
           #. ./venv/bin/activate
-          pip install -qr ./test_riogisoffline/requirements.test.txt --break-system-packages
+          pip install -qr ./test_riogisoffline/requirements.test.txt ${{ matrix.qgis-tags.pipcmd }}
           python3 -m pytest ./test_riogisoffline -cov --cov-report=xml:coverage.xml
         
       # Upload coverage report. Will not work if the repo is private
