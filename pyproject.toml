@@ -1,9 +1,10 @@
 [build-system]
-requires = ["setuptools>=64", "setuptools_scm>=8"]
-build-backend = "setuptools.build_meta"
+requires = ["flit_core >=3.2,<4"]
+build-backend = "flit_core.buildapi"
 
 [project]
 name = "riogisoffline"
+version = "0.0.23"
 description = "This Exports attributes of a given feature to a Wincan consumable text file."
 authors = [
   { name = "Vann- og avløpsetaten Oslo kommune", email = "gis@vav.oslo.kommune.no" },
@@ -16,7 +17,6 @@ classifiers = [
     "Operating System :: OS Independent",
 ]
 requires-python = ">=3.7"
-version = "0.0.22"
 
 [project.urls]
 "Homepage" = "https://github.com/vavpp/riogisoffline"
