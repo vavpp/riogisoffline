@@ -20,5 +20,5 @@ dynamic = ["version"]
 [tool.setuptools_scm]
 
 [project.urls]
-"Homepage" = "https://github.com/pypa/riogisoffline"
-"Issues" = "https://github.com/pypa/riogisoffline/issues"
+"Homepage" = "https://github.com/vavpp/riogisoffline"
+"Issues" = "https://github.com/vavpp/riogisoffline/issues"
