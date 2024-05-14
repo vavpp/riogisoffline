@@ -19,32 +19,10 @@ jobs:
       
     steps:
       - uses: actions/checkout@v4
-      - name: Set up Docker Buildx
+      - name: update host image
         run: |
           # Add Docker's official GPG key:
           apt-get update
-          apt-get install -y curl
-          install -m 0755 -d /etc/apt/keyrings
-          curl -fsSL https://download.docker.com/linux/ubuntu/gpg -o /etc/apt/keyrings/docker.asc
-          chmod a+r /etc/apt/keyrings/docker.asc
-          
-          # Add the repository to Apt sources:
-          echo \
-            "deb [arch=$(dpkg --print-architecture) signed-by=/etc/apt/keyrings/docker.asc] https://download.docker.com/linux/ubuntu \
-            $(. /etc/os-release && echo "$VERSION_CODENAME") stable" | \
-            tee /etc/apt/sources.list.d/docker.list > /dev/null
-          apt-get update
-      - name: Install Docker
-        run: apt-get install -y docker-ce docker-ce-cli containerd.io docker-buildx-plugin docker-compose-plugin
-      - name: Test Docker
-        run: docker run hello-world
-      - name: Docker Pull qgis image
-        run: docker pull qgis/qgis:${{ matrix.qgis-tags }}
-      - name: List files and directories
-        run: |
-          echo "List current directory"
-          find / -name "test_riogisoffline"
-          docker run -w /app qgis/qgis:${{ matrix.qgis-tags }} sh -c "echo $(whoami) && echo $(groups)"
       - name: Run tests on host image
         run: |
           #python3 -m venv venv
@@ -52,11 +30,6 @@ jobs:
           pip install -qr ./test_riogisoffline/requirements.test.txt --break-system-packages
           python3 -m pytest ./test_riogisoffline -cov --cov-report=xml:coverage.xml
         
-      - name: Run tests in docker container
-        env:
-          QGIS_IN_CI: 1
-        run: docker run -v /tmp:/report -w /app qgis/qgis:${{ matrix.qgis-tags }} sh -c "apt-get update && apt-get install -y git && git clone https://github.com/vavpp/riogisoffline.git && python3 -m pip install -qr /app/riogisoffline/test_riogisoffline/requirements.test.txt --user ${{matrix.pipcmd}} && xvfb-run -s '+extension GLX -screen 0 1024x768x24' python3 -m pytest /app/riogisoffline/test_riogisoffline -cov --cov-report=xml:/report/coverage.xml"
-
       # Upload coverage report. Will not work if the repo is private
       - name: Upload coverage to Codecov
         if: ${{ matrix.qgis-tags == 'latest' && !github.event.repository.private }}
