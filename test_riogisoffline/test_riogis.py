@@ -5,7 +5,7 @@ import pytest
 sys.path = [os.path.abspath('..')]+sys.path
 
 
-@pytest.fixture(autouse=True, scope="session")
+@pytest.fixture(autouse=True)
 def test_import_pckg():
     try:
         import riogisoffline
@@ -13,7 +13,7 @@ def test_import_pckg():
         raise AssertionError ("The riogisoffline package failed to import")
         
         
-@pytest.fixture(autouse=True, scope="session")
+@pytest.fixture(autouse=True)
 def test_import_qgis():
     try:
         import qgis.core
