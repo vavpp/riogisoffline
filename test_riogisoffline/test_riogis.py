@@ -43,7 +43,7 @@ def setup_riogis():
 # test as many methods as possible
 
 def test_setup():
-    assert 1 == 1
+    setup_riogis()
 
 def test_load_select_elements():
     assert 1 == 1
