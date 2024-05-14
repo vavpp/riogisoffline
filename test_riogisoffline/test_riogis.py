@@ -1,49 +1,41 @@
 import os
 import sys
+import pytest
 
 sys.path = [os.path.abspath('..')]+sys.path
 
-#from riogisoffline.plugin.riogis import RioGIS
-import pytest
 
-
+@pytest.fixture(autouse=True, scope="session")
 def test_import_pckg():
     try:
         import riogisoffline
-        assert 1 == 1
     except:
-        assert 1==2
+        raise AssertionError ("The riogisoffline package failed to import")
         
+        
+@pytest.fixture(autouse=True, scope="session")
+def test_import_qgis():
+    try:
+        import qgis.core
+    except:
+        raise AssertionError ("qgis package failed to import")
+
 def test_pckg_in_syspath():
     passed = False
     for path in sys.path:
         if 'riogisoffline' in path:
-            passed =True
+            passed = True
     assert passed
-        
-# testing that import qgis work
-def test_import_qgis():
-    try:
-        import qgis.core
-        assert 1==1
-    except:
-        assert 1==2
-
 
 @pytest.fixture()
-def setup_riogis():
-    import riogisoffline
-    import qgis
-    import riogisoffline.plugin.riogis as rio
-    import riogisoffline.plugin.utils as utils
-    r = rio.RioGis()
-    pdir = utils.get_plugin_dir()
-    assert pdir == 'your plugin dir'
+def riogis_instance():
+    return riogisoffline.plugin.riogis.RioGis()
 
-# test as many methods as possible
-
-def test_setup():
-    setup_riogis()
+def test_run(riogis_instance):
+    riogis_instance.run()
+    
+def test_setup(riogis_instance):
+    ...
 
 def test_load_select_elements():
     assert 1 == 1
@@ -78,5 +70,3 @@ def test_populate_select_values():
 def test_select_layer():
     assert 1 == 1
 
-def test_run():
-    assert 1 == 1
