@@ -12,7 +12,8 @@ def get_plugin_dir(path_to_join=None):
     plugin_dir = os.getenv('PLUGIN_DIR')
 
     if not plugin_dir:
-        plugin_dir = ""
+        # get parent of current dir if PLUGIN_DIR is not set
+        plugin_dir = os.path.dirname(os.path.dirname(__file__))
 
     if not path_to_join:
         return plugin_dir
