@@ -24,6 +24,8 @@
  ***************************************************************************/
 """
 
+__all__ = ["plugin"]
+
 # noinspection PyPep8Naming
 def classFactory(iface):  # pylint: disable=invalid-name
     """
