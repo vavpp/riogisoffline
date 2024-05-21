@@ -11,6 +11,9 @@ def get_plugin_dir(path_to_join=None):
 
     plugin_dir = os.getenv('PLUGIN_DIR')
 
+    if not plugin_dir:
+        plugin_dir = ""
+
     if not path_to_join:
         return plugin_dir
 
