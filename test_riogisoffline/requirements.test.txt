@@ -1,4 +1,5 @@
 pytest
 pytest-cov
+pytest-qgis
 azure-storage-blob
 riogisoffline

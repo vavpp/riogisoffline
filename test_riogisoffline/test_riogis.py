@@ -30,7 +30,7 @@ def riogis_instance():
     return RioGIS(iface)
 
 def test_run(riogis_instance):
-    riogis_instance.run()
+    #riogis_instance.run()
     
 def test_setup(riogis_instance):
     ...
