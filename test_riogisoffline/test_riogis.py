@@ -26,11 +26,11 @@ def test_pckg_in_syspath():
 @pytest.fixture()
 def riogis_instance():
     from riogisoffline.plugin.riogis import RioGIS
-    from qgis.utils import iface
-    return RioGIS(iface)
+    return RioGIS()
 
 def test_run(riogis_instance):
     #riogis_instance.run()
+    ...
     
 def test_setup(riogis_instance):
     ...
