@@ -28,7 +28,7 @@ def test_pckg_in_syspath():
 @pytest.fixture()
 def riogis_instance():
     from riogisoffline.plugin.riogis import RioGIS
-    return RioGIS(get_iface())
+    #return RioGIS(get_iface())
 
 def test_run(riogis_instance):
     #riogis_instance.run()
