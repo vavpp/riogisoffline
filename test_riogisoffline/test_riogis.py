@@ -2,6 +2,8 @@ import os
 import sys
 import pytest
 
+from qgis.testing.mocked import get_iface
+
 sys.path = [os.path.abspath('..')]+sys.path
 
 def test_import_pckg():
@@ -26,7 +28,7 @@ def test_pckg_in_syspath():
 @pytest.fixture()
 def riogis_instance():
     from riogisoffline.plugin.riogis import RioGIS
-    return RioGIS()
+    return RioGIS(get_iface())
 
 def test_run(riogis_instance):
     #riogis_instance.run()
