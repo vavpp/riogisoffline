@@ -3,8 +3,10 @@ import sys
 import pytest
 
 from qgis.testing.mocked import get_iface
-
 sys.path = [os.path.abspath('..')]+sys.path
+from riogisoffline.plugin.riogis import RioGIS
+
+
 
 def test_import_pckg():
     try:
@@ -30,9 +32,9 @@ def riogis_instance():
     from riogisoffline.plugin.riogis import RioGIS
     #return RioGIS(get_iface())
 
-def test_run(riogis_instance):
-    #riogis_instance.run()
-    ...
+def test_run():
+    RioGIS(get_iface())
+
     
 def test_setup():
     ...
