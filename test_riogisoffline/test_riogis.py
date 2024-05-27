@@ -25,16 +25,13 @@ def test_pckg_in_syspath():
             passed = True
     assert passed
 
-@pytest.fixture()
-def riogis_instance():
+def test_run():
     from riogisoffline.plugin.riogis import RioGIS
     return RioGIS(get_iface())
-
-def test_run(riogis_instance):
     #riogis_instance.run()
     ...
     
-def test_setup(riogis_instance):
+def test_setup():
     ...
 
 def test_load_select_elements():
