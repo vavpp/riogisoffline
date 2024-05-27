@@ -25,7 +25,8 @@ jobs:
           apt-get update
       - name: Run tests on host image
         run: |
-          sudo pip install -qr ./test_riogisoffline/requirements.test.txt ${{ matrix.pipcmd }}
+          bash
+          pip install -qr ./test_riogisoffline/requirements.test.txt ${{ matrix.pipcmd }}
           python3 -m pytest ./test_riogisoffline --cov --cov-report=xml:coverage.xml
           ls -R
         
