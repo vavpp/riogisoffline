@@ -73,7 +73,8 @@ def printSuccessMessage(message, message_duration=default_message_duration):
        )
 
 def get_user_settings_path():
-    return get_plugin_dir("bruker_settings.json")
+    # bruker_settings.json is placed in python-dir of qgis default profile
+    return get_plugin_dir("../../../bruker_settings.json")
 
 def get_settings_path():
     return get_plugin_dir("settings.json")
