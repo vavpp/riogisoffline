@@ -132,6 +132,23 @@ class RioGIS:
         
         self.dlg.btnSelectSettingsFile.clicked.connect(_handle_settings_button_click)
 
+        self.show_necessary_panels()
+
+    def show_necessary_panels(self):
+        from qgis.PyQt.QtWidgets import QDockWidget, QToolBar
+        
+        needed_panels = ['Layers', 'mPluginToolBar', 'mAttributesToolBar', 'mMapNavToolBar']
+        from qgis.core import Qgis
+        for x in self.iface.mainWindow().findChildren(QDockWidget) + self.iface.mainWindow().findChildren(QToolBar):
+
+            if x.objectName() in ["MessageLog", "RioGIS2"]:
+                continue
+
+            if x.objectName() in needed_panels:
+                x.setVisible(True)
+            else:
+                x.setVisible(False)
+
     def _handle_export(self):
         if self.map_has_been_clicked:
             self.iface.mapCanvas().unsetMapTool(self.mapTool)
@@ -185,7 +202,7 @@ class RioGIS:
         if not data.get('form'):
             data['form'] = ""
 
-        utils.printInfoMessage(f'Ledning valgt: LSID {data["lsid"]} (fra PSID {data["from_psid"]} til {data["to_psid"]}), {data["streetname"]}, {data["fcodegroup"]}')
+        utils.printInfoMessage(f'Ledning valgt: LSID {data["lsid"]} (fra PSID {data["from_psid"]} til {data["to_psid"]}), {data["streetname"]}, {data["fcodegroup"]}', message_duration=5)
 
         old_keys = set(data.keys())
         map_keys = set(self.mapper.keys())
@@ -223,7 +240,7 @@ class RioGIS:
             self.dlg.textLedningValgt.setText(text) 
             return
         
-        text = f"<strong>LSID: {data['lsid']}, Gate: {data['streetname']}</strong>"
+        text = f"LSID: <strong>{data['lsid']}</strong>, Gate: <strong>{data['streetname']}</strong>"
         self.dlg.textLedningValgt.setText(text)
 
     def select_feature(self, point):
@@ -357,6 +374,7 @@ class RioGIS:
         self.initiate_gui_elements()
 
         self.iface.addDockWidget(Qt.RightDockWidgetArea, self.dlg) 
+
 
     def startSyncWorker(self):
 
