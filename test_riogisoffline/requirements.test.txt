@@ -2,4 +2,4 @@ pytest
 pytest-cov
 azure-storage-blob
 riogisoffline
-
+pyvirtualdisplay
