@@ -33,7 +33,13 @@ def riogis_instance():
     #return RioGIS(get_iface())
 
 def test_run():
-    RioGIS(get_iface())
+    try:
+        from riogisoffline.plugin.riogis import RioGIS
+        RioGIS(get_iface())
+        assert True
+    except:
+        assert False
+
 
     
 def test_setup():
