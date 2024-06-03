@@ -1,3 +1,6 @@
+from pyvirtualdisplay import Display
+
+
 import os
 import sys
 import pytest
@@ -6,6 +9,15 @@ from qgis.testing.mocked import get_iface
 sys.path = [os.path.abspath('..')]+sys.path
 #from riogisoffline.plugin.riogis import RioGIS
 
+
+@pytest.fixture(scope="session", autouse=True)
+def virtual_display():
+    # Start a virtual display
+    display = Display(visible=0, size=(800, 600))
+    display.start()
+
+    # Yield to allow tests to run inside the virtual display context
+    yield
 
 
 def test_import_pckg():
@@ -27,11 +39,7 @@ def test_pckg_in_syspath():
             passed = True
     assert passed
 
-@pytest.fixture()
-def riogis_instance():
-    from riogisoffline.plugin.riogis import RioGIS
-    #return RioGIS(get_iface())
-
+    
 def test_run():
     try:
         from riogisoffline.plugin.riogis import RioGIS
