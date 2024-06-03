@@ -4,7 +4,7 @@ import pytest
 
 from qgis.testing.mocked import get_iface
 sys.path = [os.path.abspath('..')]+sys.path
-from riogisoffline.plugin.riogis import RioGIS
+#from riogisoffline.plugin.riogis import RioGIS
 
 
 
