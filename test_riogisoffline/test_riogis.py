@@ -41,14 +41,8 @@ def test_pckg_in_syspath():
 
     
 def test_run():
-    try:
-        from riogisoffline.plugin.riogis import RioGIS
-        RioGIS(get_iface())
-        assert True
-    except:
-        assert False
-
-
+    riogis = RioGIS(get_iface())
+    riogis.run()
     
 def test_setup():
     ...
