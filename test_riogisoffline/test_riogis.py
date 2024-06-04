@@ -43,6 +43,7 @@ def test_pckg_in_syspath():
 def test_run():
     riogis = RioGIS(get_iface())
     riogis.run()
+    assert False
     
 def test_setup():
     ...
