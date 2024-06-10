@@ -40,14 +40,22 @@ def test_pckg_in_syspath():
     assert passed
 
 @pytest.fixture
-def riogis():
-    riogis = RioGIS(get_iface())
-    riogis.run()
+def riogis_without_run():
+    riogis_without_run = RioGIS(get_iface())
+    return riogis_without_run
 
-    return riogis
+@pytest.fixture
+def riogis(riogis_without_run):
+    riogis_without_run.run()
+    riogis_without_run.select_layer()
+    return riogis_without_run
     
-def test_run(riogis):
-    riogis
+def test_run(riogis_without_run):
+    riogis_without_run.run()
+
+def test_select_layer(riogis_without_run):
+    riogis_without_run.run()
+    riogis_without_run.select_layer()
 
 def test_load_select_elements(riogis):
     data = riogis.load_select_elements()
