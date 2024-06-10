@@ -39,25 +39,25 @@ def test_pckg_in_syspath():
             passed = True
     assert passed
 
-    
-def test_run():
+@pytest.fixture
+def riogis():
     riogis = RioGIS(get_iface())
     riogis.run()
 
-def test_load_select_elements():
-    riogis = RioGIS(get_iface())
+    return riogis
+    
+def test_run(riogis):
+    riogis
+
+def test_load_select_elements(riogis):
     data = riogis.load_select_elements()
-
     assert data
 
-def test_get_feature_data():
-    riogis = RioGIS(get_iface())
+def test_get_feature_data(riogis):
     data = riogis.get_feature_data()
-
     assert data
 
-def test_map_attributes():
-    riogis = RioGIS(get_iface())
+def test_map_attributes(riogis):
     riogis.map_attributes(riogis.get_feature_data())
 
 def test_handle_map_click():
