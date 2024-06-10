@@ -43,16 +43,22 @@ def test_pckg_in_syspath():
 def test_run():
     riogis = RioGIS(get_iface())
     riogis.run()
-    assert False
-    
-def test_setup():
-    ...
 
 def test_load_select_elements():
-    assert 1 == 1
+    riogis = RioGIS(get_iface())
+    data = riogis.load_select_elements()
+
+    assert data
+
+def test_get_feature_data():
+    riogis = RioGIS(get_iface())
+    data = riogis.get_feature_data()
+
+    assert data
 
 def test_map_attributes():
-    assert 1 == 1
+    riogis = RioGIS(get_iface())
+    riogis.map_attributes(riogis.get_feature_data())
 
 def test_handle_map_click():
     assert 1 == 1
@@ -66,8 +72,6 @@ def test_select_feature():
 def test_update_feature_status():
     assert 1 == 1
 
-def test_get_feature_data():
-    assert 1 == 1
 
 def test_refresh_map():
     assert 1 == 1
