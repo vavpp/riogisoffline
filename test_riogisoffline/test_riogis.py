@@ -63,14 +63,12 @@ def test_load_select_elements(riogis):
 
 def test_get_feature_data(riogis):
     # TypeError: 'Mock' object is not iterable
-    return
     
     data = riogis.get_feature_data()
     assert data
 
 def test_map_attributes(riogis):
     # TypeError: 'Mock' object is not iterable
-    return
     
     riogis.map_attributes(riogis.get_feature_data())
 
@@ -79,8 +77,6 @@ def test_handle_map_click(riogis):
     
 def test_select_feature(riogis):
     # TypeError: 'Mock' object is not iterable
-    return
-
     
     from qgis.core import QgsPointXY
     point = QgsPointXY(0,0)
@@ -88,17 +84,23 @@ def test_select_feature(riogis):
 
 def test_export_feature(riogis):
     # TypeError: 'Mock' object is not iterable
-    return 
-
+    
     riogis.export_feature()
     
 def test_update_feature_status(riogis):
+    # init data
+    riogis.map_attributes(riogis.get_feature_data())
+    
     riogis.update_feature_status()
 
 def test_refresh_map(riogis):
+    # AttributeError: 'NoneType' object has no attribute 'messageBar'
+    
     riogis.refresh_map()
 
 def test_write_output_file(riogis):
+    # AttributeError: 'NoneType' object has no attribute 'get'
+    
     riogis.write_output_file()
 
 def test_populate_select_values(riogis):
