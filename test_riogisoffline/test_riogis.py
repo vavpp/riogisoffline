@@ -8,7 +8,7 @@ import pytest
 from qgis.testing.mocked import get_iface
 sys.path = [os.path.abspath('..')]+sys.path
 from riogisoffline.plugin.riogis import RioGIS
-
+from .mock_extensions import fields
 
 @pytest.fixture(scope="session", autouse=True)
 def virtual_display():
@@ -41,7 +41,9 @@ def test_pckg_in_syspath():
 
 @pytest.fixture
 def riogis_without_run():
-    riogis_without_run = RioGIS(get_iface())
+    iface = get_iface()
+    iface.layers.fields = fields
+    riogis_without_run = RioGIS()
     return riogis_without_run
 
 @pytest.fixture
