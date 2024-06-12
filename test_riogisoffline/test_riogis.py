@@ -8,7 +8,7 @@ import pytest
 from qgis.testing.mocked import get_iface
 sys.path = [os.path.abspath('..')]+sys.path
 from riogisoffline.plugin.riogis import RioGIS
-from .mock_extensions import fields
+from mock_extension import fields
 
 @pytest.fixture(scope="session", autouse=True)
 def virtual_display():
