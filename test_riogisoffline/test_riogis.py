@@ -42,7 +42,7 @@ def test_pckg_in_syspath():
 @pytest.fixture
 def riogis_without_run():
     iface = get_iface()
-    iface.layers.fields = fields
+    iface.layer.fields = fields
     riogis_without_run = RioGIS()
     return riogis_without_run
 
