@@ -1,3 +1,5 @@
+from qgis.core import QgsGeometry, QgsPointXY
+
 class Field:
   def __init__(self, name, value):
     self._name = name
@@ -15,7 +17,7 @@ class Feature:
     pass
     
   def geometry():
-    return (0,0)
+    return QgsGeometry.fromPointXY(QgsPointXY(0, 0))
     
   def fields(self):
     return [Field('lsid', 123), Field('from_psid', 564), Field('to_psid', 456)]
