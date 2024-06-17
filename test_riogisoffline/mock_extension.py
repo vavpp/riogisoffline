@@ -32,7 +32,13 @@ class Layer:
     return self.features
   
   def fields(self):
-    return [Field('lsid', 123), Field('from_psid', 564), Field('to_psid', 456)]
+    return [Field('lsid', 123), 
+      Field('from_psid', 564), 
+      Field('to_psid', 456),
+      Field('operator', 'test'),
+      Field('streetname', 'testgata'),
+      Field('fcodegroup', 'avlop')
+      ]
 
 class Point:
   def __init__(self):
