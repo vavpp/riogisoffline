@@ -243,13 +243,13 @@ class RioGIS:
         text = f"LSID: <strong>{data['lsid']}</strong>, Gate: <strong>{data['streetname']}</strong>"
         self.dlg.textLedningValgt.setText(text)
 
-    def select_feature(self, point):
+    def select_feature(self, point, layers=self.iface.mapCanvas().layers()):
         """Select layer and get nearest feature
 
         Args:
             point (point): point
         """
-        self.select_layer(self.iface.mapCanvas().layers())
+        self.select_layer(layers)
         point_click = QgsGeometry.fromPointXY(QgsPointXY(point.x(), point.y()))
         near_features = list(
             filter(

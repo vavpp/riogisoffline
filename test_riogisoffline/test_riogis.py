@@ -68,7 +68,7 @@ def test_select_feature(riogis):
     
     from qgis.core import QgsPointXY
     point = QgsPointXY(0,0)
-    riogis.select_feature(point)
+    riogis.select_feature(point, layers=[Layer()])
 
 def test_get_feature_data(riogis):
     
