@@ -49,7 +49,7 @@ def riogis_without_run():
 @pytest.fixture
 def riogis(riogis_without_run):
     riogis_without_run.run()
-    riogis_without_run.select_layer(Layer())
+    riogis_without_run.select_layer([Layer()])
     #riogis_without_run.layer = Layer()
     return riogis_without_run
     
@@ -58,7 +58,7 @@ def test_run(riogis_without_run):
 
 def test_select_layer(riogis_without_run):
     riogis_without_run.run()
-    riogis_without_run.select_layer(Layer())
+    riogis_without_run.select_layer([Layer()])
 
 def test_load_select_elements(riogis):
     data = riogis.load_select_elements()

@@ -25,6 +25,9 @@ class Layer:
   def __init__(self):
     self.features = [Feature()]
 
+  def name(self):
+    return 'Bestillinger'
+
   def getFeatures(self):
     return self.features
   
