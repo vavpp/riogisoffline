@@ -7,11 +7,6 @@ class Field:
   def name(self):
     return self._name
 
-def fields(*args):
-  yield Field('lsid', 123)
-  yield Field('from_psid', 564)
-  yield Field('to_psid', 456)
-
 class Feature:
   def __init__(self):
     pass
