@@ -9,3 +9,21 @@ def fields(*args):
   yield Field('lsid', 123)
   yield Field('from_psid', 564)
   yield Field('to_psid', 456)
+
+class Feature:
+  def __init__(self):
+    pass
+    
+  def geometry():
+    return (0,0)
+    
+  def fields(self):
+    return [Field('lsid', 123), Field('from_psid', 564), Field('to_psid', 456)]
+
+class Layer:
+  def __init__(self):
+    self.features = [Feature()]
+
+  def getFeatures(self):
+    return self.features
+    
