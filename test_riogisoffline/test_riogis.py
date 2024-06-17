@@ -83,7 +83,9 @@ def test_map_attributes(riogis):
     point = QgsPointXY(0,0)
     riogis.select_feature(point, layers=[Layer()])
     data = riogis.get_feature_data()
-    riogis.settings = {'operator': 'Operator'}
+    riogis.settings.update({
+        "operator": "Operator"
+    })
     riogis.map_attributes(data)
 
 def test_handle_map_click(riogis):
