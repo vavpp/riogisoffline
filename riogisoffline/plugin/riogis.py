@@ -201,8 +201,9 @@ class RioGIS:
         data["workorder"] = ""
         if not data.get('form'):
             data['form'] = ""
-
-        utils.printInfoMessage(f'Ledning valgt: LSID {data["lsid"]} (fra PSID {data["from_psid"]} til {data["to_psid"]}), {data["streetname"]}, {data["fcodegroup"]}', message_duration=5)
+            
+        # Turn this off for testing
+        #utils.printInfoMessage(f'Ledning valgt: LSID {data["lsid"]} (fra PSID {data["from_psid"]} til {data["to_psid"]}), {data["streetname"]}, {data["fcodegroup"]}', message_duration=5)
 
         old_keys = set(data.keys())
         map_keys = set(self.mapper.keys())
