@@ -69,10 +69,12 @@ def test_select_feature(riogis):
     from qgis.core import QgsPointXY
     point = QgsPointXY(0,0)
     riogis.select_feature(point, layers=[Layer()])
+    assert riogis.feature
 
 def test_get_feature_data(riogis):
     
     riogis.select_layer([Layer()])
+    
     data = riogis.get_feature_data()
     assert data
 
