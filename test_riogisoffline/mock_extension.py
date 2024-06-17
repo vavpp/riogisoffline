@@ -45,7 +45,7 @@ class Layer:
 class Point:
   def __init__(self):
     pass
-    
+
   def x(self):
     return 0
 
