@@ -4,6 +4,7 @@ class Field:
   def __init__(self, name, value):
     self._name = name
     self._value = value
+
   def name(self):
     return self._name
 
@@ -44,8 +45,10 @@ class Layer:
 class Point:
   def __init__(self):
     pass
+    
   def x(self):
     return 0
+
   def y(self):
     return 0
       

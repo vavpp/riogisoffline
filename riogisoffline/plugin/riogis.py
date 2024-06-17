@@ -201,7 +201,7 @@ class RioGIS:
         data["workorder"] = ""
         if not data.get('form'):
             data['form'] = ""
-            
+
         # Turn this off for testing
         #utils.printInfoMessage(f'Ledning valgt: LSID {data["lsid"]} (fra PSID {data["from_psid"]} til {data["to_psid"]}), {data["streetname"]}, {data["fcodegroup"]}', message_duration=5)
 
@@ -222,8 +222,12 @@ class RioGIS:
         self.mapTool.canvasClicked.connect(self.export_feature)
         self.canvas.setMapTool(self.mapTool)
 
-    def export_feature(self, point, mouse_button):
-        self.select_feature(point)
+    def export_feature(self, point, mouse_button, layers=None):
+        # For test to work, we must be able to mock self.layer
+        if layers is None:
+            self.select_layer(self.iface.mapCanvas().layers())
+        else:
+            self.select_layer(layers)
 
         if self.feature:
             self.dlg.btnEksport.setEnabled(True)
