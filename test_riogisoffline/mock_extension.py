@@ -11,7 +11,7 @@ class Feature:
   def __init__(self):
     pass
     
-  def geometry():
+  def geometry(self):
     return QgsGeometry.fromPointXY(QgsPointXY(0, 0))
   
   def __getattr__(self, name):
