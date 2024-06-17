@@ -66,7 +66,7 @@ def test_load_select_elements(riogis):
 
 def test_get_feature_data(riogis):
     # TypeError: 'Mock' object is not iterable
-    
+    riogis.select_layer([Layer()])
     data = riogis.get_feature_data()
     assert data
 
