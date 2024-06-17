@@ -96,6 +96,9 @@ def test_export_feature(riogis):
     point = QgsPointXY(0,0)
     riogis.select_feature(point, layers=[Layer()])
     data = riogis.get_feature_data()
+    riogis.settings.update({
+        "operator": "Operator"
+    })
     riogis.map_attributes(data)
     riogis.export_feature()
     
