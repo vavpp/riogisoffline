@@ -1,5 +1,6 @@
 from qgis.core import QgsGeometry, QgsPointXY
 
+
 class Field:
   def __init__(self, name, value):
     self._name = name
@@ -7,6 +8,7 @@ class Field:
 
   def name(self):
     return self._name
+
 
 class Feature:
   def __init__(self):
@@ -22,6 +24,7 @@ class Feature:
   def __getitem__(self, key):
         return getattr(self, key)
     
+
 class Layer:
   def __init__(self):
     self.features = [Feature()]
@@ -41,6 +44,18 @@ class Layer:
         Field('streetname', 'testgata'),
         Field('fcodegroup', 'avlop')
       ]
+  def startEditing(self):
+    pass
+
+  def updateFeature(self, feature):
+    pass
+
+  def commitChanges(self):
+    pass
+
+  def triggerRepaint(self):
+    pass
+
 
 class Point:
   def __init__(self):
