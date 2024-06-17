@@ -62,7 +62,13 @@ def test_select_layer(riogis_without_run):
 
 def test_load_select_elements(riogis):
     data = riogis.load_select_elements()
-    assert data
+    assert 
+    
+def test_select_feature(riogis):
+    
+    from qgis.core import QgsPointXY
+    point = QgsPointXY(0,0)
+    riogis.select_feature(point)
 
 def test_get_feature_data(riogis):
     
@@ -78,12 +84,7 @@ def test_map_attributes(riogis):
 def test_handle_map_click(riogis):
     riogis.handle_map_click()
     
-def test_select_feature(riogis):
-    
-    
-    from qgis.core import QgsPointXY
-    point = QgsPointXY(0,0)
-    riogis.select_feature(point)
+
 
 def test_export_feature(riogis):
     
