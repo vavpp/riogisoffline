@@ -79,24 +79,29 @@ def test_get_feature_data(riogis):
     assert data
 
 def test_map_attributes(riogis):
-    
-    
-    riogis.map_attributes(riogis.get_feature_data())
+    riogis.select_layer([Layer()])
+    point = QgsPointXY(0,0)
+    riogis.select_feature(point, layers=[Layer()])
+    data = riogis.get_feature_data()
+    riogis.map_attributes(data)
 
 def test_handle_map_click(riogis):
     riogis.handle_map_click()
     
-
-
 def test_export_feature(riogis):
-    
-    
+    riogis.select_layer([Layer()])
+    point = QgsPointXY(0,0)
+    riogis.select_feature(point, layers=[Layer()])
+    data = riogis.get_feature_data()
+    riogis.map_attributes(data)
     riogis.export_feature()
     
 def test_update_feature_status(riogis):
-    # init data
-    riogis.map_attributes(riogis.get_feature_data())
-    
+    riogis.select_layer([Layer()])
+    point = QgsPointXY(0,0)
+    riogis.select_feature(point, layers=[Layer()])
+    data = riogis.get_feature_data()
+    riogis.map_attributes(data)
     riogis.update_feature_status()
 
 def test_refresh_map(riogis):
