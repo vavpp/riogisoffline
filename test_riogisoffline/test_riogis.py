@@ -62,7 +62,7 @@ def test_select_layer(riogis_without_run):
 
 def test_load_select_elements(riogis):
     data = riogis.load_select_elements()
-    assert 
+    assert data
     
 def test_select_feature(riogis):
     
