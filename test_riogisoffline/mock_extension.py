@@ -13,6 +13,13 @@ class Feature:
     
   def geometry():
     return QgsGeometry.fromPointXY(QgsPointXY(0, 0))
+  
+  def __getattr__(self, name):
+    if name not in ['geometry']:
+      return name
+
+  def __getitem__(self, key):
+        return getattr(self, key)
     
 class Layer:
   def __init__(self):
@@ -23,4 +30,12 @@ class Layer:
   
   def fields(self):
     return [Field('lsid', 123), Field('from_psid', 564), Field('to_psid', 456)]
-    
+
+class Point:
+  def __init__(self):
+    pass
+  def x(self):
+    return 0
+  def y(self):
+    return 0
+      

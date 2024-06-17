@@ -8,7 +8,8 @@ import pytest
 from qgis.testing.mocked import get_iface
 sys.path = [os.path.abspath('..')]+sys.path
 from riogisoffline.plugin.riogis import RioGIS
-from mock_extension import Layer as MockLayer
+from mock_extension import Layer, Point
+
 
 @pytest.fixture(scope="session", autouse=True)
 def virtual_display():
@@ -49,7 +50,7 @@ def riogis_without_run():
 def riogis(riogis_without_run):
     riogis_without_run.run()
     riogis_without_run.select_layer()
-    riogis_without_run.layer = MockLayer()
+    riogis_without_run.layer = Layer()
     return riogis_without_run
     
 def test_run(riogis_without_run):
