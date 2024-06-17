@@ -14,13 +14,13 @@ class Feature:
   def geometry():
     return QgsGeometry.fromPointXY(QgsPointXY(0, 0))
     
-  def fields(self):
-    return [Field('lsid', 123), Field('from_psid', 564), Field('to_psid', 456)]
-
 class Layer:
   def __init__(self):
     self.features = [Feature()]
 
   def getFeatures(self):
     return self.features
+  
+  def fields(self):
+    return [Field('lsid', 123), Field('from_psid', 564), Field('to_psid', 456)]
     
