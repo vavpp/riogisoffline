@@ -121,7 +121,16 @@ def test_refresh_map(riogis):
 
 def test_write_output_file(riogis):
     # AttributeError: 'NoneType' object has no attribute 'get'
-    
+    riogis.select_layer([Layer()])
+    point = QgsPointXY(0,0)
+    riogis.select_feature(point, layers=[Layer()])
+    data = riogis.get_feature_data()
+    riogis.settings.update({
+        "operator": "Operator"
+    })
+    riogis.map_attributes(data)
+    riogis.iface.activeLayer = lambda: Layer()
+    riogis.export_feature(point, None)
     riogis.write_output_file()
 
 def test_populate_select_values(riogis):
