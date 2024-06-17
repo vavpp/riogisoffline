@@ -65,13 +65,13 @@ def test_load_select_elements(riogis):
     assert data
 
 def test_get_feature_data(riogis):
-    # TypeError: 'Mock' object is not iterable
+    
     riogis.select_layer([Layer()])
     data = riogis.get_feature_data()
     assert data
 
 def test_map_attributes(riogis):
-    # TypeError: 'Mock' object is not iterable
+    
     
     riogis.map_attributes(riogis.get_feature_data())
 
@@ -79,14 +79,14 @@ def test_handle_map_click(riogis):
     riogis.handle_map_click()
     
 def test_select_feature(riogis):
-    # TypeError: 'Mock' object is not iterable
+    
     
     from qgis.core import QgsPointXY
     point = QgsPointXY(0,0)
     riogis.select_feature(point)
 
 def test_export_feature(riogis):
-    # TypeError: 'Mock' object is not iterable
+    
     
     riogis.export_feature()
     
