@@ -18,8 +18,10 @@ class Feature:
     return QgsGeometry.fromPointXY(QgsPointXY(0, 0))
   
   def __getattr__(self, name):
-    if name not in ['geometry']:
+    if name not in ['geometry', 'status_internal']:
       return name
+    elif name == 'status_internal':
+      return 3
 
   def __getitem__(self, key):
         return getattr(self, key)
