@@ -9,7 +9,7 @@ from qgis.testing.mocked import get_iface
 sys.path = [os.path.abspath('..')]+sys.path
 from riogisoffline.plugin.riogis import RioGIS
 from mock_extension import Layer, Point
-
+ from qgis.core import QgsPointXY
 
 @pytest.fixture(scope="session", autouse=True)
 def virtual_display():
@@ -66,15 +66,15 @@ def test_load_select_elements(riogis):
     
 def test_select_feature(riogis):
     
-    from qgis.core import QgsPointXY
     point = QgsPointXY(0,0)
     riogis.select_feature(point, layers=[Layer()])
-    assert riogis.feature
+    assert riogis.feature is not None
 
 def test_get_feature_data(riogis):
     
     riogis.select_layer([Layer()])
-    
+    point = QgsPointXY(0,0)
+    riogis.select_feature(point, layers=[Layer()])
     data = riogis.get_feature_data()
     assert data
 
