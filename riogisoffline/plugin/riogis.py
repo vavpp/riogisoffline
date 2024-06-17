@@ -249,7 +249,7 @@ class RioGIS:
         Args:
             point (point): point
         """
-        self.select_layer()
+        self.select_layer(self.iface.mapCanvas().layers())
         point_click = QgsGeometry.fromPointXY(QgsPointXY(point.x(), point.y()))
         near_features = list(
             filter(
@@ -350,9 +350,8 @@ class RioGIS:
             items = item["keys"]
             dlg_obj.addItems(items)
 
-    def select_layer(self):
+    def select_layer(self, layers):
         # Fetch currently loaded layers
-        layers = self.iface.mapCanvas().layers()
         name = self.settings["feature_name"]
         names = [l.name() for l in layers]
         if name in names:
