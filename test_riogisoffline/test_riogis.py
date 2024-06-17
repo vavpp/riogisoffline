@@ -102,7 +102,9 @@ def test_update_feature_status(riogis):
     point = QgsPointXY(0,0)
     riogis.select_feature(point, layers=[Layer()])
     data = riogis.get_feature_data()
-    riogis.settings = {'operator': 'Operator'}
+    riogis.settings.update(
+        "operator": "Operator"
+    }
     riogis.map_attributes(data)
     riogis.update_feature_status()
 
