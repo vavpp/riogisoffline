@@ -252,7 +252,7 @@ class RioGIS:
         if layers is None:
             self.select_layer(self.iface.mapCanvas().layers())
         else:
-            select_layer(layers)
+            self.select_layer(layers)
         point_click = QgsGeometry.fromPointXY(QgsPointXY(point.x(), point.y()))
         near_features = list(
             filter(
