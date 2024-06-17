@@ -127,7 +127,7 @@ def test_write_output_file(riogis):
     data = riogis.get_feature_data()
     riogis.settings.update({
         "operator": "Operator",
-        "output_folder: "."
+        "output_folder": "./"
     })
     riogis.map_attributes(data)
     riogis.iface.activeLayer = lambda: Layer()
