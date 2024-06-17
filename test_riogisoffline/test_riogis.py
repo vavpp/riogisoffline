@@ -9,7 +9,7 @@ from qgis.testing.mocked import get_iface
 sys.path = [os.path.abspath('..')]+sys.path
 from riogisoffline.plugin.riogis import RioGIS
 from mock_extension import Layer, Point
- from qgis.core import QgsPointXY
+from qgis.core import QgsPointXY
 
 @pytest.fixture(scope="session", autouse=True)
 def virtual_display():
