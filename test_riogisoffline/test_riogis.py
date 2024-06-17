@@ -100,7 +100,7 @@ def test_export_feature(riogis):
         "operator": "Operator"
     })
     riogis.map_attributes(data)
-    riogis.export_feature()
+    riogis.export_feature(point, None)
     
 def test_update_feature_status(riogis):
     riogis.select_layer([Layer()])
