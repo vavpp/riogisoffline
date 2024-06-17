@@ -25,7 +25,7 @@ class Feature:
 
   def __getitem__(self, key):
     return getattr(self, key)
-    
+
   def __setitem__(self, name, value):
     setattr(self, name, value)
 
@@ -48,7 +48,8 @@ class Layer:
         Field('to_psid', 456),
         Field('operator', 'test'),
         Field('streetname', 'testgata'),
-        Field('fcodegroup', 'avlop')
+        Field('fcodegroup', 'avlop'),
+        Field('fcode', 'AF')
       ]
   def startEditing(self):
     pass

@@ -308,7 +308,8 @@ class RioGIS:
     def refresh_map(self):
         
         if not os.path.exists(utils.get_user_settings_path()): 
-            utils.printWarningMessage("Legg til bruker-innstillinger (bruker_settings.json)!")
+            # "Must" be turned off for testing
+            #utils.printWarningMessage("Legg til bruker-innstillinger (bruker_settings.json)!")
             return
 
         userfolder = self.settings["userfolder"]
