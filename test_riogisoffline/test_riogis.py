@@ -133,7 +133,7 @@ def test_write_output_file(riogis):
     riogis.iface.activeLayer = lambda: Layer()
     riogis.export_feature(point, None)
     riogis.write_output_file()
-    assert 'user_settings.json' in os.listdir()
+    assert 'bruker_settings.json' in os.listdir()
 
 def test_populate_select_values(riogis):
     riogis.populate_select_values()
