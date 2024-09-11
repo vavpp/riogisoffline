@@ -66,7 +66,7 @@ LAYERS = [
                     {
                         "rules": [
                             {
-                                "expression": '"status" = 2',
+                                "expression": '"status" = 1',
                                 "color": QColor(255, 170, 0, alpha=255),
                                 "outline": True,
                                 "width": 1,
@@ -74,7 +74,7 @@ LAYERS = [
                                 "fill": "transparent",
                             },
                             {
-                                "expression": '"status" = 3',
+                                "expression": '"status" = 2',
                                 "color": QColor(169, 0, 230, alpha=255),
                                 "outline": True,
                                 "width": 1,
