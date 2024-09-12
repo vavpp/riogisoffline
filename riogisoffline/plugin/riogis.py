@@ -228,6 +228,8 @@ class RioGIS:
             self.select_layer(self.iface.mapCanvas().layers())
         else:
             self.select_layer(layers)
+        
+        self.select_feature(point)
 
         if self.feature:
             self.dlg.btnEksport.setEnabled(True)
@@ -254,10 +256,6 @@ class RioGIS:
         Args:
             point (point): point
         """
-        if layers is None:
-            self.select_layer(self.iface.mapCanvas().layers())
-        else:
-            self.select_layer(layers)
         point_click = QgsGeometry.fromPointXY(QgsPointXY(point.x(), point.y()))
         near_features = list(
             filter(
