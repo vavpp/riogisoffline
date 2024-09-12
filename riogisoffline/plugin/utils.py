@@ -35,6 +35,9 @@ def printInfoMessage(message, message_duration=default_message_duration):
         message (String): message to printInfoMessage
     """
 
+    if not iface:
+        return
+
     iface.messageBar().pushMessage(
             "", message, level=Qgis.Info, duration=message_duration
        )
@@ -45,6 +48,9 @@ def printWarningMessage(message, message_duration=default_message_duration):
     Args:
         message (String): message to printInfoMessage
     """
+
+    if not iface:
+        return
 
     iface.messageBar().pushMessage(
             "", message, level=Qgis.Warning, duration=message_duration
@@ -57,6 +63,9 @@ def printCriticalMessage(message, message_duration=default_message_duration):
         message (String): message to printInfoMessage
     """
 
+    if not iface:
+        return
+
     iface.messageBar().pushMessage(
             "", message, level=Qgis.Critical, duration=message_duration
        )
@@ -67,6 +76,9 @@ def printSuccessMessage(message, message_duration=default_message_duration):
     Args:
         message (String): message to printInfoMessage
     """
+
+    if not iface:
+        return
 
     iface.messageBar().pushMessage(
             "", message, level=Qgis.Success, duration=message_duration
