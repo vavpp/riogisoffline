@@ -203,7 +203,7 @@ class RioGIS:
             data['form'] = ""
 
         # Turn this off for testing
-        #utils.printInfoMessage(f'Ledning valgt: LSID {data["lsid"]} (fra PSID {data["from_psid"]} til {data["to_psid"]}), {data["streetname"]}, {data["fcodegroup"]}', message_duration=5)
+        utils.printInfoMessage(f'Ledning valgt: LSID {data["lsid"]} (fra PSID {data["from_psid"]} til {data["to_psid"]}), {data["streetname"]}, {data["fcodegroup"]}', message_duration=5)
 
         old_keys = set(data.keys())
         map_keys = set(self.mapper.keys())
@@ -259,10 +259,11 @@ class RioGIS:
         point_click = QgsGeometry.fromPointXY(QgsPointXY(point.x(), point.y()))
         near_features = list(
             filter(
-                lambda feat: point_click.distance(feat.geometry()) < 10,
+                lambda feat: point_click.distance(feat.geometry()) < 10 and point_click.distance(feat.geometry()) >= 0,
                 self.layer.getFeatures(),
             )
         )
+        
         nearest_feature_distances = [
             point_click.distance(feat.geometry()) for feat in near_features
         ]
