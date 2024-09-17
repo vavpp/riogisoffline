@@ -5,6 +5,7 @@ from qgis.gui import QgsMapToolEmitPoint
 from qgis.PyQt.QtCore import QSettings, QTranslator, QCoreApplication, Qt
 from qgis.PyQt.QtGui import QIcon
 from qgis.PyQt.QtWidgets import QAction
+from qgis.PyQt.QtWidgets import QProgressBar
 
 # Initialize Qt resources from file resources.py
 from .resources import *
@@ -55,6 +56,7 @@ class RioGIS:
         self.map_has_been_clicked = False
         self.feature = None
         self.data = None
+        self.azure_connection = None
 
     # noinspection PyMethodMayBeStatic
     def tr(self, message):
@@ -122,6 +124,10 @@ class RioGIS:
         self.dlg.btnEksport.clicked.connect(self._handle_export)
         # disable export-button until a feature is selected
         self.dlg.btnEksport.setEnabled(False)
+
+        self.dlg.btnUpload.clicked.connect(self.uploadFiles)
+        # disable upload-button until user selects dir with selectUploadDir
+        self.dlg.btnUpload.setEnabled(False)
 
         selectFileDialog = SettingsDialog()
 
@@ -349,6 +355,16 @@ class RioGIS:
         with open(self.filename, "w") as f:
             config.write(f, space_around_delimiters=False)
 
+    def uploadFiles(self):
+
+        if not self.establish_azure_connection():
+            return
+
+        dir_path_to_upload = self.dlg.selectUploadDir.filePath()
+        self.azure_connection.upload_dir(dir_path_to_upload)
+
+        
+
     def populate_select_values(self):
         models = self.settings["ui_models"]
         for _, item in models.items():
@@ -382,6 +398,23 @@ class RioGIS:
 
         self.iface.addDockWidget(Qt.RightDockWidgetArea, self.dlg) 
 
+    def establish_azure_connection(self):
+        if not os.path.exists(utils.get_user_settings_path()): 
+            utils.printWarningMessage("Legg til bruker-innstillinger (bruker_settings.json)!")
+            return False
+        
+        if not self.azure_connection:
+            self.azure_connection = AzureBlobStorageConnection(self.settings["azure_key"])
+
+        if not self.azure_connection.connected:
+            return False
+
+        return True
+    
+    def run_syncronize_in_background(self):
+        # sync = Syncronizer(self, self.azure_connection)
+        # parallel_job.run_in_new_thread(sync.sync_now)
+        ...
 
     def startSyncWorker(self):
 
@@ -391,16 +424,14 @@ class RioGIS:
             utils.printWarningMessage("Legg til bruker-innstillinger (bruker_settings.json)!")
             return
         
-        azure_connection = AzureBlobStorageConnection(self.settings["azure_key"])
-
-        if not azure_connection.connected:
+        if not self.establish_azure_connection():
             return
         
         utils.printInfoMessage("Starter synkronisering")
 
         # create a new worker instance
         
-        worker = Worker(azure_connection)
+        worker = Worker(self.azure_connection)
 
         # start the worker in a new thread
         thread = QtCore.QThread(self.dlg)
@@ -409,7 +440,7 @@ class RioGIS:
         worker.finished.connect(self.workerFinished)
         worker.error.connect(self.workerError)
 
-        from qgis.PyQt.QtWidgets import QProgressBar
+
         self.bar = QProgressBar()
         self.bar.setRange(0, 100)
         self.iface.mainWindow().statusBar().addWidget(self.bar, stretch=2)
