@@ -6,6 +6,8 @@ from qgis.PyQt.QtCore import QSettings, QTranslator, QCoreApplication, Qt
 from qgis.PyQt.QtGui import QIcon
 from qgis.PyQt.QtWidgets import QAction
 from qgis.PyQt.QtWidgets import QProgressBar
+from qgis.PyQt.QtWidgets import QDockWidget, QToolBar
+from qgis.core import Qgis
 
 # Initialize Qt resources from file resources.py
 from .resources import *
@@ -119,13 +121,13 @@ class RioGIS:
         self.dlg.btnSelectMapClick.clicked.connect(self.handle_map_click)
         self.dlg.btnReset.clicked.connect(self.refresh_map)
 
-        self.dlg.btnSync.clicked.connect(self.startSyncWorker)
+        self.dlg.btnSync.clicked.connect(self.run_syncronize_in_background)
 
         self.dlg.btnEksport.clicked.connect(self._handle_export)
         # disable export-button until a feature is selected
         self.dlg.btnEksport.setEnabled(False)
 
-        self.dlg.btnUpload.clicked.connect(self.uploadFiles)
+        self.dlg.btnUpload.clicked.connect(self.run_upload_wincan_dir_in_background)
         # disable upload-button until user selects dir with selectUploadDir
         self.dlg.btnUpload.setEnabled(False)
 
@@ -141,10 +143,8 @@ class RioGIS:
         self.show_necessary_panels()
 
     def show_necessary_panels(self):
-        from qgis.PyQt.QtWidgets import QDockWidget, QToolBar
         
         needed_panels = ['Layers', 'mPluginToolBar', 'mAttributesToolBar', 'mMapNavToolBar']
-        from qgis.core import Qgis
         for x in self.iface.mainWindow().findChildren(QDockWidget) + self.iface.mainWindow().findChildren(QToolBar):
 
             if x.objectName() in ["MessageLog", "RioGIS2"]:
@@ -407,85 +407,19 @@ class RioGIS:
             self.azure_connection = AzureBlobStorageConnection(self.settings["azure_key"])
 
         if not self.azure_connection.connected:
+            self.azure_connection = None
             return False
 
         return True
     
     def run_syncronize_in_background(self):
-        # sync = Syncronizer(self, self.azure_connection)
-        # parallel_job.run_in_new_thread(sync.sync_now)
-        ...
+        from .multi_thread_job import MultiThreadJob
+        mtj = MultiThreadJob(self)
+        mtj.startSyncWorker()
 
-    def startSyncWorker(self):
-
-        # TODO move out of riogis maybe?
-
-        if not os.path.exists(utils.get_user_settings_path()): 
-            utils.printWarningMessage("Legg til bruker-innstillinger (bruker_settings.json)!")
-            return
+    def run_upload_wincan_dir_in_background(self):
+        from .multi_thread_job import MultiThreadJob
+        mtj = MultiThreadJob(self)
+        mtj.startUploadWorker()
         
-        if not self.establish_azure_connection():
-            return
-        
-        utils.printInfoMessage("Starter synkronisering")
 
-        # create a new worker instance
-        
-        worker = Worker(self.azure_connection)
-
-        # start the worker in a new thread
-        thread = QtCore.QThread(self.dlg)
-        worker.moveToThread(thread)
-
-        worker.finished.connect(self.workerFinished)
-        worker.error.connect(self.workerError)
-
-
-        self.bar = QProgressBar()
-        self.bar.setRange(0, 100)
-        self.iface.mainWindow().statusBar().addWidget(self.bar, stretch=2)
-        
-        worker.progress.connect(
-            lambda p: self.bar.setValue(p)
-        )
-
-        def set_new_process(text):
-            self.bar.setValue(0)
-            self.bar.setFormat(f"{text} - %p%")
-
-        worker.process_name.connect(set_new_process)
-
-        worker.info.connect(lambda msg: utils.printInfoMessage(msg))
-
-
-        thread.started.connect(worker.run)
-        thread.start()
-
-        self.thread = thread
-        self.worker = worker
-
-        # disable buttons when running
-        self.dlg.btnSync.setEnabled(False)
-
-
-
-    def workerFinished(self):
-        # clean up the worker and thread
-        self.worker.deleteLater()
-        self.thread.quit()
-        self.thread.wait()
-        self.thread.deleteLater()
-
-        # enable buttons when finished
-        self.dlg.btnSync.setEnabled(True)
-
-        self.iface.mainWindow().statusBar().removeWidget(self.bar)
-        utils.printSuccessMessage("Synkronisering gjennomført!")
-
-    def workerError(self, e, exception_string):
-        utils.printCriticalMessage('Worker thread raised an exception:\n{}'.format(exception_string))
-
-        self.workerFinished()
-
-    def workerWarning(self, msg):
-        utils.printWarningMessage(msg)

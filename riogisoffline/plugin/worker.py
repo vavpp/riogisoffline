@@ -12,8 +12,6 @@ class Worker(QtCore.QObject):
 
     def run(self):
         try:
-            # TODO move to syncronizer?
-            # TODO add kill button
             sync = Syncronizer(self, self.azure_connection)
             sync.sync_now()
         except Exception as e:

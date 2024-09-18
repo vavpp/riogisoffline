@@ -162,8 +162,6 @@ class Syncronizer:
         active_layer.triggerRepaint()
 
     def sync_now(self):
-        
-        utils.set_busy_cursor(True)
 
         # Load settings variables     
         self._setup()
@@ -182,8 +180,7 @@ class Syncronizer:
                 self._update(layer_name, self._filename, self._up_filename, idstr)
     
                 self.signal_progress(100)
-
-        utils.set_busy_cursor(False)
+                
         self.worker.finished.emit()
 
     def signal_progress(self, progress):

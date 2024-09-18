@@ -3,6 +3,8 @@ import riogisoffline.plugin.utils as utils
 from azure.storage.blob import BlobServiceClient
 import os
 from pathlib import Path
+import uuid
+from azure.storage.blob import BlobBlock
 
 class AzureBlobStorageConnection:
 
@@ -36,7 +38,7 @@ class AzureBlobStorageConnection:
         
         syncronizer.signal_progress(100)
 
-    def upload_dir(self, dir_path):
+    def upload_dir(self, dir_path, worker):
 
         subdirs_to_upload = {
             "DB": "DB",
@@ -50,15 +52,41 @@ class AzureBlobStorageConnection:
             p = Path(os.path.join(dir_path, subdir_path))
 
             if not p.is_dir():
-                # TODO: Legg til feilmelding til brukeren her
-                raise Exception(f"ERROR: '{subdir_path}' does not exist in dir: '{dir_path}'")
+                worker.warning.emit(f"ERROR: '{subdir_path}' does not exist in dir: '{dir_path}'")
+                worker.finished.emit()
+                return
 
         # upload to azure
+        chunk_size=4*1024*1024
         container_client = self.blob_service_client.get_container_client(container="wincan-files")
+
+        # TODO: show how many files will be uploaded and show how many are left
+        
         for dir_name, subdir_path in subdirs_to_upload.items():
-            print("\n", dir_name)
             for fullsubdirpath, _, filenames in os.walk(os.path.join(os.path.join(dir_path, subdir_path))):
                 for filename in filenames:
-                    print(filename)
-                    with open(file=os.path.join(fullsubdirpath, filename), mode="rb") as data:
-                        container_client.upload_blob(name=os.path.join("test", dir_name, filename), data=data, overwrite=True)
+                    worker.process_name.emit(filename)
+                    worker.progress.emit(0)
+
+                    block_list = []
+                    blob_client = container_client.get_blob_client(os.path.join("test", dir_name, filename))
+                    chunk_num = 0
+
+                    with  open(file=os.path.join(fullsubdirpath, filename), mode="rb") as  f:
+                        while  True:
+
+                            chunk_num += 1
+                            read_data = f.read(chunk_size)
+                            if  not  read_data:
+                                break  # done
+                            blk_id = str(uuid.uuid4())
+                            blob_client.stage_block(block_id=blk_id,data=read_data)
+                            block_list.append(BlobBlock(block_id=blk_id))
+                            blob_client.commit_block_list(block_list)
+                            
+                            progress = int((chunk_size*chunk_num)/os.path.getsize(os.path.join(fullsubdirpath, filename))*100)
+                            worker.progress.emit(min(progress, 100))
+
+                    worker.info.emit(f"Lastet opp {dir_name}/{filename}")
+        
+        worker.finished.emit()
