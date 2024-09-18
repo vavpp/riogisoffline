@@ -35,6 +35,7 @@ class MultiThreadJob:
 
         worker.finished.connect(self.workerFinished)
         worker.error.connect(self.workerError)
+        worker.warning.connect(self.workerWarning)
 
         self.bar = QProgressBar()
         self.bar.setRange(0, 100)
@@ -88,7 +89,7 @@ class MultiThreadJob:
         self.workerFinished()
 
     def workerWarning(self, msg):
-        utils.printWarningMessage(msg)
+        utils.printWarningMessage(msg, message_duration=5)
 
 
 class SyncWorker(QtCore.QObject):

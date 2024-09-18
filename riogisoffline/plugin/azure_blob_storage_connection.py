@@ -53,6 +53,7 @@ class AzureBlobStorageConnection:
 
             if not p.is_dir():
                 worker.warning.emit(f"ERROR: '{subdir_path}' does not exist in dir: '{dir_path}'")
+                worker.warning.emit(f"Mappen du valgte har ikke riktig mappestruktur. Sjekk om du har valgt riktig mappe.")
                 worker.finished.emit()
                 return
 
