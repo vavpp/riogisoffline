@@ -41,7 +41,7 @@ class AzureBlobStorageConnection:
 
     def upload_dir(self, dir_path, worker):
 
-        azure_dir_with_date = f"test/{date.today().strftime("%Y_%m_%d")}"
+        azure_dir_with_date = f"test/{date.today().strftime('%Y_%m_%d')}"
 
         subdirs_to_upload = {
             "DB": "DB",
