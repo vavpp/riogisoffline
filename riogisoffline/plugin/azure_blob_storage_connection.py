@@ -5,6 +5,7 @@ import os
 from pathlib import Path
 import uuid
 from azure.storage.blob import BlobBlock
+from datetime import date
 
 class AzureBlobStorageConnection:
 
@@ -40,6 +41,8 @@ class AzureBlobStorageConnection:
 
     def upload_dir(self, dir_path, worker):
 
+        azure_dir_with_date = f"test/{date.today().strftime("%Y_%m_%d")}"
+
         subdirs_to_upload = {
             "DB": "DB",
             "Document": "Misc/Docu",
@@ -70,7 +73,7 @@ class AzureBlobStorageConnection:
                     worker.progress.emit(0)
 
                     block_list = []
-                    blob_client = container_client.get_blob_client(os.path.join("test", dir_name, filename))
+                    blob_client = container_client.get_blob_client(os.path.join(azure_dir_with_date, dir_name, filename))
                     chunk_num = 0
 
                     with  open(file=os.path.join(fullsubdirpath, filename), mode="rb") as  f:

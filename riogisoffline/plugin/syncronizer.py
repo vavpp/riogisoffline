@@ -189,7 +189,7 @@ class Syncronizer:
         Args:
             progress (number): number between 0 and 100 indicating progress for current process
         """
-        if progress > 100 or progress < 0:
+        if int(progress) > 100 or int(progress) < 0:
             self.signal_warning_message(f"Trying to set progress outside of legal range: {progress}")
             return
 
