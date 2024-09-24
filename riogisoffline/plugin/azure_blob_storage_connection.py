@@ -57,7 +57,7 @@ class AzureBlobStorageConnection:
 
             # TODO? test that dir name starts with date
             dir_name = os.path.split(dir_path)[-1]
-            azure_dir_with_date = os.path.join("test", dir_name)
+            new_azure_dir = os.path.join("test", "new", dir_name)
 
             worker.info.emit(f"Mappe: {dir_name}")
 
@@ -89,7 +89,7 @@ class AzureBlobStorageConnection:
                         worker.progress.emit(0)
 
                         block_list = []
-                        blob_client = container_client.get_blob_client(os.path.join(azure_dir_with_date, subdir_to_upload_name, filename))
+                        blob_client = container_client.get_blob_client(os.path.join(new_azure_dir, subdir_to_upload_name, filename))
                         chunk_num = 0
 
                         with  open(file=os.path.join(fullsubdirpath, filename), mode="rb") as  f:
