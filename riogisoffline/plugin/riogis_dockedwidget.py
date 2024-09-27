@@ -2,6 +2,7 @@ import os
 
 from qgis.PyQt import uic, QtWidgets
 from qgis.PyQt import QtCore
+from pathlib import Path
 
 import riogisoffline.plugin.utils as utils
 
@@ -23,6 +24,8 @@ class RioGISDocked(QtWidgets.QDockWidget, FORM_CLASS):
         # TODO set title?
         self.setWindowTitle("")
 
+        self.selectUploadDir.fileChanged.connect(self.handleSelectUploadDir)
+
 
     def refresh_dialog(self):
 
@@ -39,3 +42,8 @@ class RioGISDocked(QtWidgets.QDockWidget, FORM_CLASS):
 
         return user_settings_str
     
+    def handleSelectUploadDir(self):
+        selected_path = self.selectUploadDir.filePath()
+
+        if selected_path and Path(selected_path).is_dir():
+            self.btnUpload.setEnabled(True)

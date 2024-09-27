@@ -1,5 +1,7 @@
 pytest
 pytest-cov
-azure-storage-blob
 riogisoffline
 pyvirtualdisplay
+
+azure-storage-blob
+azure-data-tables
