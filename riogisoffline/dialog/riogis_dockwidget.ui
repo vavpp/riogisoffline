@@ -109,7 +109,7 @@ QPushButton, QComboBox{
     <item row="9" column="1" colspan="2">
      <widget class="QLabel" name="lblSelectWeather">
       <property name="text">
-       <string>Avrenning:</string>
+       <string>Nedbør:</string>
       </property>
      </widget>
     </item>

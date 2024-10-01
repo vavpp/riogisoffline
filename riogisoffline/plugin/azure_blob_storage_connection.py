@@ -8,11 +8,21 @@ import uuid
 from datetime import datetime
 
 class AzureBlobStorageConnection:
+    """
+    Class that connects to Azure Blob Storage. Can upload and download
+    """
 
     connected = False
 
     def __init__(self, connect_str):
+        """
+        Establishes connection to Azure Storage Blob
+
+        Args:
+            connect_str (str): Connection string to Azure
+        """
         self.connect_str = connect_str
+        self.env = "prod"
 
         try:
             self.blob_service_client = BlobServiceClient.from_connection_string(connect_str)
@@ -25,6 +35,13 @@ class AzureBlobStorageConnection:
 
 
     def download_db(self, file_name, syncronizer):
+        """
+        Download database-file
+
+        Args:
+            file_name (str): file name to save file as
+            syncronizer (Syncronizer): Syncronizer-object used for signalling
+        """
         
         blob_client = self.blob_service_client.get_blob_client(container="offlinesecure", blob=f"latest/{utils.get_db_name()}")
         download_stream = blob_client.download_blob()
@@ -43,6 +60,13 @@ class AzureBlobStorageConnection:
         syncronizer.signal_progress(100)
 
     def upload_dir(self, all_insp_dir_path, worker):
+        """
+        Upload content of directory containing WinCan-output directories
+
+        Args:
+            all_insp_dir_path (str): path to dir
+            worker (Worker): worker running function
+        """
 
 
         subdirs_to_upload = {
@@ -57,7 +81,7 @@ class AzureBlobStorageConnection:
 
             # TODO? test that dir name starts with date
             dir_name = os.path.split(dir_path)[-1]
-            new_azure_dir = os.path.join("test", "new", dir_name)
+            new_azure_dir = os.path.join(self.env, "new", dir_name)
 
             worker.info.emit(f"Mappe: {dir_name}")
 
@@ -117,14 +141,29 @@ class AzureBlobStorageConnection:
 
 
     def dir_has_been_uploaded_before(self, dir_name):
-        
-        entities = self.table_client.list_entities()
+        """
+        Return true if dir has been uploaded before
+
+        Args:
+            dir_name (str): inspection directory name
+
+        Returns:
+            bool: True if dir has been uploaded before, False otherwise
+        """
+        query_filter = f"PartitionKey eq '{self.env}'"
+        entities = self.table_client.query_entities(query_filter)
         return dir_name in [e["dir_name"] for e in entities if "dir_name" in e.keys()]
     
     def add_dir_name_to_table(self, dir_name):
+        """
+        Insert dir name into table that lists what directories have been uploaded before
+
+        Args:
+            dir_name (str): inspection directory name
+        """
         rowKey = str(uuid.uuid4())
         new_row = {
-            u'PartitionKey': u"test",
+            u'PartitionKey': self.env,
             u'RowKey': rowKey,
             u'dir_name': dir_name,
             u"upload_time": str(datetime.now())

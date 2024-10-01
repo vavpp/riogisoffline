@@ -5,21 +5,42 @@ import riogisoffline.plugin.utils as utils
 import traceback
 from .syncronizer import Syncronizer
 
+
 class MultiThreadJob:
+    """
+    Class that handles multi threading so that functions can run in the background
+
+    Attributes:
+    riogis : RioGIS
+        main RioGIS-object
+    
+    """
 
     def __init__(self, riogis):
         self.riogis = riogis
 
     def startSyncWorker(self):
+        """
+        Start worker in new thread that runs Syncronizer.sync_now()
+        """
         utils.printInfoMessage("Starter synkronisering")
         self.startWorker(SyncWorker)
 
     def startUploadWorker(self):
+        """
+        Start worker in new thread that runs AzureBlobStorageConnection.upload_dir()
+        """
         utils.printInfoMessage("Starter opplasting")
         self.startWorker(UploadWorker)
 
 
     def startWorker(self, worker_class):
+        """
+        Start a worker of given class in new thread
+
+        Args:
+            worker_class (QtCore.QObject): worker class
+        """
         
         if not self.riogis.establish_azure_connection():
             return
