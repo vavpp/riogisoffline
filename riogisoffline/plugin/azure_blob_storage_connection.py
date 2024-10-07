@@ -97,7 +97,7 @@ class AzureBlobStorageConnection:
                 if not p.is_dir():
                     worker.warning.emit(f"ERROR: '{subdir_path}' does not exist in dir: '{dir_path}'")
                     worker.warning.emit(f"Mappen du valgte har ikke riktig mappestruktur. Sjekk om du har valgt riktig mappe.")
-                    worker.finished.emit()
+                    worker.finished.emit(True)
                     return
 
             # upload to azure
@@ -137,7 +137,7 @@ class AzureBlobStorageConnection:
             self.add_dir_name_to_table(dir_name)
 
 
-        worker.finished.emit()
+        worker.finished.emit(False)
 
 
     def dir_has_been_uploaded_before(self, dir_name):

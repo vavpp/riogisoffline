@@ -95,6 +95,12 @@ LAYERS = [
                         ),
                         "label": "project_name",
                     },
+                    
+                ],
+            },
+            {
+                "group": "VA-data",
+                "items": [
                     {
                         "rules": [
                             {
@@ -209,6 +215,7 @@ LAYERS = [
                             "Eiendomskart",
                             "ogr",
                         ),
+                        "disable_at_startup": True,
                     },
                     {
                         "rules": [
@@ -243,6 +250,7 @@ LAYERS = [
                             "BygganleggLinje",
                             "ogr",
                         ),
+                        "disable_at_startup": True,
                     },
                     {
                         "rules": [
@@ -257,6 +265,7 @@ LAYERS = [
                             "Høydekurve",
                             "ogr",
                         ),
+                        "disable_at_startup": True,
                     },
                     {
                         "rules": [
@@ -282,6 +291,7 @@ LAYERS = [
                             "BygganleggPunkt",
                             "ogr",
                         ),
+                        "disable_at_startup": True,
                     },
                     {
                         "rules": [
@@ -296,6 +306,7 @@ LAYERS = [
                             "VApunkt",
                             "ogr",
                         ),
+                        "disable_at_startup": True,
                     },
                 ],
             },
@@ -333,7 +344,7 @@ class MapRefresher:
         # Save the project as a .qgz file
         project.write()
 
-        utils.printInfoMessage("Map refreshed")
+        utils.printInfoMessage("Lastet kart")
 
         return project
     
@@ -354,6 +365,8 @@ class MapRefresher:
         if label:
             self._set_map_label(layer, label)
 
+        disable_at_startup = maps.get("disable_at_startup")
+        
         layer.setCrs(QgsCoordinateReferenceSystem("EPSG:25832"))
         
         if maps["rules"]:
@@ -362,6 +375,14 @@ class MapRefresher:
             pass
 
         group.addLayer(layer)
+        
+        # disable VA-data group when loading map
+        if name == "VA-data":
+            group.setItemVisibilityChecked(False)
+        
+        # dont show items marked disable_at_startup
+        if disable_at_startup:
+            group.findLayer(layer).setItemVisibilityChecked(not disable_at_startup)
 
     def _add_rules(self, layer, maps, name, label):
         symbol = QgsSymbol.defaultSymbol(layer.geometryType())
@@ -416,6 +437,9 @@ class MapRefresher:
         layer_settings.fieldName = field
         layer_settings.enabled = True
 
+        layer_settings.minimumScale = 25000
+        layer_settings.scaleVisibility = True
+        
         layer_settings = QgsVectorLayerSimpleLabeling(layer_settings)
         layer.setLabelsEnabled(True)
         layer.setLabeling(layer_settings)

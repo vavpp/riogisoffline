@@ -1,7 +1,6 @@
 import os
 
-from qgis.PyQt import uic, QtWidgets
-from qgis.PyQt import QtCore
+from qgis.PyQt import uic, QtWidgets, QtCore, QtGui
 from pathlib import Path
 
 import riogisoffline.plugin.utils as utils

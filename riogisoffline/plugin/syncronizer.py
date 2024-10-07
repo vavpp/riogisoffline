@@ -181,7 +181,7 @@ class Syncronizer:
     
                 self.signal_progress(100)
                 
-        self.worker.finished.emit()
+        self.worker.finished.emit(False)
 
     def signal_progress(self, progress):
         """Signal progress (0 to 100, inclusive) for current process to main thread

@@ -4,6 +4,7 @@ from qgis.PyQt import QtCore
 import riogisoffline.plugin.utils as utils
 import traceback
 from .syncronizer import Syncronizer
+from abc import abstractmethod
 
 
 class MultiThreadJob:
@@ -87,7 +88,10 @@ class MultiThreadJob:
 
 
 
-    def workerFinished(self):
+    def workerFinished(self, has_failed=False):
+    
+        self.worker.finished_running(has_failed=has_failed)
+
         # clean up the worker and thread
         self.worker.deleteLater()
         self.thread.quit()
@@ -101,23 +105,44 @@ class MultiThreadJob:
         self.riogis.iface.mainWindow().statusBar().removeWidget(self.bar)
         
         utils.set_busy_cursor(False)
-        
-        utils.printInfoMessage("Jobb gjennomført", message_duration=1)
 
     def workerError(self, e, exception_string):
         utils.printCriticalMessage('Worker thread raised an exception:\n{}'.format(exception_string))
 
-        self.workerFinished()
+        self.workerFinished(has_failed=True)
 
     def workerWarning(self, msg):
         utils.printWarningMessage(msg, message_duration=5)
 
 
-class SyncWorker(QtCore.QObject):
+class Worker(QtCore.QObject):
     def __init__(self, riogis):
         QtCore.QObject.__init__(self)
         self.killed = False
         self.riogis = riogis
+
+    def kill(self):
+        self.killed = True
+
+    @abstractmethod
+    def run(self):
+        pass
+
+    @abstractmethod
+    def finished_running(self, has_failed):
+        pass
+
+    # emit has_failed (bool) when finished
+    finished = QtCore.pyqtSignal(bool)
+    
+    error = QtCore.pyqtSignal(Exception, str)
+    warning = QtCore.pyqtSignal(str)
+    info = QtCore.pyqtSignal(str)
+
+    progress = QtCore.pyqtSignal(int)
+    process_name = QtCore.pyqtSignal(str)
+
+class SyncWorker(Worker):
 
     def run(self):
         try:
@@ -127,22 +152,15 @@ class SyncWorker(QtCore.QObject):
             # forward the exception upstream
             self.error.emit(e, traceback.format_exc())
 
-    def kill(self):
-        self.killed = True
+    def finished_running(self, has_failed):
+        if has_failed:
+            utils.printWarningMessage("Noe gikk galt! Synkronisering avbrutt.")
+            return
 
-    finished = QtCore.pyqtSignal()
-    error = QtCore.pyqtSignal(Exception, str)
-    warning = QtCore.pyqtSignal(str)
-    info = QtCore.pyqtSignal(str)
+        self.riogis.refresh_map()
+        utils.printInfoMessage("Ferdig synkronisert", message_duration=1)
 
-    progress = QtCore.pyqtSignal(int)
-    process_name = QtCore.pyqtSignal(str)
-
-class UploadWorker(QtCore.QObject):
-    def __init__(self, riogis):
-        QtCore.QObject.__init__(self)
-        self.killed = False
-        self.riogis = riogis
+class UploadWorker(Worker):
 
     def run(self):
         try:
@@ -152,14 +170,9 @@ class UploadWorker(QtCore.QObject):
             # forward the exception upstream
             self.error.emit(e, traceback.format_exc())
 
-    def kill(self):
-        self.killed = True
-
-    finished = QtCore.pyqtSignal()
-    error = QtCore.pyqtSignal(Exception, str)
-    warning = QtCore.pyqtSignal(str)
-    info = QtCore.pyqtSignal(str)
-
-    progress = QtCore.pyqtSignal(int)
-    process_name = QtCore.pyqtSignal(str)
-    # TODO lag en worker wrapper class som disse kan extende
+    def finished_running(self, has_failed):
+        if has_failed:
+            utils.printWarningMessage("Noe gikk galt! Opplasting avbrutt.")
+            return
+        
+        utils.printInfoMessage("Opplasting gjennomført", message_duration=1)
