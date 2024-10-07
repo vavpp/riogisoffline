@@ -144,14 +144,16 @@ class RioGIS:
 
     def show_necessary_panels(self):
         
-        needed_panels = ['Layers', 'mPluginToolBar', 'mAttributesToolBar', 'mMapNavToolBar']
+        needed_panels = ['Layers', 'mPluginToolBar', 'mAttributesToolBar', 'mMapNavToolBar', 'MessageLog']
         for x in self.iface.mainWindow().findChildren(QDockWidget) + self.iface.mainWindow().findChildren(QToolBar):
-
-            if x.objectName() in ["MessageLog", "RioGIS2"]:
+            utils.printInfoMessage(x.objectName())
+            if x.objectName() in ["RioGIS2"]:
                 continue
 
             if x.objectName() in needed_panels:
                 x.setVisible(True)
+                
+                utils.printInfoMessage(" - vis " + x.objectName())
             else:
                 x.setVisible(False)
 
