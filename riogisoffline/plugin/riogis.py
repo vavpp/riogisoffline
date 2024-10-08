@@ -146,7 +146,7 @@ class RioGIS:
         
         needed_panels = ['Layers', 'mPluginToolBar', 'mAttributesToolBar', 'mMapNavToolBar', 'MessageLog']
         for x in self.iface.mainWindow().findChildren(QDockWidget) + self.iface.mainWindow().findChildren(QToolBar):
-            utils.printInfoMessage(x.objectName())
+            
             if x.objectName() in ["RioGIS2"]:
                 continue
 
