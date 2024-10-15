@@ -249,10 +249,15 @@ class RioGIS:
 
         text = f'Ledning valgt: LSID: <strong>{data['lsid']}</strong> (fra PSID {data["from_psid"]} til {data["to_psid"]}), Gate: <strong>{streetname}</strong>, Type: <strong>{fcode}</strong>'
         
-        # show in dialog
-        self.dlg.textLedningValgt.setText(text.replace(",", "<br>").replace("Ledning valgt: ", "Ledning valgt: <br>") + "<br>")
         # show in message
         utils.printInfoMessage(text, message_duration=5)
+        
+        # show in dialog
+        dlgText = text.replace(",", "<br>").replace("Ledning valgt: ", "Ledning valgt: <br>")
+        dlgText += "<br>"
+        if not "orderd_ident" in data:
+            dlgText += "<p style='color:#d60;'><strong>Advarsel:</strong> Ledningen er ikke bestilt, og vil opprette en ny bestilling! Hvis du prøver å velge en eksisterende bestilling kan du prøve å skru av laget \"VA-data\", og velge ledningen på nytt.</p>"
+        self.dlg.textLedningValgt.setText(dlgText)
 
     def select_feature(self, point, layers=None):
         """
@@ -338,34 +343,24 @@ class RioGIS:
 
         selected_feature_fields = self.feature.attributeMap()
 
-        print("\n\n\n\n\nher kommer det:")
-        print(selected_feature_fields)
-
         new_feature.setFields(self.layer.fields())
-
-        print(selected_feature_fields.keys())
         
         for attr, val in selected_feature_fields.items():
             if attr in new_feature.fields().names():
                 new_feature.setAttribute(attr, val)
         
         new_feature.setAttribute("status_internal", 2)
-        new_feature.setAttribute("GlobalID", 1)
-        print("\nmer:")
-        print(new_feature.attributeMap())
-
-
-        #new_feature.setAttributes([0, 'hello'])
-        #new_feature.setAttribute('name', 'hello')
-
+        new_feature.setAttribute("objectid", 1000000)
 
         # set geometry
         new_feature.setGeometry(self.feature.geometry())
 
-        (res, outFeats) = self.layer.dataProvider().addFeatures([new_feature])
-        self.layer.updateFields()
-        print(res, outFeats)
-
+        # TODO: fails when adding feature. returns false
+        res = self.layer.dataProvider().addFeature(new_feature)
+        print("RESULTAT:", res)
+        
+        self.layer.updateFeature(new_feature)
+        
         return new_feature 
 
     def get_feature_data(self):
@@ -424,8 +419,6 @@ class RioGIS:
         config = configparser.ConfigParser()
         config.optionxform = str
         config[f"Inspection1"] = self.data
-
-        # TODO ? write output to output-folder?
 
         # write out the wincan file its a python config file format
         with open(self.filename, "w") as f:
