@@ -371,7 +371,8 @@ class RioGIS:
         """
 
         # convert field data to a dictionary
-        data = {atn: self.feature[atn] for atn in self.layer.fields().names()}
+        fieldnames = [field.name() for field in self.layer.fields()]
+        data = {atn: self.feature[atn] for atn in fieldnames}
         
         # if anything is a datetime object, convert it to a string
         for key in data.keys():
