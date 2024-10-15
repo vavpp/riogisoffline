@@ -285,7 +285,7 @@ class RioGIS:
         nearest_feature_distances_without_duplicates = nearest_feature_distances.copy()
         feature_lsids = [feat["lsid"] for feat in nearest_feature_distances]
         for feat in nearest_feature_distances:
-            if feature_lsids.count(feat["lsid"]) > 1 and not "orderd_ident" in feat.fields().names():
+            if feature_lsids.count(feat["lsid"]) > 1 and not "orderd_ident" in getFieldNames(feat.fields()):
                 del nearest_feature_distances_without_duplicates[feat]
         
         if not nearest_feature_distances_without_duplicates:
@@ -318,7 +318,7 @@ class RioGIS:
         self.layer.startEditing()
 
         # create new feature in "Bestilling" if feature is not in that layer
-        if not "status_internal" in self.feature.fields().names():
+        if not "status_internal" in getFieldNames(self.feature.fields()):
             self.create_new_order_feature()
         else:
             order_feature = self.feature
@@ -346,7 +346,7 @@ class RioGIS:
         new_feature.setFields(self.layer.fields())
         
         for attr, val in selected_feature_fields.items():
-            if attr in new_feature.fields().names():
+            if attr in getFieldNames(new_feature.fields()):
                 new_feature.setAttribute(attr, val)
         
         new_feature.setAttribute("status_internal", 2)
@@ -371,8 +371,7 @@ class RioGIS:
         """
 
         # convert field data to a dictionary
-        fieldnames = [field.name() for field in self.layer.fields()]
-        data = {atn: self.feature[atn] for atn in fieldnames}
+        data = {atn: self.feature[atn] for atn in getFieldNames(self.layer.fields())}
         
         # if anything is a datetime object, convert it to a string
         for key in data.keys():
@@ -493,3 +492,16 @@ class RioGIS:
         mtj.startUploadWorker()
         
 
+def getFieldNames(obj):
+    """
+    Get field names from layer or feature
+
+    Args:
+        feature (QgsFeature or layer): feature or layer
+
+    Returns:
+        [str]: list of field names of given object 
+    """
+
+    fieldnames = [field.name() for field in obj.fields()]
+    return fieldnames
