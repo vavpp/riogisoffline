@@ -37,7 +37,7 @@ class RioGISDocked(QtWidgets.QDockWidget, FORM_CLASS):
 
     def format_user_settings(self, user_settings):
         user_settings_str = f"<p><strong>Operatør: {user_settings['operator']}</strong><br>"
-        user_settings_str += f"For å endre operatør (eller andre bruker-innstillinger), <br>trykk på <strong>\"{self.settingsButtonText}\"</strong>.</p>"
+        user_settings_str += f"For å endre operatør (eller andre bruker-innstillinger), trykk på <strong>\"{self.settingsButtonText}\"</strong>.</p>"
 
         return user_settings_str
     

@@ -21,7 +21,7 @@ class Syncronizer:
         
         # read user settings
         user_settings = utils.load_json(self._user_settings)
-        self._filepath = user_settings["userfolder"]
+        self._filepath = user_settings["file_folder"]
         if not os.path.exists(self._filepath):
             os.makedirs(self._filepath, exist_ok=True)
         y = datetime.datetime.now().strftime("%Y")
@@ -142,7 +142,7 @@ class Syncronizer:
                 new_features.append(feature)
 
         if new_features:
-            self.signal_info_message(f"{active_layer_name}: {len([f.id() for f in new_features])} nye features")
+            self.signal_info_message(f"{active_layer_name}: {len([f.id() for f in new_features])} nye objekter")
         else:
             self.signal_info_message(f"{active_layer_name}: Ingen ny data")
         

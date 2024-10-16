@@ -6,13 +6,13 @@
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>365</width>
+    <width>350</width>
     <height>458</height>
    </rect>
   </property>
   <property name="minimumSize">
    <size>
-    <width>365</width>
+    <width>340</width>
     <height>119</height>
    </size>
   </property>
@@ -25,11 +25,34 @@
   <property name="styleSheet">
    <string notr="true">QWidget{
 	margin: 0;
-	font-size: 10pt;
+	font-size: 10.1pt;
 }
-QPushButton, QComboBox{
- 	padding: 2px 4px;
-}</string>
+QComboBox{
+ 	padding: 2px 6px;
+}
+QPushButton{
+  text-align: center;
+  display: inline-block;
+  padding: 2px 0;
+  border: 1px solid #99a;
+  border-bottom: 2px solid #99a;
+  letter-spacing: 1px;
+  overflow:hidden;
+  margin: 0 10px;
+  background-color: #fafaff;
+  border-radius: 2px;
+}
+QPushButton:hover {
+    background-color: #446;
+    color: white;
+	border: 1px solid #fff;
+}
+QPushButton::disabled {
+    background-color: #ccc;
+    color: #777;
+	border: 1px solid #999;
+}
+</string>
   </property>
   <property name="windowTitle">
    <string>gsDockWidget</string>
@@ -49,83 +72,15 @@ QPushButton, QComboBox{
         <rect>
          <x>0</x>
          <y>0</y>
-         <width>312</width>
-         <height>646</height>
+         <width>313</width>
+         <height>707</height>
         </rect>
        </property>
        <layout class="QGridLayout" name="gridLayout">
-        <item row="18" column="0">
-         <widget class="QLabel" name="label">
+        <item row="14" column="0" colspan="2">
+         <widget class="QLabel" name="label_2">
           <property name="text">
-           <string>Velg ledning i kart:</string>
-          </property>
-         </widget>
-        </item>
-        <item row="4" column="0" colspan="2">
-         <widget class="Line" name="line_2">
-          <property name="orientation">
-           <enum>Qt::Horizontal</enum>
-          </property>
-         </widget>
-        </item>
-        <item row="27" column="0" colspan="2">
-         <widget class="QLabel" name="textLedningValgt">
-          <property name="text">
-           <string>Ingen ledning er valgt</string>
-          </property>
-         </widget>
-        </item>
-        <item row="7" column="0" colspan="2">
-         <widget class="QLabel" name="lblSelectPurpose">
-          <property name="text">
-           <string>Inspeksjonsformål:</string>
-          </property>
-         </widget>
-        </item>
-        <item row="18" column="1">
-         <widget class="QPushButton" name="btnSelectMapClick">
-          <property name="text">
-           <string>+</string>
-          </property>
-         </widget>
-        </item>
-        <item row="11" column="0" colspan="2">
-         <widget class="QLabel" name="lblSelectStandard">
-          <property name="text">
-           <string>Inspeksjonsstandard:</string>
-          </property>
-         </widget>
-        </item>
-        <item row="34" column="0" colspan="2">
-         <widget class="QLabel" name="label_7">
-          <property name="text">
-           <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p align=&quot;left&quot;&gt;&lt;span style=&quot; font-size:10pt; font-weight:600;&quot;&gt;Last opp ferdige inspeksjoner&lt;/span&gt;&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
-          </property>
-         </widget>
-        </item>
-        <item row="15" column="0" colspan="2">
-         <widget class="QComboBox" name="cmbSelectStatus"/>
-        </item>
-        <item row="1" column="1">
-         <widget class="QPushButton" name="btnSync">
-          <property name="text">
-           <string>Synkroniser</string>
-          </property>
-         </widget>
-        </item>
-        <item row="10" column="0" colspan="2">
-         <widget class="QComboBox" name="cmbSelectPrewashed"/>
-        </item>
-        <item row="13" column="0" colspan="2">
-         <widget class="QComboBox" name="cmbSelectStandard"/>
-        </item>
-        <item row="6" column="0" colspan="2">
-         <widget class="QComboBox" name="cmbSelectWeather"/>
-        </item>
-        <item row="35" column="0">
-         <widget class="QLabel" name="label_5">
-          <property name="text">
-           <string>Velg mappe å laste opp</string>
+           <string>Ny status:</string>
           </property>
          </widget>
         </item>
@@ -136,50 +91,76 @@ QPushButton, QComboBox{
           </property>
          </widget>
         </item>
-        <item row="1" column="0" rowspan="2">
-         <widget class="QLabel" name="label_3">
+        <item row="0" column="0" colspan="2">
+         <widget class="QLabel" name="label_6">
           <property name="text">
-           <string>Last ned kartdata</string>
+           <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p align=&quot;center&quot;&gt;&lt;span style=&quot; font-size:13pt; font-weight:600;&quot;&gt;RioGIS 2&lt;/span&gt;&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
           </property>
          </widget>
         </item>
-        <item row="28" column="0" colspan="2">
+        <item row="4" column="0" colspan="2">
+         <widget class="Line" name="line_2">
+          <property name="orientation">
+           <enum>Qt::Horizontal</enum>
+          </property>
+         </widget>
+        </item>
+        <item row="15" column="0" colspan="2">
+         <widget class="QComboBox" name="cmbSelectStatus"/>
+        </item>
+        <item row="31" column="0" colspan="2">
+         <widget class="Line" name="line">
+          <property name="orientation">
+           <enum>Qt::Horizontal</enum>
+          </property>
+         </widget>
+        </item>
+        <item row="6" column="0" colspan="2">
+         <widget class="QComboBox" name="cmbSelectWeather"/>
+        </item>
+        <item row="18" column="0" colspan="2">
+         <widget class="QPushButton" name="btnSelectMapClick">
+          <property name="styleSheet">
+           <string notr="true"/>
+          </property>
+          <property name="text">
+           <string>Velg ledning i kart</string>
+          </property>
+         </widget>
+        </item>
+        <item row="36" column="0" colspan="2">
+         <widget class="QLabel" name="label_7">
+          <property name="text">
+           <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p align=&quot;left&quot;&gt;&lt;span style=&quot; font-weight:600;&quot;&gt;Last opp ferdige inspeksjoner&lt;/span&gt;&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
+          </property>
+         </widget>
+        </item>
+        <item row="7" column="0" colspan="2">
+         <widget class="QLabel" name="lblSelectPurpose">
+          <property name="text">
+           <string>Inspeksjonsformål:</string>
+          </property>
+         </widget>
+        </item>
+        <item row="27" column="0" colspan="2">
+         <widget class="QLabel" name="textLedningValgt">
+          <property name="text">
+           <string>Ingen ledning er valgt</string>
+          </property>
+          <property name="wordWrap">
+           <bool>true</bool>
+          </property>
+         </widget>
+        </item>
+        <item row="32" column="0" colspan="2">
          <widget class="QLabel" name="textBrukerInfo">
           <property name="text">
            <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;&lt;span style=&quot; color:#e20000;&quot;&gt;Ingen bruker-info er satt! &lt;/span&gt;&lt;/p&gt;&lt;p&gt;&lt;span style=&quot; color:#e20000;&quot;&gt;Trykk på &lt;/span&gt;&lt;span style=&quot; font-weight:600; color:#e20000;&quot;&gt;&amp;quot;Legg til bruker-info...&amp;quot;&lt;/span&gt;&lt;span style=&quot; color:#e20000;&quot;&gt; for å legge til. &lt;/span&gt;&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
           </property>
-         </widget>
-        </item>
-        <item row="29" column="0" colspan="2">
-         <widget class="QPushButton" name="btnEksport">
-          <property name="text">
-           <string>Eksporter WinCan-fil...</string>
+          <property name="wordWrap">
+           <bool>true</bool>
           </property>
          </widget>
-        </item>
-        <item row="31" column="0" colspan="2">
-         <widget class="QPushButton" name="btnSelectSettingsFile">
-          <property name="text">
-           <string>Legg til bruker-info...</string>
-          </property>
-         </widget>
-        </item>
-        <item row="35" column="1">
-         <widget class="QgsFileWidget" name="selectUploadDir">
-          <property name="storageMode">
-           <enum>QgsFileWidget::GetDirectory</enum>
-          </property>
-         </widget>
-        </item>
-        <item row="5" column="0" colspan="2">
-         <widget class="QLabel" name="lblSelectWeather">
-          <property name="text">
-           <string>Nedbør:</string>
-          </property>
-         </widget>
-        </item>
-        <item row="8" column="0" colspan="2">
-         <widget class="QComboBox" name="cmbSelectPurpose"/>
         </item>
         <item row="3" column="0">
          <widget class="QLabel" name="label_4">
@@ -188,28 +169,17 @@ QPushButton, QComboBox{
           </property>
          </widget>
         </item>
-        <item row="0" column="0" colspan="2">
-         <widget class="QLabel" name="label_6">
+        <item row="8" column="0" colspan="2">
+         <widget class="QComboBox" name="cmbSelectPurpose"/>
+        </item>
+        <item row="28" column="0" colspan="2">
+         <widget class="QPushButton" name="btnEksport">
           <property name="text">
-           <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p align=&quot;center&quot;&gt;&lt;span style=&quot; font-size:12pt; font-weight:600;&quot;&gt;RioGIS 2 - Eksporter til WinCan&lt;/span&gt;&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
+           <string>Eksporter WinCan-fil...</string>
           </property>
          </widget>
         </item>
-        <item row="30" column="0" colspan="2">
-         <widget class="Line" name="line">
-          <property name="orientation">
-           <enum>Qt::Horizontal</enum>
-          </property>
-         </widget>
-        </item>
-        <item row="33" column="0" colspan="2">
-         <widget class="Line" name="line_3">
-          <property name="orientation">
-           <enum>Qt::Horizontal</enum>
-          </property>
-         </widget>
-        </item>
-        <item row="39" column="1">
+        <item row="42" column="1">
          <spacer name="verticalSpacer">
           <property name="orientation">
            <enum>Qt::Vertical</enum>
@@ -222,17 +192,20 @@ QPushButton, QComboBox{
           </property>
          </spacer>
         </item>
-        <item row="14" column="0" colspan="2">
-         <widget class="QLabel" name="label_2">
+        <item row="1" column="0">
+         <widget class="QLabel" name="label_3">
           <property name="text">
-           <string>Ny status:</string>
+           <string>Last ned kartdata</string>
           </property>
          </widget>
         </item>
-        <item row="38" column="1">
-         <widget class="QPushButton" name="btnUpload">
+        <item row="13" column="0" colspan="2">
+         <widget class="QComboBox" name="cmbSelectStandard"/>
+        </item>
+        <item row="11" column="0" colspan="2">
+         <widget class="QLabel" name="lblSelectStandard">
           <property name="text">
-           <string>Last opp</string>
+           <string>Inspeksjonsstandard:</string>
           </property>
          </widget>
         </item>
@@ -243,7 +216,21 @@ QPushButton, QComboBox{
           </property>
          </widget>
         </item>
-        <item row="40" column="0" colspan="2">
+        <item row="1" column="1">
+         <widget class="QPushButton" name="btnSync">
+          <property name="text">
+           <string>Synkroniser</string>
+          </property>
+         </widget>
+        </item>
+        <item row="33" column="0" colspan="2">
+         <widget class="QPushButton" name="btnSelectSettingsFile">
+          <property name="text">
+           <string>Legg til bruker-info...</string>
+          </property>
+         </widget>
+        </item>
+        <item row="43" column="0" colspan="2">
          <spacer name="horizontalSpacer">
           <property name="orientation">
            <enum>Qt::Horizontal</enum>
@@ -255,6 +242,47 @@ QPushButton, QComboBox{
            </size>
           </property>
          </spacer>
+        </item>
+        <item row="5" column="0" colspan="2">
+         <widget class="QLabel" name="lblSelectWeather">
+          <property name="text">
+           <string>Nedbør:</string>
+          </property>
+         </widget>
+        </item>
+        <item row="35" column="0" colspan="2">
+         <widget class="Line" name="line_3">
+          <property name="orientation">
+           <enum>Qt::Horizontal</enum>
+          </property>
+         </widget>
+        </item>
+        <item row="10" column="0" colspan="2">
+         <widget class="QComboBox" name="cmbSelectPrewashed"/>
+        </item>
+        <item row="40" column="0" colspan="2">
+         <widget class="QgsFileWidget" name="selectUploadDir">
+          <property name="storageMode">
+           <enum>QgsFileWidget::GetDirectory</enum>
+          </property>
+         </widget>
+        </item>
+        <item row="37" column="0" colspan="2">
+         <widget class="QLabel" name="label_5">
+          <property name="text">
+           <string>Velg mappe å laste opp</string>
+          </property>
+          <property name="wordWrap">
+           <bool>true</bool>
+          </property>
+         </widget>
+        </item>
+        <item row="41" column="0" colspan="2">
+         <widget class="QPushButton" name="btnUpload">
+          <property name="text">
+           <string>Last opp</string>
+          </property>
+         </widget>
         </item>
        </layout>
       </widget>

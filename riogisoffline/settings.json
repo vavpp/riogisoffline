@@ -96,6 +96,10 @@
         "status": "InternalStatus"
     },
     "feature_name": "Bestillinger",
+    "other_feature_names": [
+        "Avløpsledning",
+        "Vannledning"
+    ],
     "layer_definitions": {
         "Bestillinger": "lsid",
         "Prosjekt": "project_area_id"
