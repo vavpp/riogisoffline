@@ -136,7 +136,7 @@ def test_write_output_file(riogis):
     riogis.write_output_file()
     output_dirlist = os.listdir(get_plugin_dir())
     print(output_dirlist)
-    assert 'fcode-lsid.txt' in output_dirlist
+    assert 'AF-123.txt' in output_dirlist
 
 def test_populate_select_values(riogis):
     riogis.populate_select_values()
