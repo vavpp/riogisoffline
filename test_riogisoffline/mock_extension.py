@@ -1,6 +1,5 @@
 from qgis.core import QgsGeometry, QgsPointXY
 
-
 class Field:
   def __init__(self, name, value):
     self._name = name
@@ -8,7 +7,17 @@ class Field:
 
   def name(self):
     return self._name
-
+  
+mock_fields = [
+  Field('status_internal', 3),
+  Field('lsid', 123), 
+  Field('from_psid', 564), 
+  Field('to_psid', 456),
+  Field('operator', 'test'),
+  Field('streetname', 'testgata'),
+  Field('fcodegroup', 'avlop'),
+  Field('fcode', 'AF')
+]
 
 class Feature:
   def __init__(self):
@@ -33,16 +42,7 @@ class Feature:
     setattr(self, name, value)
 
   def fields(self):
-    return [
-      Field('status_internal', 3),
-      Field('lsid', 123), 
-      Field('from_psid', 564), 
-      Field('to_psid', 456),
-      Field('operator', 'test'),
-      Field('streetname', 'testgata'),
-      Field('fcodegroup', 'avlop'),
-      Field('fcode', 'AF')
-    ]
+    return mock_fields
     
 
 class Layer:
@@ -56,16 +56,8 @@ class Layer:
     return self.features
   
   def fields(self):
-    return [
-      Field('status_internal', 3),
-      Field('lsid', 123), 
-      Field('from_psid', 564), 
-      Field('to_psid', 456),
-      Field('operator', 'test'),
-      Field('streetname', 'testgata'),
-      Field('fcodegroup', 'avlop'),
-      Field('fcode', 'AF')
-      ]
+    return mock_fields
+  
   def startEditing(self):
     pass
 

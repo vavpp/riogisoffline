@@ -134,7 +134,9 @@ def test_write_output_file(riogis):
     riogis.iface.activeLayer = lambda: Layer()
     riogis.export_feature(point, None)
     riogis.write_output_file()
-    assert 'fcode-lsid.txt' in os.listdir(get_plugin_dir())
+    output_dirlist = os.listdir(get_plugin_dir())
+    print(output_dirlist)
+    assert 'fcode-lsid.txt' in output_dirlist
 
 def test_populate_select_values(riogis):
     riogis.populate_select_values()
