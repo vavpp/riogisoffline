@@ -247,7 +247,7 @@ class RioGIS:
         streetname = data["streetname"] if "streetname" in data else "-"
         fcode = utils.fcode_to_text(data["fcode"]) if str(data["fcodegroup"]).isnumeric() else data["fcodegroup"]
 
-        text = f'Ledning valgt: LSID: <strong>{data['lsid']}</strong> (fra PSID {data["from_psid"]} til {data["to_psid"]}), Gate: <strong>{streetname}</strong>, Type: <strong>{fcode}</strong>'
+        text = f'Ledning valgt: LSID: <strong>{data["lsid"]}</strong> (fra PSID {data["from_psid"]} til {data["to_psid"]}), Gate: <strong>{streetname}</strong>, Type: <strong>{fcode}</strong>'
         
         # show in message
         utils.printInfoMessage(text, message_duration=5)
