@@ -8,6 +8,7 @@ import pytest
 from qgis.testing.mocked import get_iface
 sys.path = [os.path.abspath('..')]+sys.path
 from riogisoffline.plugin.riogis import RioGIS
+from riogisoffline.plugin.utils import get_plugin_dir
 from mock_extension import Layer, Point
 from qgis.core import QgsPointXY
 
@@ -127,13 +128,13 @@ def test_write_output_file(riogis):
     data = riogis.get_feature_data()
     riogis.settings.update({
         "operator": "Operator",
-        "output_folder": "./"
+        "output_folder": get_plugin_dir()
     })
     riogis.map_attributes(data)
     riogis.iface.activeLayer = lambda: Layer()
     riogis.export_feature(point, None)
     riogis.write_output_file()
-    assert 'fcode-lsid.txt' in os.listdir()
+    assert 'fcode-lsid.txt' in os.listdir(get_plugin_dir())
 
 def test_populate_select_values(riogis):
     riogis.populate_select_values()
