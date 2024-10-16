@@ -18,10 +18,13 @@ class Feature:
     return QgsGeometry.fromPointXY(QgsPointXY(0, 0))
   
   def __getattr__(self, name):
-    if name not in self.fields():
+    fields = self.fields()
+    if name not in [field.name() for field in fields]:
       return name
-    elif name == 'status_internal':
-      return 3
+    
+    for field in fields:
+      if field.name() == name:
+        return field._value()
 
   def __getitem__(self, key):
     return getattr(self, key)
@@ -30,8 +33,10 @@ class Feature:
     setattr(self, name, value)
 
   def fields(self):
-    return ['geometry', 'status_internal']
-
+    return [
+      Field('geometry', self.geometry()),
+      Field('status_internal', 3)
+    ]
     
 
 class Layer:
