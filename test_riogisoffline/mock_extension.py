@@ -19,7 +19,7 @@ class Feature:
   
   def __getattr__(self, name):
     fields = self.fields()
-    if name not in [field.name() for field in fields]:
+    if name not in ([field.name() for field in fields]+['geometry']):
       return name
     
     for field in fields:
@@ -34,8 +34,14 @@ class Feature:
 
   def fields(self):
     return [
-      Field('geometry', self.geometry()),
-      Field('status_internal', 3)
+      Field('status_internal', 3),
+      Field('lsid', 123), 
+      Field('from_psid', 564), 
+      Field('to_psid', 456),
+      Field('operator', 'test'),
+      Field('streetname', 'testgata'),
+      Field('fcodegroup', 'avlop'),
+      Field('fcode', 'AF')
     ]
     
 
@@ -51,13 +57,14 @@ class Layer:
   
   def fields(self):
     return [
-        Field('lsid', 123), 
-        Field('from_psid', 564), 
-        Field('to_psid', 456),
-        Field('operator', 'test'),
-        Field('streetname', 'testgata'),
-        Field('fcodegroup', 'avlop'),
-        Field('fcode', 'AF')
+      Field('status_internal', 3),
+      Field('lsid', 123), 
+      Field('from_psid', 564), 
+      Field('to_psid', 456),
+      Field('operator', 'test'),
+      Field('streetname', 'testgata'),
+      Field('fcodegroup', 'avlop'),
+      Field('fcode', 'AF')
       ]
   def startEditing(self):
     pass
