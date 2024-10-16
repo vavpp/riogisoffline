@@ -24,7 +24,7 @@ class Feature:
     
     for field in fields:
       if field.name() == name:
-        return field._value()
+        return field._value
 
   def __getitem__(self, key):
     return getattr(self, key)
