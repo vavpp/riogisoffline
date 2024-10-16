@@ -104,3 +104,26 @@ def set_busy_cursor(set_busy=True):
         QtWidgets.QApplication.setOverrideCursor(QtGui.QCursor(QtCore.Qt.BusyCursor))
     else:
         QtWidgets.QApplication.restoreOverrideCursor()
+
+def fcode_to_text(fcode):
+    """
+    Convert fcode to fcode text
+
+    Args:
+        fcode (str): fcode
+
+    Returns:
+        str: fcode text
+    """
+    
+    fcode_text_map = {
+        'AF': 'Avløp',
+        'OV': 'Overvann',
+        'VL': 'Vann',
+        'SP': 'Spillvann',
+    }
+    
+    if not fcode in fcode_text_map:
+        return 'Ukjent'
+    
+    return fcode_text_map[fcode]
