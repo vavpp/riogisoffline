@@ -425,10 +425,6 @@ class RioGIS:
         with open(self.filename, "w") as f:
             config.write(f, space_around_delimiters=False)
 
-        # select file in explorer
-        import subprocess
-        subprocess.Popen(r'explorer /select,"' + self.filename + '"')
-
     def uploadFiles(self):
 
         if not self.establish_azure_connection():
