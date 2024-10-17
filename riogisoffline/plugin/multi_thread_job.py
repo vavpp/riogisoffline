@@ -82,11 +82,6 @@ class MultiThreadJob:
         self.thread = thread
         self.worker = worker
 
-        # disable buttons when running
-        self.riogis.dlg.btnSync.setEnabled(False)
-        self.riogis.dlg.btnUpload.setEnabled(False)
-
-
 
     def workerFinished(self, has_failed=False):
     
@@ -97,10 +92,6 @@ class MultiThreadJob:
         self.thread.quit()
         self.thread.wait()
         self.thread.deleteLater()
-
-        # enable buttons when finished
-        self.riogis.dlg.btnSync.setEnabled(True)
-        self.riogis.dlg.btnUpload.setEnabled(True)
 
         self.riogis.iface.mainWindow().statusBar().removeWidget(self.bar)
         
@@ -146,6 +137,10 @@ class SyncWorker(Worker):
 
     def run(self):
         try:
+
+            # disable button when running
+            self.riogis.dlg.btnSync.setEnabled(False)
+
             sync = Syncronizer(self, self.riogis.azure_connection)
             sync.sync_now()
         except Exception as e:
@@ -160,10 +155,17 @@ class SyncWorker(Worker):
         self.riogis.refresh_map()
         utils.printInfoMessage("Ferdig synkronisert", message_duration=1)
 
+        # enable button when finished
+        self.riogis.dlg.btnSync.setEnabled(True)
+
 class UploadWorker(Worker):
 
     def run(self):
         try:
+
+            # disable button when running
+            self.riogis.dlg.btnUpload.setEnabled(False)
+
             dir_path = self.riogis.dlg.selectUploadDir.filePath()
             self.riogis.azure_connection.upload_dir(dir_path, self)
         except Exception as e:
@@ -176,3 +178,6 @@ class UploadWorker(Worker):
             return
         
         utils.printInfoMessage("Opplasting gjennomført", message_duration=1)
+
+        # enable button when finished
+        self.riogis.dlg.btnUpload.setEnabled(True)
