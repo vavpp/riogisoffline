@@ -391,6 +391,8 @@ class MapRefresher:
 
         for i, rulebook in enumerate(maps["rules"]):
             if root_rule is None:
+                
+                # TODO fails when first time after syncing
                 root_rule = renderer.rootRule()
                 rule = root_rule.children()[0]
             else:

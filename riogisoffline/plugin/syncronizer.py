@@ -49,13 +49,11 @@ class Syncronizer:
             
         chunk_size = int(response.headers["Content-Length"])//100
         download_chunks = response.iter_content(chunk_size=chunk_size)
-        self.signal_info_message("Her starter nedlasting")
         
         progress_percentage = 0
 
 
         with open(filename, "wb") as file:
-            self.signal_info_message("Åpnet fil")
             for chunk in download_chunks:
 
                 self.signal_progress(progress_percentage)

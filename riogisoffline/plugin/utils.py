@@ -1,5 +1,6 @@
 import os
 import json
+import requests
 
 from qgis.utils import iface
 from qgis.core import Qgis
@@ -127,3 +128,35 @@ def fcode_to_text(fcode):
         return 'Ukjent'
     
     return fcode_text_map[fcode]
+
+def has_internet_connection():
+    """
+    Check if user has internet connection
+
+    Returns:
+        bool: is connected to internet
+    """
+    try:
+        requests.get("https://www.oslo.kommune.no", timeout=5)
+        return True
+    except requests.ConnectionError:
+        return False  
+
+def synced_files_exist():
+    """
+    Checks if DB- and backgound map-files exist
+
+    Returns:
+        bool: Files exist
+    """
+
+    filenames = [
+        os.getenv('BACKGROUND_MAP'),
+        os.getenv('SOURCE_MAP')
+    ]
+
+    for filename in filenames:
+        if not os.path.exists(filename):
+            return False 
+
+    return True

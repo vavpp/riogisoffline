@@ -387,7 +387,7 @@ class RioGIS:
         if not os.path.exists(utils.get_user_settings_path()): 
             utils.printWarningMessage("Legg til bruker-innstillinger (bruker_settings.json)!")
             return
-
+        
         userfolder = self.settings["userfolder"]
         filefolder = self.settings["file_folder"]
         filename = self.settings["project_filename"]
@@ -399,6 +399,11 @@ class RioGIS:
         bg_filepath = os.path.join(filefolder, bg)
         os.environ['BACKGROUND_MAP'] = bg_filepath
         os.environ['SOURCE_MAP'] = source_filepath
+       
+        # check that .db files and background exists in file_folder
+        if not utils.synced_files_exist():
+            utils.printWarningMessage("Mangler data for å laste kart. Trykk \"Synkroniser\" først!")
+            return
         
         from .refresh_map import MapRefresher 
         map_refresher = MapRefresher()
