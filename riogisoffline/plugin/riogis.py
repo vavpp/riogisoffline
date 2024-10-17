@@ -159,7 +159,8 @@ class RioGIS:
                 self.update_feature_status()
                 utils.printSuccessMessage("Lagret som: " + self.filename)
 
-                self.dlg.textLedningValgt.setText("Eksportert " + os.path.split(self.filename)[-1])
+                self.dlg.textLedningValgt.setText("Eksportert " + os.path.split(self.filename)[-1])        
+                self.dlg.btnEksport.setEnabled(False)
 
 
     def unload(self):
@@ -423,6 +424,10 @@ class RioGIS:
         # write out the wincan file its a python config file format
         with open(self.filename, "w") as f:
             config.write(f, space_around_delimiters=False)
+
+        # select file in explorer
+        import subprocess
+        subprocess.Popen(r'explorer /select,"' + self.filename + '"')
 
     def uploadFiles(self):
 
