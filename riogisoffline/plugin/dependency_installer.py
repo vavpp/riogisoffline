@@ -6,7 +6,7 @@ import riogisoffline.plugin.utils as utils
 
 class DependencyInstaller:
     def __init__(self):
-        self.exe = sys.executable.replace('qgis-bin', 'python')
+        self.exe = os.path.join(os.path.dirname(sys.executable), "python.exe")
         self.requirements_path = utils.get_plugin_dir("requirements.txt")
         
     def install_requirements(self):
