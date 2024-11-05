@@ -461,7 +461,7 @@ class MapRefresher:
             text_format.setColor(QColor(60, 60, 60))
             
             layer_settings.priority = 0
-            layer_settings.minimumScale = 1800
+            layer_settings.minimumScale = 4000
             layer_settings.placement = Qgis.LabelPlacement.OverPoint
         
         layer_settings.scaleVisibility = True
