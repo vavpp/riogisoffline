@@ -1,6 +1,7 @@
 import os
 from qgis.PyQt.QtGui import QColor, QFont
 from qgis.core import (
+    Qgis,
     QgsProject,
     QgsVectorLayer,
     QgsRuleBasedRenderer,
@@ -93,7 +94,7 @@ LAYERS = [
                         "geometry": QgsVectorLayer(
                             f"{source_filepath}|layername=Prosjekt", "Prosjekt", "ogr"
                         ),
-                        "label": "project_name",
+                        "label": "project_name || ': \n' ||comments",
                     },
                     
                 ],
@@ -107,12 +108,13 @@ LAYERS = [
                                 "expression": "",
                                 "color": QColor(122, 122, 122, alpha=200),
                                 "legend_label": "Kum",
+                                "size": 1.5,
                             }
                         ],
                         "geometry": QgsVectorLayer(
                             f"{source_filepath}|layername=Kum", "Kum", "ogr"
                         ),
-                        "label": "text",
+                        "label": "psid",
                     },
                     {
                         "rules": [
@@ -125,7 +127,7 @@ LAYERS = [
                         "geometry": QgsVectorLayer(
                             f"{source_filepath}|layername=Vannledning", "Vannledning", "ogr"
                         ),
-                        "label": "lsid",
+                        "label": "dim || ' ' || material || ' ' || fcode || lsid || '  '",
                     },
                     {
                         "rules": [
@@ -148,7 +150,7 @@ LAYERS = [
                         "geometry": QgsVectorLayer(
                             f"{source_filepath}|layername=Avløpsledning", "Avløpsledning", "ogr"
                         ),
-                        "label": "lsid",
+                        "label": "dim || ' ' || material || ' ' || fcode || lsid || '  '",
                     }
                 ],
             },
@@ -159,28 +161,11 @@ LAYERS = [
                         "rules": [
                             {
                                 "expression": "",
-                                "color": QColor(190, 178, 151, alpha=255),
-                                "outline": True,
-                                "width": 0.5,
-                                "legend_label": "",
-                                "fill": QColor(190, 178, 151, alpha=55),
-                            }
-                        ],
-                        "geometry": QgsVectorLayer(
-                            f"{bg_filepath}|layername=T32_0301bygning_flate",
-                            "Bygning",
-                            "ogr",
-                        ),
-                    },
-                    {
-                        "rules": [
-                            {
-                                "expression": "",
                                 "color": QColor(72, 196, 255, alpha=255),
                                 "outline": True,
-                                "width": 0.5,
+                                "width": 0.2,
                                 "legend_label": "",
-                                "fill": QColor(72, 196, 255, alpha=55),
+                                "fill": QColor(72, 196, 255, alpha=65),
                             }
                         ],
                         "geometry": QgsVectorLayer(
@@ -193,13 +178,30 @@ LAYERS = [
                                 "expression": "",
                                 "color": QColor(175, 175, 175, alpha=255),
                                 "outline": True,
-                                "width": 0.5,
+                                "width": 0.2,
                                 "legend_label": "",
-                                "fill": QColor(175, 175, 175, alpha=55),
+                                "fill": QColor(230, 230, 230, alpha=255),
                             }
                         ],
                         "geometry": QgsVectorLayer(
                             f"{bg_filepath}|layername=T32_0301veg_flate", "Veg", "ogr"
+                        ),
+                    },              
+                    {
+                        "rules": [
+                            {
+                                "expression": "",
+                                "color": QColor(190, 150, 130, alpha=255),
+                                "outline": True,
+                                "width": 0.2,
+                                "legend_label": "",
+                                "fill": QColor(235, 231, 222, alpha=255),
+                            }
+                        ],
+                        "geometry": QgsVectorLayer(
+                            f"{bg_filepath}|layername=T32_0301bygning_flate",
+                            "Bygning",
+                            "ogr",
                         ),
                     },
                     {
@@ -220,43 +222,8 @@ LAYERS = [
                     {
                         "rules": [
                             {
-                                "expression": '"OBJTYPE" = "AnnetGjerde"',
-                                "color": QColor(247, 247, 247, alpha=255),
-                                "legend_label": "AnnetGjerde",
-                            },
-                            {
-                                "expression": '"OBJTYPE" = "Bruavgrensning"',
-                                "color": QColor(0, 0, 0, alpha=255),
-                                "legend_label": "Bruavgrensning",
-                            },
-                            {
-                                "expression": '"OBJTYPE" = "BrønnGrense"',
-                                "color": QColor(98, 251, 252, alpha=255),
-                                "legend_label": "BrønnGrense",
-                            },
-                            {
-                                "expression": '"OBJTYPE" = "DamKant"',
-                                "color": QColor(53, 148, 255, alpha=255),
-                                "legend_label": "DamKant",
-                            },
-                            {
-                                "expression": '"OBJTYPE" = "Kultvert"',
-                                "color": QColor(122, 122, 122, alpha=255),
-                                "legend_label": "Kultvert",
-                            },
-                        ],
-                        "geometry": QgsVectorLayer(
-                            f"{bg_filepath}|layername=T32_0301bygnanlegg_linje",
-                            "BygganleggLinje",
-                            "ogr",
-                        ),
-                        "disable_at_startup": True,
-                    },
-                    {
-                        "rules": [
-                            {
                                 "expression": "",
-                                "color": QColor(229, 167, 0, alpha=255),
+                                "color": QColor(220, 167, 120, alpha=50),
                                 "legend_label": "",
                             }
                         ],
@@ -265,48 +232,83 @@ LAYERS = [
                             "Høydekurve",
                             "ogr",
                         ),
-                        "disable_at_startup": True,
+                        "disable_at_startup": False,
                     },
                     {
                         "rules": [
                             {
-                                "expression": '"OBJTYPE" = "BautaStatue"',
-                                "color": QColor(122, 122, 122, alpha=255),
-                                "legend_label": "BautaStatue",
+                                "expression": '"OBJTYPE" = \'Kumlokk\'',
+                                "color": QColor(255, 100, 40, alpha=100),
+                                "legend_label": "Kumlokk",
                             },
                             {
-                                "expression": '"OBJTYPE" = "BensinPumpe"',
-                                "color": QColor(122, 122, 122, alpha=255),
-                                "legend_label": "BensinPumpe",
+                                "expression": '"OBJTYPE" = \'VA_Sluk\'',
+                                "color": QColor(71, 150, 92, alpha=100),
+                                "legend_label": "Sluk",
                             },
                             {
-                                "expression": '"OBJTYPE" = "FlaggStang"',
-                                "color": QColor(122, 122, 122, alpha=255),
-                                "legend_label": "FlaggStang",
-                                "style": "dot  white",
+                                "expression": '"OBJTYPE" = \'VA_Hydrant\'',
+                                "color": QColor(30, 50, 200, alpha=100),
+                                "legend_label": "Hydrant",
                             },
                         ],
                         "geometry": QgsVectorLayer(
-                            f"{bg_filepath}|layername=T32_0301bygnanlegg_punkt",
-                            "BygganleggPunkt",
-                            "ogr",
-                        ),
-                        "disable_at_startup": True,
-                    },
-                    {
-                        "rules": [
-                            {
-                                "expression": "",
-                                "color": QColor(122, 122, 122, alpha=20),
-                                "legend_label": "",
-                            }
-                        ],
-                        "geometry": QgsVectorLayer(
-                            f"{bg_filepath}|layername=T32_0301ledningva_punkt",
+                            f"{bg_filepath}|layername=T32_0301ledning_punkt",
                             "VApunkt",
                             "ogr",
                         ),
                         "disable_at_startup": True,
+                    },
+                    {
+                        "rules": [
+                            {
+                                "expression": '"OBJTYPE" = \'PresAdressepunkt\'',
+                                "color": QColor(0, 0, 0, alpha=0),
+                                "legend_label": "Adresse",
+                                "outline": False,
+                                "width": 1,
+                                "fill": "transparent",
+                            },
+                            {
+                                "expression": '"OBJTYPE" = \'PresStedsnavn\'',
+                                "color": QColor(0, 0, 0, alpha=0),
+                                "legend_label": "Stedsnavn",
+                                "outline": False,
+                                "width": 1,
+                                "fill": "transparent",
+                            },
+                            {
+                                "expression": '"OBJTYPE" = \'PresVegnummer\'',
+                                "color": QColor(0, 0, 0, alpha=0),
+                                "legend_label": "Vegnummer",
+                                "outline": False,
+                                "width": 1,
+                                "fill": "transparent",
+                            },
+                            {
+                                "expression": '"OBJTYPE" = \'PresGatenavn\'',
+                                "color": QColor(0, 0, 0, alpha=0),
+                                "legend_label": "Gatenavn",
+                                "outline": False,
+                                "width": 1,
+                                "fill": "transparent",
+                            },
+                            {
+                                "expression": '"OBJTYPE" = \'PresAnnenTekst\'',
+                                "color": QColor(0, 0, 0, alpha=0),
+                                "legend_label": "AnnenTekst",
+                                "outline": False,
+                                "width": 1,
+                                "fill": "transparent",
+                            },
+                        ],
+                        "geometry": QgsVectorLayer(
+                            f"{bg_filepath}|layername=T32_0301_tekst1000_punkt",
+                            "Tekst",
+                            "ogr",
+                        ),
+                        "label": "STRENG",
+                        "disable_at_startup": False,
                     },
                 ],
             },
@@ -394,12 +396,19 @@ class MapRefresher:
                 
                 # TODO fails when first time after syncing
                 root_rule = renderer.rootRule()
-                rule = root_rule.children()[0]
+                try:
+                    rule = root_rule.children()[0]
+                except: 
+                    utils.printCriticalMessage("Lasting av kart feilet! Start QGIS på nytt og prøv igjen!", message_duration=0)
             else:
                 rule = root_rule.children()[0].clone()
 
             rule.setLabel(rulebook["legend_label"])
             rule.setFilterExpression(rulebook["expression"])
+            
+            if "size" in rulebook:
+                rule.symbol().setSize(rulebook["size"])
+                rule.symbol().setSizeUnit(Qgis.RenderUnit.MetersInMapUnits)
             
             if "outline" in rulebook:
                 rule.symbol().setColor(QColor(rulebook["fill"]))
@@ -414,11 +423,6 @@ class MapRefresher:
             if i > 0:
                 renderer.rootRule().appendChild(rule)
         
-        if name == "Bakgrunnskart":
-            renderer.setReferenceScale(1000)
-        elif label == "text":
-            renderer.setReferenceScale(500)
-        
         layer.setRenderer(renderer)
         layer.triggerRepaint()
 
@@ -431,18 +435,44 @@ class MapRefresher:
 
         buffer_settings = QgsTextBufferSettings()
         buffer_settings.setEnabled(True)
-        buffer_settings.setSize(1)
+        buffer_settings.setSize(0.5)
         buffer_settings.setColor(QColor("white"))
+        
+        if layer.name() == "Prosjekt":
+            layer_settings.minimumScale = 8000
+            layer_settings.maximumScale = 2000
+            
+            layer_settings.priority = 10
+            layer_settings.autoWrapLength = 80
+        elif layer.name() in ["Avløpsledning", "Vannledning"]:
+            text_format.setSize(13)
+
+            layer_settings.priority = 1        
+            layer_settings.minimumScale = 1000
+            layer_settings.placement = Qgis.LabelPlacement.Curved
+        elif layer.name() == "Kum":
+            text_format.setSize(11)
+            
+            layer_settings.priority = 10
+            layer_settings.minimumScale = 800
+            layer_settings.placement = Qgis.LabelPlacement.AroundPoint
+        else:
+            text_format.setSize(9)
+            text_format.setColor(QColor(60, 60, 60))
+            
+            layer_settings.priority = 0
+            layer_settings.minimumScale = 1800
+            layer_settings.placement = Qgis.LabelPlacement.OverPoint
+        
+        layer_settings.scaleVisibility = True
 
         text_format.setBuffer(buffer_settings)
         layer_settings.setFormat(text_format)
+        layer_settings.isExpression = True
         layer_settings.fieldName = field
         layer_settings.enabled = True
-
-        layer_settings.minimumScale = 25000
-        layer_settings.scaleVisibility = True
         
-        layer_settings = QgsVectorLayerSimpleLabeling(layer_settings)
+        layer_labeling = QgsVectorLayerSimpleLabeling(layer_settings)
         layer.setLabelsEnabled(True)
-        layer.setLabeling(layer_settings)
+        layer.setLabeling(layer_labeling)
         layer.triggerRepaint()

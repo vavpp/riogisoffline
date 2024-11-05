@@ -248,7 +248,7 @@ class RioGIS:
         streetname = data["streetname"] if "streetname" in data else "-"
         fcode = utils.fcode_to_text(data["fcode"]) if str(data["fcodegroup"]).isnumeric() else data["fcodegroup"]
 
-        text = f'Ledning valgt: LSID: <strong>{data["lsid"]}</strong> (fra PSID {data["from_psid"]} til {data["to_psid"]}), Gate: <strong>{streetname}</strong>, Type: <strong>{fcode}</strong>'
+        text = f'Ledning valgt: LSID: <strong>{data["lsid"]}</strong> (fra PSID {data["from_psid"]} til {data["to_psid"]}), Gate: <strong>{streetname}</strong>, Type: <strong>{fcode}</strong>, Dim: <strong>{data["dim"]}</strong>, Materiale: <strong>{data["material"]}</strong>'
         
         # show in message
         utils.printInfoMessage(text, message_duration=5)
@@ -257,7 +257,7 @@ class RioGIS:
         dlgText = text.replace(",", "<br>").replace("Ledning valgt: ", "Ledning valgt: <br>")
         dlgText += "<br>"
         if not "orderd_ident" in data:
-            dlgText += "<p style='color:#d60;'><strong>Advarsel:</strong> Ledningen er ikke bestilt, og vil opprette en ny bestilling! Hvis du prøver å velge en eksisterende bestilling kan du prøve å skru av laget \"VA-data\", og velge ledningen på nytt.</p>"
+            dlgText += "<p style='color:#d60;'><strong style='color:#f40;'>Advarsel:</strong> Ledningen er ikke bestilt, og vil opprette en ny bestilling! Hvis du prøver å velge en eksisterende bestilling kan du prøve å skru av laget \"VA-data\", og velge ledningen på nytt.</p>"
         self.dlg.textLedningValgt.setText(dlgText)
 
     def select_feature(self, point, layers=None):
