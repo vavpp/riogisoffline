@@ -2,8 +2,10 @@ import datetime
 import hashlib
 import os
 import requests
+import json
 
 from qgis.core import QgsVectorLayer
+from qgis.utils import iface
 import riogisoffline.plugin.utils as utils
 
 class Syncronizer:
@@ -86,8 +88,49 @@ class Syncronizer:
             self._download_blob(self._filename, self._up_filename)
         
         # background map file
-        if not os.path.exists(self._bg_filename):
+        if not self._backgroundFileHasLatestUpdate() or not os.path.exists(self._bg_filename):
             self._download(self._background_url, self._bg_filename)
+
+    def _backgroundFileHasLatestUpdate(self):
+        """
+        Checks if background map is not updated after last plugin update
+
+        Returns:
+            bool: True if BG-file needs update
+        """
+        installed_plugin_version = iface.pluginManagerInterface().pluginMetadata('riogisoffline')['version_installed']
+        metadata_file = os.path.join(self._filepath, 'metadata.json')
+
+        installed_background_version = ''
+        data = {}
+
+        if os.path.exists(metadata_file):
+            
+            # checks that file has content
+            if os.stat(metadata_file).st_size > 0:
+
+                with open(metadata_file, 'r') as file:
+                    data = json.load(file)
+
+                if 'installed_background_version' in data:
+                    installed_background_version = data['installed_background_version']
+
+        if installed_background_version == installed_plugin_version:
+            return True
+
+        # write current version to json
+        with open(metadata_file, 'w') as outfile:
+            new_data = data
+            if new_data:
+                new_data['installed_background_version'] = installed_plugin_version
+            else:
+                new_data = {
+                    'installed_background_version': installed_plugin_version
+                }
+
+            json.dump(new_data, outfile, indent=4)
+
+        return False
 
     @staticmethod
     def _equal(file1, file2):

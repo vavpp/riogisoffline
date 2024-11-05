@@ -83,7 +83,6 @@ class AzureBlobStorageConnection:
 
         for dir_path in [f.path for f in os.scandir(all_insp_dir_path) if f.is_dir()]:
 
-            # TODO? test that dir name starts with date
             dir_name = os.path.split(dir_path)[-1]
             new_azure_dir = os.path.join(self.env, "new", dir_name)
 
