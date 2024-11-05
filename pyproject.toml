@@ -5,7 +5,7 @@ build-backend = "flit_core.buildapi"
 [project]
 name = "riogisoffline"
 # Version numbers on format Major.Minor.Patch
-version = "0.1.0"
+version = "0.1.1"
 description = "This Exports attributes of a given feature to a Wincan consumable text file."
 authors = [
   { name = "Vann- og avløpsetaten Oslo kommune", email = "gis@vav.oslo.kommune.no" },
