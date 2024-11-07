@@ -96,37 +96,28 @@ class Syncronizer:
         Checks if background map is not updated after last plugin update
 
         Returns:
-            bool: True if BG-file needs update
+            bool: True if BG-file has latest update
         """
-        installed_plugin_version = iface.pluginManagerInterface().pluginMetadata('riogisoffline')['version_installed']
+        
         metadata_file = os.path.join(self._filepath, 'metadata.json')
 
-        installed_background_version = ''
+        has_latest_background_version = False
         data = {}
 
-        if os.path.exists(metadata_file):
-            
-            # checks that file has content
-            if os.stat(metadata_file).st_size > 0:
+        # checks that file exists and has content
+        if os.path.exists(metadata_file) and os.stat(metadata_file).st_size > 0:
+            with open(metadata_file, 'r') as file:
+                data = json.load(file)
 
-                with open(metadata_file, 'r') as file:
-                    data = json.load(file)
+            if 'has_latest_background_version' in data:
+                has_latest_background_version = data['has_latest_background_version']
 
-                if 'installed_background_version' in data:
-                    installed_background_version = data['installed_background_version']
-
-        if installed_background_version == installed_plugin_version:
+        if has_latest_background_version:
             return True
 
-        # write current version to json
         with open(metadata_file, 'w') as outfile:
             new_data = data
-            if new_data:
-                new_data['installed_background_version'] = installed_plugin_version
-            else:
-                new_data = {
-                    'installed_background_version': installed_plugin_version
-                }
+            new_data['has_latest_background_version'] = True
 
             json.dump(new_data, outfile, indent=4)
 
