@@ -99,7 +99,7 @@ class Syncronizer:
             bool: True if BG-file has latest update
         """
         
-        metadata_file = os.path.join(self._filepath, 'metadata.json')
+        metadata_file = utils.get_plugin_dir('riogis_metadata.json')
 
         has_latest_background_version = False
         data = {}
