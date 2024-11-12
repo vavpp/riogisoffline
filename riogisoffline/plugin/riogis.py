@@ -101,7 +101,7 @@ class RioGIS:
         icon_path = ":/plugins/riogis/icon.png"
         self.add_action(
             icon_path,
-            text=self.tr("Export to wincan"),
+            text=self.tr("RioGIS offline"),
             callback=self.run,
             parent=self.iface.mainWindow(),
         )

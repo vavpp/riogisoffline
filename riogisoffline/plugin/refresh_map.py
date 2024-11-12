@@ -10,7 +10,12 @@ from qgis.core import (
     QgsPalLayerSettings,
     QgsTextFormat,
     QgsTextBufferSettings,
-    QgsVectorLayerSimpleLabeling
+    QgsVectorLayerSimpleLabeling,
+    QgsMarkerLineSymbolLayer, 
+    QgsSymbolLayerRegistry, 
+    QgsLineSymbol, 
+    QgsSimpleLineSymbolLayer,
+    QgsMapUnitScale
 )
 from qgis.utils import iface
 import riogisoffline.plugin.utils as utils
@@ -18,6 +23,9 @@ import riogisoffline.plugin.utils as utils
 
 bg_filepath = os.getenv('BACKGROUND_MAP')
 source_filepath = os.getenv('SOURCE_MAP')
+
+DEFAULT_LINE_WIDTH = 0.6
+VL_WIDTH_FACTOR = 1
 
 LAYERS = [
             {
@@ -105,7 +113,7 @@ LAYERS = [
                     {
                         "rules": [
                             {
-                                "expression": "",
+                                "expression": "\"owner\" = 'K'",
                                 "color": QColor(122, 122, 122, alpha=200),
                                 "legend_label": "Kum",
                                 "size": 1.5,
@@ -119,9 +127,10 @@ LAYERS = [
                     {
                         "rules": [
                             {
-                                "expression": "\"fcode\" = 'VL'",
+                                "expression": "\"fcode\" = 'VL' AND \"owner\" = 'K'",
                                 "color": QColor(0, 0, 200, alpha=200),
                                 "legend_label": "Vannledning",
+                                "width": DEFAULT_LINE_WIDTH*VL_WIDTH_FACTOR,
                             }
                         ],
                         "geometry": QgsVectorLayer(
@@ -132,23 +141,81 @@ LAYERS = [
                     {
                         "rules": [
                             {
-                                "expression": "\"fcode\" = 'AF'",
+                                "expression": "\"fcode\" = 'AF' AND \"owner\" = 'K'",
                                 "color": QColor(234, 10, 0, alpha=200),
                                 "legend_label": "Avløpsledning",
+                                "width": DEFAULT_LINE_WIDTH,
                             },
                             {
-                                "expression": "\"fcode\" = 'SP'",
+                                "expression": "\"fcode\" = 'SP' AND \"owner\" = 'K'",
                                 "color": QColor(0, 200, 0, alpha=200),
                                 "legend_label": "Spillvannsledning",
+                                "width": DEFAULT_LINE_WIDTH,
                             },
                             {
-                                "expression": "\"fcode\" = 'OV'",
+                                "expression": "\"fcode\" = 'OV' AND \"owner\" = 'K'",
                                 "color": QColor(0, 0, 0, alpha=200),
                                 "legend_label": "Overvannsledning",
+                                "width": DEFAULT_LINE_WIDTH,
                             }
                         ],
                         "geometry": QgsVectorLayer(
                             f"{source_filepath}|layername=Avløpsledning", "Avløpsledning", "ogr"
+                        ),
+                        "label": "dim || ' ' || material || ' ' || fcode || lsid || '  '",
+                    },
+                    {
+                        "rules": [
+                            {
+                                "expression": "\"owner\" != 'K'",
+                                "color": QColor(80, 200, 80, alpha=200),
+                                "legend_label": "Kum",
+                                "size": 1.5,
+                            }
+                        ],
+                        "geometry": QgsVectorLayer(
+                            f"{source_filepath}|layername=Kum", "Kum (ikke kommunalt)", "ogr"
+                        ),
+                        "label": "psid",
+                    },
+                    {
+                        "rules": [
+                            {
+                                "expression": "\"fcode\" = 'VL' AND \"owner\" != 'K'",
+                                "color": QColor(0, 0, 200, alpha=200),
+                                
+                                "legend_label": "Vannledning",
+                                "width": DEFAULT_LINE_WIDTH*VL_WIDTH_FACTOR,
+                            }
+                        ],
+                        "geometry": QgsVectorLayer(
+                            f"{source_filepath}|layername=Vannledning", "Vannledning (ikke kommunalt)", "ogr"
+                        ),
+                        "label": "dim || ' ' || material || ' ' || fcode || lsid || '  '",
+                    },
+                    {
+                        "rules": [
+                            {
+                                "expression": "\"fcode\" = 'AF' AND \"owner\" != 'K'",
+                                "color": QColor(234, 10, 0, alpha=200),
+                                "legend_label": "Avløpsledning",
+                                "width": DEFAULT_LINE_WIDTH,
+                            },
+                            {
+                                "expression": "\"fcode\" = 'SP' AND \"owner\" != 'K'",
+                                "color": QColor(0, 200, 0, alpha=200),
+                                "legend_label": "Spillvannsledning",
+                                "width": DEFAULT_LINE_WIDTH,
+                            },
+                            {
+                                "expression": "\"fcode\" = 'OV' AND \"owner\" != 'K'",
+                                "color": QColor(0, 0, 0, alpha=200),
+                                "legend_label": "Overvannsledning",
+                                "width": DEFAULT_LINE_WIDTH,
+                            }
+                        ],
+                        "geometry": QgsVectorLayer(
+                            f"{source_filepath}|layername=Avløpsledning", "Avløpsledning (ikke kommunalt)", "ogr"
                         ),
                         "label": "dim || ' ' || material || ' ' || fcode || lsid || '  '",
                     }
@@ -191,11 +258,11 @@ LAYERS = [
                         "rules": [
                             {
                                 "expression": "",
-                                "color": QColor(190, 150, 130, alpha=255),
+                                "color": QColor(150, 110, 100, alpha=255),
                                 "outline": True,
                                 "width": 0.2,
                                 "legend_label": "",
-                                "fill": QColor(235, 231, 222, alpha=255),
+                                "fill": QColor(230, 223, 215, alpha=255),
                             }
                         ],
                         "geometry": QgsVectorLayer(
@@ -223,7 +290,7 @@ LAYERS = [
                         "rules": [
                             {
                                 "expression": "",
-                                "color": QColor(220, 167, 120, alpha=50),
+                                "color": QColor(220, 190, 160, alpha=40),
                                 "legend_label": "",
                             }
                         ],
@@ -387,10 +454,42 @@ class MapRefresher:
             group.findLayer(layer).setItemVisibilityChecked(not disable_at_startup)
 
     def _add_rules(self, layer, maps, name, label):
-        symbol = QgsSymbol.defaultSymbol(layer.geometryType())
+    
+        
+        if layer.name() == "Avløpsledning":
+            symbol = QgsSymbol.defaultSymbol(layer.geometryType())
+            
+            marker_line_layer = QgsMarkerLineSymbolLayer.create({'interval': '25', 'interval_unit': 'MM', 'place_on_every_part': True, 'placements': 'Interval', 'ring_filter': '0', 'rotate': '1'})
+            
+            registry = QgsSymbolLayerRegistry()
+
+            subSymbol = marker_line_layer.subSymbol()
+            
+            subSymbol.deleteSymbolLayer(0)
+            triangle = registry.symbolLayerMetadata("FilledMarker").createSymbolLayer({'name': 'triangle', 'color': '255,255,255', 'color_border': '100,100,100', 'angle': '90'})
+            subSymbol.appendSymbolLayer(triangle)
+            
+            marker_line_layer.setOffsetAlongLine(5)
+            marker_line_layer.setWidth(2)
+            marker_line_layer.setWidthUnit(Qgis.RenderUnit.MetersInMapUnits)
+
+            lineLayer = QgsSimpleLineSymbolLayer()
+            
+            symbol.deleteSymbolLayer(0)
+            symbol.appendSymbolLayer(lineLayer)  
+            symbol.appendSymbolLayer(marker_line_layer)  
+            
+        elif "ikke kommunalt" in layer.name() and layer.geometryType() == Qgis.GeometryType.Line:
+            symbol = QgsLineSymbol.createSimple({'line_style':'dash'})
+        else:
+            symbol = QgsSymbol.defaultSymbol(layer.geometryType())
         renderer = QgsRuleBasedRenderer(symbol)
         root_rule = None
-
+        
+        if layer.name() == "Bygning":
+            layer.setScaleBasedVisibility(True)
+            layer.setMinimumScale(8000)
+        
         for i, rulebook in enumerate(maps["rules"]):
             if root_rule is None:
                 
@@ -406,19 +505,26 @@ class MapRefresher:
             rule.setLabel(rulebook["legend_label"])
             rule.setFilterExpression(rulebook["expression"])
             
+            rule_symbol = rule.symbol()
+            
             if "size" in rulebook:
-                rule.symbol().setSize(rulebook["size"])
-                rule.symbol().setSizeUnit(Qgis.RenderUnit.MetersInMapUnits)
+                rule_symbol.setSize(rulebook["size"])
+                rule_symbol.setSizeUnit(Qgis.RenderUnit.MetersInMapUnits)
+                
+            line_layer_index = 0
             
             if "outline" in rulebook:
-                rule.symbol().setColor(QColor(rulebook["fill"]))
-                rule.symbol().symbolLayer(0).setStrokeColor(rulebook["color"])
-                rule.symbol().symbolLayer(0).setStrokeWidth(rulebook["width"])
+                rule_symbol.setColor(QColor(rulebook["fill"]))
+                rule_symbol.symbolLayer(line_layer_index).setStrokeColor(rulebook["color"])
+                rule_symbol.symbolLayer(line_layer_index).setStrokeWidth(rulebook["width"])
             elif "width" in rulebook:
-                rule.symbol().symbolLayer(0).setWidth(rulebook["width"])
-                rule.symbol().setColor(rulebook["color"])
+                rule_symbol.symbolLayer(line_layer_index).setWidth(rulebook["width"])
+                if layer.name() == "Avløpsledning":
+                    rule_symbol.symbolLayer(line_layer_index).setColor(rulebook["color"])
+                else:
+                    rule_symbol.setColor(rulebook["color"])
             else:
-                rule.symbol().setColor(rulebook["color"])
+                rule_symbol.setColor(rulebook["color"])
 
             if i > 0:
                 renderer.rootRule().appendChild(rule)
@@ -444,11 +550,11 @@ class MapRefresher:
             
             layer_settings.priority = 10
             layer_settings.autoWrapLength = 80
-        elif layer.name() in ["Avløpsledning", "Vannledning"]:
+        elif "Avløpsledning" in layer.name() or "Vannledning" in layer.name():
             text_format.setSize(13)
 
             layer_settings.priority = 1        
-            layer_settings.minimumScale = 1000
+            layer_settings.minimumScale = 1200
             layer_settings.placement = Qgis.LabelPlacement.Curved
         elif layer.name() == "Kum":
             text_format.setSize(11)

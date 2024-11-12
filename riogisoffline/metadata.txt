@@ -5,7 +5,7 @@
 [general]
 name=RioGIS 2
 qgisMinimumVersion=3.0
-description=Export to WinCan.
+description=RioGIS offline
 version=0.0.17
 author=Vann- og avløpsetaten Oslo kommune
 email=gis@vav.oslo.kommune.no
