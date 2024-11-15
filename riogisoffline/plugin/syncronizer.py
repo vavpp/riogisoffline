@@ -43,7 +43,6 @@ class Syncronizer:
 
         self.signal_new_process_name(f"Laster ned {short_file_name}...")
 
-        # TODO add timeout?
         response = requests.get(url, stream=True)
         if response.status_code != 200:
             self.signal_warning_message(f"Failed to download the new file {filename} from {url}")
@@ -84,7 +83,6 @@ class Syncronizer:
         if os.path.exists(self._filename):
             self._download_blob(self._up_filename)
         else:
-            # TODO copy if no main db, so you dont need to download twice
             self._download_blob(self._filename, self._up_filename)
         
         # background map file

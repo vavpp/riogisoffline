@@ -63,6 +63,12 @@ LAYERS = [
                                 "legend_label": "Avbrutt",
                                 "width": 1,
                             },
+                            {
+                                "expression": '"status_internal" = 8',
+                                "color": QColor(28, 247, 255, alpha=255),
+                                "legend_label": "Spyling",
+                                "width": 1,
+                            },
                         ],
                         "geometry": QgsVectorLayer(
                             f"{source_filepath}|layername=Bestillinger",
@@ -110,60 +116,6 @@ LAYERS = [
             {
                 "group": "VA-data",
                 "items": [
-                    {
-                        "rules": [
-                            {
-                                "expression": "\"owner\" = 'K'",
-                                "color": QColor(122, 122, 122, alpha=200),
-                                "legend_label": "Kum",
-                                "size": 1.5,
-                            }
-                        ],
-                        "geometry": QgsVectorLayer(
-                            f"{source_filepath}|layername=Kum", "Kum", "ogr"
-                        ),
-                        "label": "psid",
-                    },
-                    {
-                        "rules": [
-                            {
-                                "expression": "\"fcode\" = 'VL' AND \"owner\" = 'K'",
-                                "color": QColor(0, 0, 200, alpha=200),
-                                "legend_label": "Vannledning",
-                                "width": DEFAULT_LINE_WIDTH*VL_WIDTH_FACTOR,
-                            }
-                        ],
-                        "geometry": QgsVectorLayer(
-                            f"{source_filepath}|layername=Vannledning", "Vannledning", "ogr"
-                        ),
-                        "label": "dim || ' ' || material || ' ' || fcode || lsid || '  '",
-                    },
-                    {
-                        "rules": [
-                            {
-                                "expression": "\"fcode\" = 'AF' AND \"owner\" = 'K'",
-                                "color": QColor(234, 10, 0, alpha=200),
-                                "legend_label": "Avløpsledning",
-                                "width": DEFAULT_LINE_WIDTH,
-                            },
-                            {
-                                "expression": "\"fcode\" = 'SP' AND \"owner\" = 'K'",
-                                "color": QColor(0, 200, 0, alpha=200),
-                                "legend_label": "Spillvannsledning",
-                                "width": DEFAULT_LINE_WIDTH,
-                            },
-                            {
-                                "expression": "\"fcode\" = 'OV' AND \"owner\" = 'K'",
-                                "color": QColor(0, 0, 0, alpha=200),
-                                "legend_label": "Overvannsledning",
-                                "width": DEFAULT_LINE_WIDTH,
-                            }
-                        ],
-                        "geometry": QgsVectorLayer(
-                            f"{source_filepath}|layername=Avløpsledning", "Avløpsledning", "ogr"
-                        ),
-                        "label": "dim || ' ' || material || ' ' || fcode || lsid || '  '",
-                    },
                     {
                         "rules": [
                             {
@@ -218,7 +170,61 @@ LAYERS = [
                             f"{source_filepath}|layername=Avløpsledning", "Avløpsledning (ikke kommunalt)", "ogr"
                         ),
                         "label": "dim || ' ' || material || ' ' || fcode || lsid || '  '",
-                    }
+                    },
+                    {
+                        "rules": [
+                            {
+                                "expression": "\"owner\" = 'K'",
+                                "color": QColor(122, 122, 122, alpha=200),
+                                "legend_label": "Kum",
+                                "size": 1.5,
+                            }
+                        ],
+                        "geometry": QgsVectorLayer(
+                            f"{source_filepath}|layername=Kum", "Kum", "ogr"
+                        ),
+                        "label": "psid",
+                    },
+                    {
+                        "rules": [
+                            {
+                                "expression": "\"fcode\" = 'VL' AND \"owner\" = 'K'",
+                                "color": QColor(0, 0, 200, alpha=200),
+                                "legend_label": "Vannledning",
+                                "width": DEFAULT_LINE_WIDTH*VL_WIDTH_FACTOR,
+                            }
+                        ],
+                        "geometry": QgsVectorLayer(
+                            f"{source_filepath}|layername=Vannledning", "Vannledning", "ogr"
+                        ),
+                        "label": "dim || ' ' || material || ' ' || fcode || lsid || '  '",
+                    },
+                    {
+                        "rules": [
+                            {
+                                "expression": "\"fcode\" = 'AF' AND \"owner\" = 'K'",
+                                "color": QColor(234, 10, 0, alpha=200),
+                                "legend_label": "Avløpsledning",
+                                "width": DEFAULT_LINE_WIDTH,
+                            },
+                            {
+                                "expression": "\"fcode\" = 'SP' AND \"owner\" = 'K'",
+                                "color": QColor(0, 200, 0, alpha=200),
+                                "legend_label": "Spillvannsledning",
+                                "width": DEFAULT_LINE_WIDTH,
+                            },
+                            {
+                                "expression": "\"fcode\" = 'OV' AND \"owner\" = 'K'",
+                                "color": QColor(0, 0, 0, alpha=200),
+                                "legend_label": "Overvannsledning",
+                                "width": DEFAULT_LINE_WIDTH,
+                            }
+                        ],
+                        "geometry": QgsVectorLayer(
+                            f"{source_filepath}|layername=Avløpsledning", "Avløpsledning", "ogr"
+                        ),
+                        "label": "dim || ' ' || material || ' ' || fcode || lsid || '  '",
+                    },
                 ],
             },
             {
@@ -263,6 +269,7 @@ LAYERS = [
                                 "width": 0.2,
                                 "legend_label": "",
                                 "fill": QColor(230, 223, 215, alpha=255),
+                                "minimumScale": 8000
                             }
                         ],
                         "geometry": QgsVectorLayer(
@@ -335,6 +342,7 @@ LAYERS = [
                                 "outline": False,
                                 "width": 1,
                                 "fill": "transparent",
+                                "minimumScale": 1500
                             },
                             {
                                 "expression": '"OBJTYPE" = \'PresStedsnavn\'',
@@ -343,14 +351,7 @@ LAYERS = [
                                 "outline": False,
                                 "width": 1,
                                 "fill": "transparent",
-                            },
-                            {
-                                "expression": '"OBJTYPE" = \'PresVegnummer\'',
-                                "color": QColor(0, 0, 0, alpha=0),
-                                "legend_label": "Vegnummer",
-                                "outline": False,
-                                "width": 1,
-                                "fill": "transparent",
+                                "minimumScale": 9000
                             },
                             {
                                 "expression": '"OBJTYPE" = \'PresGatenavn\'',
@@ -359,6 +360,7 @@ LAYERS = [
                                 "outline": False,
                                 "width": 1,
                                 "fill": "transparent",
+                                "minimumScale": 4000
                             },
                             {
                                 "expression": '"OBJTYPE" = \'PresAnnenTekst\'',
@@ -367,6 +369,7 @@ LAYERS = [
                                 "outline": False,
                                 "width": 1,
                                 "fill": "transparent",
+                                "minimumScale": 1000
                             },
                         ],
                         "geometry": QgsVectorLayer(
@@ -486,10 +489,6 @@ class MapRefresher:
         renderer = QgsRuleBasedRenderer(symbol)
         root_rule = None
         
-        if layer.name() == "Bygning":
-            layer.setScaleBasedVisibility(True)
-            layer.setMinimumScale(8000)
-        
         for i, rulebook in enumerate(maps["rules"]):
             if root_rule is None:
                 
@@ -512,6 +511,9 @@ class MapRefresher:
                 rule_symbol.setSizeUnit(Qgis.RenderUnit.MetersInMapUnits)
                 
             line_layer_index = 0
+            
+            if "minimumScale" in rulebook:
+                rule.setMinimumScale(rulebook["minimumScale"])
             
             if "outline" in rulebook:
                 rule_symbol.setColor(QColor(rulebook["fill"]))
@@ -537,7 +539,6 @@ class MapRefresher:
         text_format = QgsTextFormat()
 
         text_format.setFont(QFont("Arial", 12))
-        text_format.setSize(12)
 
         buffer_settings = QgsTextBufferSettings()
         buffer_settings.setEnabled(True)
@@ -549,15 +550,15 @@ class MapRefresher:
             layer_settings.maximumScale = 2000
             
             layer_settings.priority = 10
-            layer_settings.autoWrapLength = 80
+            layer_settings.autoWrapLength = 60
         elif "Avløpsledning" in layer.name() or "Vannledning" in layer.name():
-            text_format.setSize(13)
+            text_format.setSize(14)
 
             layer_settings.priority = 1        
             layer_settings.minimumScale = 1200
             layer_settings.placement = Qgis.LabelPlacement.Curved
         elif layer.name() == "Kum":
-            text_format.setSize(11)
+            text_format.setSize(12)
             
             layer_settings.priority = 10
             layer_settings.minimumScale = 800
@@ -567,7 +568,6 @@ class MapRefresher:
             text_format.setColor(QColor(60, 60, 60))
             
             layer_settings.priority = 0
-            layer_settings.minimumScale = 4000
             layer_settings.placement = Qgis.LabelPlacement.OverPoint
         
         layer_settings.scaleVisibility = True

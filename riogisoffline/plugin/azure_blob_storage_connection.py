@@ -1,4 +1,5 @@
 
+import json
 import riogisoffline.plugin.utils as utils
 from azure.storage.blob import BlobServiceClient, BlobBlock
 from azure.data.tables import TableClient
@@ -172,3 +173,27 @@ class AzureBlobStorageConnection:
             u"upload_time": str(datetime.now())
         }
         self.table_client.create_entity(entity=new_row)
+
+    def upload_status_change(self, lsid, new_status, comment, project_area_id):
+        
+        status_change_dict = {
+            "lsid": lsid,
+            "new_status": new_status,
+            "comment": comment,
+            "project_area_id": project_area_id
+        }
+
+        json_object = json.dumps(status_change_dict, indent=4)
+
+        new_azure_path = os.path.join(self.env, "changed_status", f"{lsid}_status_change.json")
+
+        try:
+            container_client = self.blob_service_client.get_container_client(container="wincan-files")
+            blob_client = container_client.get_blob_client(new_azure_path)
+
+            blob_client.upload_blob(json_object, overwrite=True)
+        except Exception as e:
+            utils.printWarningMessage(e)
+            return False
+
+        return True

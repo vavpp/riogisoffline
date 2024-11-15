@@ -20,7 +20,6 @@ class RioGISDocked(QtWidgets.QDockWidget, FORM_CLASS):
         self.settingsButtonText = "Oppdater bruker-innstillinger..."
         self.refresh_dialog()
 
-        # TODO set title?
         self.setWindowTitle("")
 
         self.selectUploadDir.fileChanged.connect(self.handleSelectUploadDir)

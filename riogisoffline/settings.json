@@ -65,12 +65,20 @@
         "status": {
             "ui": "cmbSelectStatus",
             "keys": [
+                "Bestilt",
                 "Under utførelse",
-                "Fullført"
+                "Ikke inspisert",
+                "Fullført",
+                "Avbrutt",
+                "Må spyles"
             ],
             "values": [
-                "2",
-                "4"
+                1,
+                2,
+                3,
+                4,
+                5,
+                8
             ]
         }
     },

@@ -13,6 +13,7 @@ from .resources import *
 from .riogis_dockedwidget import RioGISDocked
 from .settings_dialog import SettingsDialog
 from .azure_blob_storage_connection import AzureBlobStorageConnection
+from .change_status_dialog import ChangeStatusDialog
 
 import os.path
 import configparser
@@ -124,9 +125,8 @@ class RioGIS:
         self.dlg.btnEksport.setEnabled(False)
 
         self.dlg.btnUpload.clicked.connect(self.run_upload_wincan_dir_in_background)
-        # disable upload-button until user selects dir with selectUploadDir
-        self.dlg.btnUpload.setEnabled(False)
 
+        # User settings
         selectFileDialog = SettingsDialog()
 
         def _handle_settings_button_click():
@@ -136,6 +136,20 @@ class RioGIS:
         
         self.dlg.btnSelectSettingsFile.clicked.connect(_handle_settings_button_click)
 
+        # Change status
+        changeStatusDialog = ChangeStatusDialog(self)
+        changeStatusDialog.populate_select_values()
+
+        def _handle_change_status_button_click():
+            if not self.establish_azure_connection():
+                return
+            
+            changeStatusDialog.update_label()
+            changeStatusDialog.exec_()
+
+        self.dlg.btnMarker.clicked.connect(_handle_change_status_button_click)
+        
+        self.setButtonsEnabled(False)
         self.show_necessary_panels()
 
     def show_necessary_panels(self):
@@ -162,6 +176,20 @@ class RioGIS:
                 self.dlg.textLedningValgt.setText("Eksportert " + os.path.split(self.filename)[-1])        
                 self.dlg.btnEksport.setEnabled(False)
 
+                # TODO change status of exported feature to 
+                if self.selectedFeatureHasInternalStatus():
+                    if not self.establish_azure_connection():
+                        return
+                    
+                    lsid = self.feature["lsid"]
+                    project_area_id = self.feature["project_area_id"]
+                    comment = ""
+                    new_status = 2
+                    is_uploaded = self.azure_connection.upload_status_change(lsid, new_status, comment, project_area_id)
+
+                    if not is_uploaded:
+                        utils.printWarningMessage("Opplasting av statusendring feilet!")
+
 
     def unload(self):
         for action in self.actions:
@@ -186,6 +214,10 @@ class RioGIS:
         models = self.settings["ui_models"]
         for name, item in models.items():
             ui = item["ui"]
+
+            if not hasattr(self.dlg, ui):
+                continue
+
             dlg_obj = getattr(self.dlg, ui)
             index = dlg_obj.currentIndex()
             items = item["values"]
@@ -197,6 +229,9 @@ class RioGIS:
 
         data["datenow"] = datetime.datetime.now().strftime("%Y.%m.%d")
         data.update(self.load_select_elements())
+
+        if "status_internal" in data:
+            data["InternalStatus"] = data["status_internal"]
 
         data["operator"] = self.settings["operator"]
         data["orderid"] = ""
@@ -230,14 +265,27 @@ class RioGIS:
         self.select_feature(point, layers=feature_layers)
 
         if self.feature:
-            self.dlg.btnEksport.setEnabled(True)
+            if self.selectedFeatureHasInternalStatus():
+                self.setButtonsEnabled(True)
+            else:
+                self.dlg.btnEksport.setEnabled(True)
 
             data = self.get_feature_data()
             self.show_selected_feature(data)
             self.map_attributes(data)
         else:
             self.show_selected_feature(None)
-            self.dlg.btnEksport.setEnabled(False)
+            self.setButtonsEnabled(False)
+
+    def setButtonsEnabled(self, enabled):
+        self.dlg.btnEksport.setEnabled(enabled)
+        self.dlg.btnMarker.setEnabled(enabled)
+
+    def selectedFeatureHasInternalStatus(self):
+        if not self.feature:
+            return False
+        
+        return "status_internal" in getFieldNames(self.feature)
 
     def show_selected_feature(self, data):
         if not data:
@@ -319,14 +367,13 @@ class RioGIS:
         self.layer.startEditing()
 
         # create new feature in "Bestilling" if feature is not in that layer
-        if not "status_internal" in getFieldNames(self.feature):
+        if not self.selectedFeatureHasInternalStatus():
             self.create_new_order_feature()
         else:
-            order_feature = self.feature
-            status = order_feature["status_internal"]
+            status = self.feature["status_internal"]
             if int(status) < 4:
-                order_feature["status_internal"] = self.data.get("InternalStatus")
-            self.layer.updateFeature(order_feature)
+                self.feature["status_internal"] = 2
+            self.layer.updateFeature(self.feature)
 
         self.layer.commitChanges()
         self.layer.triggerRepaint()
@@ -444,6 +491,10 @@ class RioGIS:
         models = self.settings["ui_models"]
         for _, item in models.items():
             ui = item["ui"]
+
+            if not hasattr(self.dlg, ui):
+                continue
+             
             dlg_obj = getattr(self.dlg, ui)
             dlg_obj.clear()
             items = item["keys"]
