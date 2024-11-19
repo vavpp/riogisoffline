@@ -15,7 +15,6 @@ from qgis.core import (
     QgsSymbolLayerRegistry, 
     QgsLineSymbol, 
     QgsSimpleLineSymbolLayer,
-    QgsMapUnitScale
 )
 from qgis.utils import iface
 import riogisoffline.plugin.utils as utils
@@ -24,8 +23,13 @@ import riogisoffline.plugin.utils as utils
 bg_filepath = os.getenv('BACKGROUND_MAP')
 source_filepath = os.getenv('SOURCE_MAP')
 
+DEFAULT_BESTILLINGER_LINE_WIDTH = 1.1
 DEFAULT_LINE_WIDTH = 0.6
-VL_WIDTH_FACTOR = 1
+DEFAULT_IKKE_KOMMUNAL_LINE_WIDTH = 0.5
+DEFAULT_STIKKLEDNING_WIDTH = 0.3
+
+STATUS_ERSTATTET_NEDLAGT = "\"status\" = 'E' OR \"status\" = 'EF' OR \"status\" = 'F' OR \"status\" = 'EN'"
+STATUS_PROSJEKTERT_IKKE_I_BRUK = "\"status\" = 'P' OR \"status\" = 'I'"
 
 LAYERS = [
             {
@@ -37,37 +41,37 @@ LAYERS = [
                                 "expression": '"status_internal" = 1',
                                 "color": QColor(255, 170, 0, alpha=255),
                                 "legend_label": "Bestilt",
-                                "width": 1,
+                                "width": DEFAULT_BESTILLINGER_LINE_WIDTH,
                             },
                             {
                                 "expression": '"status_internal" = 2',
                                 "color": QColor(169, 0, 230, alpha=255),
                                 "legend_label": "Under utførelse",
-                                "width": 1,
+                                "width": DEFAULT_BESTILLINGER_LINE_WIDTH,
                             },
                             {
                                 "expression": '"status_internal" = 3',
                                 "color": QColor(230, 0, 0, alpha=255),
                                 "legend_label": "Ikke inspisert",
-                                "width": 1,
+                                "width": DEFAULT_BESTILLINGER_LINE_WIDTH,
                             },
                             {
                                 "expression": '"status_internal" = 4',
                                 "color": QColor(0, 115, 76, alpha=255),
                                 "legend_label": "Fullført",
-                                "width": 1,
+                                "width": DEFAULT_BESTILLINGER_LINE_WIDTH,
                             },
                             {
                                 "expression": '"status_internal" = 5',
                                 "color": QColor(230, 230, 0, alpha=255),
                                 "legend_label": "Avbrutt",
-                                "width": 1,
+                                "width": DEFAULT_BESTILLINGER_LINE_WIDTH,
                             },
                             {
                                 "expression": '"status_internal" = 8',
                                 "color": QColor(28, 247, 255, alpha=255),
                                 "legend_label": "Spyling",
-                                "width": 1,
+                                "width": DEFAULT_BESTILLINGER_LINE_WIDTH,
                             },
                         ],
                         "geometry": QgsVectorLayer(
@@ -75,7 +79,7 @@ LAYERS = [
                             "Bestillinger",
                             "ogr",
                         ),
-                        "label": "lsid",
+                        "label": "fcode || lsid || '  '",
                     },
                     
                     {
@@ -115,7 +119,109 @@ LAYERS = [
             },
             {
                 "group": "VA-data",
+                "disable_group": True,
                 "items": [
+
+                    # TODO add Prosjektert/Ikke i bruk and Nedlagt/Erstattet (Vann, Ikke kommunal?, Stikk)
+                    {
+                        "rules": [
+                            {
+                                "expression": f"\"fcode\" = 'AF' AND {STATUS_ERSTATTET_NEDLAGT}",
+                                "color": QColor(234, 10, 0, alpha=200),
+                                "legend_label": "Avløp (Erstattet/Nedlagt)",
+                                "width": DEFAULT_LINE_WIDTH,
+                            },
+                            {
+                                "expression": f"\"fcode\" = 'SP' AND {STATUS_ERSTATTET_NEDLAGT}",
+                                "color": QColor(0, 200, 0, alpha=200),
+                                "legend_label": "Spillvann (Erstattet/Nedlagt)",
+                                "width": DEFAULT_LINE_WIDTH,
+                            },
+                            {
+                                "expression": f"\"fcode\" = 'OV' AND {STATUS_ERSTATTET_NEDLAGT}",
+                                "color": QColor(0, 0, 0, alpha=200),
+                                "legend_label": "Overvann (Erstattet/Nedlagt)",
+                                "width": DEFAULT_LINE_WIDTH,
+                            },
+                            {
+                                "expression": f"\"fcode\" = 'AF' AND {STATUS_PROSJEKTERT_IKKE_I_BRUK}",
+                                "color": QColor(234, 10, 0, alpha=200),
+                                "legend_label": "Avløp (Prosjektert/Ikke i bruk)",
+                                "width": DEFAULT_LINE_WIDTH,
+                            },
+                            {
+                                "expression": f"\"fcode\" = 'SP' AND {STATUS_PROSJEKTERT_IKKE_I_BRUK}",
+                                "color": QColor(0, 200, 0, alpha=200),
+                                "legend_label": "Spillvann (Prosjektert/Ikke i bruk)",
+                                "width": DEFAULT_LINE_WIDTH,
+                            },
+                            {
+                                "expression": f"\"fcode\" = 'OV' AND {STATUS_PROSJEKTERT_IKKE_I_BRUK}",
+                                "color": QColor(0, 0, 0, alpha=200),
+                                "legend_label": "Overvann (Prosjektert/Ikke i bruk)",
+                                "width": DEFAULT_LINE_WIDTH,
+                            }
+                        ],
+                        "geometry": QgsVectorLayer(
+                            f"{source_filepath}|layername=Avløpsledning", "Avløpsledning (Ikke drift)", "ogr"
+                        ),
+                        "collapsed": True,
+                        "disable_at_startup": True,
+                    },
+                    {
+                        "rules": [
+                            {
+                                "expression": f"\"fcode\" = 'AF' AND {STATUS_ERSTATTET_NEDLAGT}",
+                                "color": QColor(0, 0, 200, alpha=200),
+                                "legend_label": "Vann (Erstattet/Nedlagt)",
+                                "width": DEFAULT_LINE_WIDTH,
+                            },
+                            {
+                                "expression": f"\"fcode\" = 'AF' AND {STATUS_PROSJEKTERT_IKKE_I_BRUK}",
+                                "color": QColor(0, 0, 200, alpha=200),
+                                "legend_label": "Vann (Prosjektert/Ikke i bruk)",
+                                "width": DEFAULT_LINE_WIDTH,
+                            }
+                        ],
+                        "geometry": QgsVectorLayer(
+                            f"{source_filepath}|layername=Vannledning", "Vannledning (Ikke drift)", "ogr"
+                        ),
+                        "collapsed": True,
+                        "disable_at_startup": True,
+                    },
+                    {
+                        "rules": [
+                            {
+                                "expression": "\"fcodegroup_txt\" = 'Avløp'",
+                                "color": QColor(234, 10, 0, alpha=120),
+                                "legend_label": "Avløp",
+                                "width": DEFAULT_STIKKLEDNING_WIDTH,
+                            },
+                            {
+                                "expression": "\"fcodegroup_txt\" = 'Spillvann'",
+                                "color": QColor(0, 200, 0, alpha=120),
+                                "legend_label": "Spillvann",
+                                "width": DEFAULT_STIKKLEDNING_WIDTH,
+                            },
+                            {
+                                "expression": "\"fcodegroup_txt\" = 'Overvann'",
+                                "color": QColor(0, 0, 0, alpha=120),
+                                "legend_label": "Overvann",
+                                "width": DEFAULT_STIKKLEDNING_WIDTH,
+                            },
+                            {
+                                "expression": "\"fcodegroup_txt\" = 'Vann'",
+                                "color": QColor(0, 0, 200, alpha=120),
+                                "legend_label": "Vann",
+                                "width": DEFAULT_STIKKLEDNING_WIDTH,
+                            }
+                        ],
+                        "geometry": QgsVectorLayer(
+                            f"{source_filepath}|layername=Stikkledninger", "Stikkledninger", "ogr"
+                        ),
+                        "label": "dim || ' ' || material || ' ' || fcode || lsid || '  '",
+                        "collapsed": True,
+                    },
                     {
                         "rules": [
                             {
@@ -129,6 +235,7 @@ LAYERS = [
                             f"{source_filepath}|layername=Kum", "Kum (ikke kommunalt)", "ogr"
                         ),
                         "label": "psid",
+                        "collapsed": True,
                     },
                     {
                         "rules": [
@@ -136,40 +243,42 @@ LAYERS = [
                                 "expression": "\"fcode\" = 'VL' AND \"owner\" != 'K'",
                                 "color": QColor(0, 0, 200, alpha=200),
                                 
-                                "legend_label": "Vannledning",
-                                "width": DEFAULT_LINE_WIDTH*VL_WIDTH_FACTOR,
+                                "legend_label": "Vann",
+                                "width": DEFAULT_IKKE_KOMMUNAL_LINE_WIDTH,
                             }
                         ],
                         "geometry": QgsVectorLayer(
                             f"{source_filepath}|layername=Vannledning", "Vannledning (ikke kommunalt)", "ogr"
                         ),
                         "label": "dim || ' ' || material || ' ' || fcode || lsid || '  '",
+                        "collapsed": True,
                     },
                     {
                         "rules": [
                             {
                                 "expression": "\"fcode\" = 'AF' AND \"owner\" != 'K'",
                                 "color": QColor(234, 10, 0, alpha=200),
-                                "legend_label": "Avløpsledning",
-                                "width": DEFAULT_LINE_WIDTH,
+                                "legend_label": "Avløp",
+                                "width": DEFAULT_IKKE_KOMMUNAL_LINE_WIDTH,
                             },
                             {
                                 "expression": "\"fcode\" = 'SP' AND \"owner\" != 'K'",
                                 "color": QColor(0, 200, 0, alpha=200),
-                                "legend_label": "Spillvannsledning",
-                                "width": DEFAULT_LINE_WIDTH,
+                                "legend_label": "Spillvann",
+                                "width": DEFAULT_IKKE_KOMMUNAL_LINE_WIDTH,
                             },
                             {
                                 "expression": "\"fcode\" = 'OV' AND \"owner\" != 'K'",
                                 "color": QColor(0, 0, 0, alpha=200),
-                                "legend_label": "Overvannsledning",
-                                "width": DEFAULT_LINE_WIDTH,
+                                "legend_label": "Overvann",
+                                "width": DEFAULT_IKKE_KOMMUNAL_LINE_WIDTH,
                             }
                         ],
                         "geometry": QgsVectorLayer(
                             f"{source_filepath}|layername=Avløpsledning", "Avløpsledning (ikke kommunalt)", "ogr"
                         ),
                         "label": "dim || ' ' || material || ' ' || fcode || lsid || '  '",
+                        "collapsed": True,
                     },
                     {
                         "rules": [
@@ -190,8 +299,8 @@ LAYERS = [
                             {
                                 "expression": "\"fcode\" = 'VL' AND \"owner\" = 'K'",
                                 "color": QColor(0, 0, 200, alpha=200),
-                                "legend_label": "Vannledning",
-                                "width": DEFAULT_LINE_WIDTH*VL_WIDTH_FACTOR,
+                                "legend_label": "Vann",
+                                "width": DEFAULT_LINE_WIDTH,
                             }
                         ],
                         "geometry": QgsVectorLayer(
@@ -202,21 +311,21 @@ LAYERS = [
                     {
                         "rules": [
                             {
-                                "expression": "\"fcode\" = 'AF' AND \"owner\" = 'K'",
+                                "expression": "\"fcode\" = 'AF' AND \"owner\" = 'K' AND \"status\" = 'D'",
                                 "color": QColor(234, 10, 0, alpha=200),
-                                "legend_label": "Avløpsledning",
+                                "legend_label": "Avløp",
                                 "width": DEFAULT_LINE_WIDTH,
                             },
                             {
-                                "expression": "\"fcode\" = 'SP' AND \"owner\" = 'K'",
+                                "expression": "\"fcode\" = 'SP' AND \"owner\" = 'K' AND \"status\" = 'D'",
                                 "color": QColor(0, 200, 0, alpha=200),
-                                "legend_label": "Spillvannsledning",
+                                "legend_label": "Spillvann",
                                 "width": DEFAULT_LINE_WIDTH,
                             },
                             {
-                                "expression": "\"fcode\" = 'OV' AND \"owner\" = 'K'",
+                                "expression": "\"fcode\" = 'OV' AND \"owner\" = 'K' AND \"status\" = 'D'",
                                 "color": QColor(0, 0, 0, alpha=200),
-                                "legend_label": "Overvannsledning",
+                                "legend_label": "Overvann",
                                 "width": DEFAULT_LINE_WIDTH,
                             }
                         ],
@@ -306,7 +415,6 @@ LAYERS = [
                             "Høydekurve",
                             "ogr",
                         ),
-                        "disable_at_startup": False,
                     },
                     {
                         "rules": [
@@ -332,6 +440,7 @@ LAYERS = [
                             "ogr",
                         ),
                         "disable_at_startup": True,
+                        "collapsed": True,
                     },
                     {
                         "rules": [
@@ -378,7 +487,6 @@ LAYERS = [
                             "ogr",
                         ),
                         "label": "STRENG",
-                        "disable_at_startup": False,
                     },
                 ],
             },
@@ -413,6 +521,11 @@ class MapRefresher:
             for maps in reversed(items):
                 self.add_map_layers(group, maps, name)
 
+            disable_group = groups.get("disable_group")
+
+            if disable_group:
+                group.setItemVisibilityChecked(not disable_group)
+
         # Save the project as a .qgz file
         project.write()
 
@@ -436,8 +549,6 @@ class MapRefresher:
         
         if label:
             self._set_map_label(layer, label)
-
-        disable_at_startup = maps.get("disable_at_startup")
         
         layer.setCrs(QgsCoordinateReferenceSystem("EPSG:25832"))
         
@@ -448,9 +559,13 @@ class MapRefresher:
 
         group.addLayer(layer)
         
-        # disable VA-data group when loading map
-        if name == "VA-data":
-            group.setItemVisibilityChecked(False)
+        collapsed = maps.get("collapsed")
+        disable_at_startup = maps.get("disable_at_startup")
+
+        if collapsed:
+            root = QgsProject.instance().layerTreeRoot()
+            myLayerNode = root.findLayer(layer.id())
+            myLayerNode.setExpanded(not collapsed)
         
         # dont show items marked disable_at_startup
         if disable_at_startup:
@@ -482,8 +597,10 @@ class MapRefresher:
             symbol.appendSymbolLayer(lineLayer)  
             symbol.appendSymbolLayer(marker_line_layer)  
             
-        elif "ikke kommunalt" in layer.name() and layer.geometryType() == Qgis.GeometryType.Line:
+        elif ("ikke kommunalt" in layer.name() or layer.name() == "Stikkledninger") and layer.geometryType() == Qgis.GeometryType.Line:
             symbol = QgsLineSymbol.createSimple({'line_style':'dash'})
+        elif "Ikke drift" in layer.name() and layer.geometryType() == Qgis.GeometryType.Line:
+            symbol = QgsLineSymbol.createSimple({'line_style':'dot'})
         else:
             symbol = QgsSymbol.defaultSymbol(layer.geometryType())
         renderer = QgsRuleBasedRenderer(symbol)
@@ -535,6 +652,7 @@ class MapRefresher:
         layer.triggerRepaint()
 
     def _set_map_label(self, layer, field):
+
         layer_settings = QgsPalLayerSettings()
         text_format = QgsTextFormat()
 
@@ -551,18 +669,28 @@ class MapRefresher:
             
             layer_settings.priority = 10
             layer_settings.autoWrapLength = 60
+            
         elif "Avløpsledning" in layer.name() or "Vannledning" in layer.name():
             text_format.setSize(14)
 
             layer_settings.priority = 1        
+            layer_settings.minimumScale = 1000
+            layer_settings.placement = Qgis.LabelPlacement.Curved
+
+        elif layer.name() == "Bestillinger":
+            text_format.setSize(14)
+
+            layer_settings.priority = 2       
             layer_settings.minimumScale = 1200
             layer_settings.placement = Qgis.LabelPlacement.Curved
+
         elif layer.name() == "Kum":
             text_format.setSize(12)
             
             layer_settings.priority = 10
             layer_settings.minimumScale = 800
             layer_settings.placement = Qgis.LabelPlacement.AroundPoint
+
         else:
             text_format.setSize(9)
             text_format.setColor(QColor(60, 60, 60))
@@ -570,10 +698,11 @@ class MapRefresher:
             layer_settings.priority = 0
             layer_settings.placement = Qgis.LabelPlacement.OverPoint
         
-        layer_settings.scaleVisibility = True
 
         text_format.setBuffer(buffer_settings)
         layer_settings.setFormat(text_format)
+
+        layer_settings.scaleVisibility = True
         layer_settings.isExpression = True
         layer_settings.fieldName = field
         layer_settings.enabled = True
