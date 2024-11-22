@@ -76,8 +76,6 @@ class ChangeStatusDialog(QtWidgets.QDialog, FORM_CLASS):
         lsid = selected_feature["lsid"]
         project_area_id = selected_feature["project_area_id"]
 
-        # upload to azure
-
         utils.write_changed_status_to_file(self.riogis.settings, lsid, new_status, comment, project_area_id)
 
         layer.startEditing()

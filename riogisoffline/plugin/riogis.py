@@ -140,10 +140,7 @@ class RioGIS:
         changeStatusDialog = ChangeStatusDialog(self)
         changeStatusDialog.populate_select_values()
 
-        def _handle_change_status_button_click():
-            if not self.establish_azure_connection():
-                return
-            
+        def _handle_change_status_button_click():            
             changeStatusDialog.update_label()
             changeStatusDialog.exec_()
 
