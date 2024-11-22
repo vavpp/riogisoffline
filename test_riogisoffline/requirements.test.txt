@@ -3,5 +3,7 @@ pytest-cov
 riogisoffline
 pyvirtualdisplay
 
+pandas
+
 azure-storage-blob
 azure-data-tables
