@@ -77,13 +77,8 @@ class ChangeStatusDialog(QtWidgets.QDialog, FORM_CLASS):
         project_area_id = selected_feature["project_area_id"]
 
         # upload to azure
-        is_uploaded = self.riogis.azure_connection.upload_status_change(lsid, new_status, comment, project_area_id)
 
-        if not is_uploaded:
-            utils.printWarningMessage("Opplasting av statusendring feilet!")
-            self.done(0)
-            return
-
+        utils.write_changed_status_to_file(self.riogis.settings, lsid, new_status, comment, project_area_id)
 
         layer.startEditing()
 

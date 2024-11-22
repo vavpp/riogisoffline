@@ -7,6 +7,7 @@ import os
 from pathlib import Path
 import uuid
 from datetime import datetime
+import pandas as pd
 
 class AzureBlobStorageConnection:
     """
@@ -174,26 +175,45 @@ class AzureBlobStorageConnection:
         }
         self.table_client.create_entity(entity=new_row)
 
-    def upload_status_change(self, lsid, new_status, comment, project_area_id):
+    def upload_status_changes(self, settings):
+
+        user_settings = utils.get_user_settings_path()
+        # read user settings
+        user_settings = utils.load_json(user_settings)
+        file_folder_path = user_settings["file_folder"]
         
-        status_change_dict = {
-            "lsid": lsid,
-            "new_status": new_status,
-            "comment": comment,
-            "project_area_id": project_area_id
-        }
+        changed_status_filename = os.path.join(file_folder_path, settings["changed_status_filename"])
+
+        if not os.path.exists(changed_status_filename):
+            return
+
+        changed_status_df = pd.read_csv(changed_status_filename)
+        changed_status_df.apply(self._upload_status_file, axis=1)
+
+        os.remove(changed_status_filename)
+
+        utils.printSuccessMessage("Status-endringer er opplastet")
+
+    def _upload_status_file(self, row):
+
+        if row["lsid"] == "lsid":
+            return
+
+        fields = ["lsid", "new_status", "comment", "project_area_id"]
+        status_change_dict = {}
+
+        for field in fields:
+            if field not in row:
+                utils.printWarningMessage(f"FEIL: Kolonne '{field}' finnes ikke i " + str(row))
+                return
+            
+            status_change_dict[field] = row[field]
 
         json_object = json.dumps(status_change_dict, indent=4)
 
-        new_azure_path = os.path.join(self.env, "changed_status", f"{lsid}_status_change.json")
+        new_azure_path = os.path.join(self.env, "changed_status", f"{status_change_dict["lsid"]}_status_change.json")
 
-        try:
-            container_client = self.blob_service_client.get_container_client(container="wincan-files")
-            blob_client = container_client.get_blob_client(new_azure_path)
+        container_client = self.blob_service_client.get_container_client(container="wincan-files")
+        blob_client = container_client.get_blob_client(new_azure_path)
 
-            blob_client.upload_blob(json_object, overwrite=True)
-        except Exception as e:
-            utils.printWarningMessage(e)
-            return False
-
-        return True
+        blob_client.upload_blob(json_object, overwrite=True)

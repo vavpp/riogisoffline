@@ -1,6 +1,8 @@
 import os
 import json
 import requests
+import csv
+import pandas as pd
 
 from qgis.utils import iface
 from qgis.core import Qgis
@@ -160,3 +162,29 @@ def synced_files_exist():
             return False 
 
     return True
+
+def write_changed_status_to_file(settings, lsid, new_status, comment, project_area_id):
+        try:
+            user_settings = get_user_settings_path()
+            # read user settings
+            user_settings = load_json(user_settings)
+            file_folder_path = user_settings["file_folder"]
+            
+            changed_status_filename = os.path.join(file_folder_path, settings["changed_status_filename"])
+
+            status_change_dict = {
+                "lsid": [lsid],
+                "new_status": [new_status],
+                "comment": [comment],
+                "project_area_id": [project_area_id]
+            }
+
+            status_df = pd.DataFrame.from_dict(status_change_dict)
+            field_headers = status_change_dict.keys()
+            status_df.to_csv(changed_status_filename, mode="a", header=field_headers, index=False) 
+
+        except Exception as e:
+            printWarningMessage(str(e))
+            return False
+
+        return True

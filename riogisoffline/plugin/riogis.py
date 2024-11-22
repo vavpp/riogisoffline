@@ -176,20 +176,13 @@ class RioGIS:
                 self.dlg.textLedningValgt.setText("Eksportert " + os.path.split(self.filename)[-1])        
                 self.dlg.btnEksport.setEnabled(False)
 
-                # TODO change status of exported feature to 
                 if self.selectedFeatureHasInternalStatus():
-                    if not self.establish_azure_connection():
-                        return
                     
                     lsid = self.feature["lsid"]
                     project_area_id = self.feature["project_area_id"]
                     comment = ""
                     new_status = 2
-                    is_uploaded = self.azure_connection.upload_status_change(lsid, new_status, comment, project_area_id)
-
-                    if not is_uploaded:
-                        utils.printWarningMessage("Opplasting av statusendring feilet!")
-
+                    utils.write_changed_status_to_file(self.settings, lsid, new_status, comment, project_area_id)
 
     def unload(self):
         for action in self.actions:
@@ -485,7 +478,8 @@ class RioGIS:
         dir_path_to_upload = self.dlg.selectUploadDir.filePath()
         self.azure_connection.upload_dir(dir_path_to_upload)
 
-        
+        self.azure_connection.upload_status_changes(self.settings)
+
 
     def populate_select_values(self):
         models = self.settings["ui_models"]

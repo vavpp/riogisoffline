@@ -112,5 +112,6 @@
         "Bestillinger": "lsid",
         "Prosjekt": "project_area_id"
     },
-    "project_filename": "riogis.qgz"
+    "project_filename": "riogis.qgz",
+    "changed_status_filename": "changed_status.csv"
 }

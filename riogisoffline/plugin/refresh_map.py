@@ -121,8 +121,6 @@ LAYERS = [
                 "group": "VA-data",
                 "disable_group": True,
                 "items": [
-
-                    # TODO add Prosjektert/Ikke i bruk and Nedlagt/Erstattet (Vann, Ikke kommunal?, Stikk)
                     {
                         "rules": [
                             {
@@ -615,6 +613,7 @@ class MapRefresher:
                     rule = root_rule.children()[0]
                 except: 
                     utils.printCriticalMessage("Lasting av kart feilet! Start QGIS på nytt og prøv igjen!", message_duration=0)
+                    return
             else:
                 rule = root_rule.children()[0].clone()
 

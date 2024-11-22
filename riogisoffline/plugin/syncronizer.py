@@ -3,8 +3,9 @@ import hashlib
 import os
 import requests
 import json
+import pandas as pd
 
-from qgis.core import QgsVectorLayer
+from qgis.core import QgsVectorLayer, QgsFeatureRequest
 from qgis.utils import iface
 import riogisoffline.plugin.utils as utils
 
@@ -20,6 +21,7 @@ class Syncronizer:
         # read builtin-settings
         settings = utils.load_json(self._settings)
         self._layer_definitions = settings["layer_definitions"]
+        self.changed_status_filename = settings["changed_status_filename"]
         
         # read user settings
         user_settings = utils.load_json(self._user_settings)
@@ -132,6 +134,7 @@ class Syncronizer:
                 return h1.hexdigest() == h2.hexdigest()
 
     def _update(self, active_layer_name, source_filepath, file2_path, idstr):
+
         # Get the active layer from the QGIS interface
         active_layer = QgsVectorLayer(
                         f"{source_filepath}|layername={active_layer_name}",
@@ -144,49 +147,54 @@ class Syncronizer:
 
         # Load the layer from file2.gpkg
         second_layer = QgsVectorLayer(
-            f"{file2_path}|layername={active_layer_name}", active_layer_name, "ogr"
+            f"{file2_path}|layername={active_layer_name}", 
+            active_layer_name, 
+            "ogr"
         )
         # Check if the second layer was loaded successfully
         if not second_layer.isValid():
             self.signal_warning_message(f"Failed to load the layer from {file2_path}")
             return
         
-        
-        # Get a set of lsid values in the active layer for faster lookup
-        max_id = max([f.id() for f in active_layer.getFeatures()])
-        active_layer_set = set([f[idstr] for f in active_layer.getFeatures()])
-
         active_layer.startEditing()
 
+        feature_id = 0
         new_features = []
+    
+        listOfIds = [feat.id() for feat in active_layer.getFeatures()]
+        active_layer.deleteFeatures( listOfIds )
      
         # Iterate through features in second_layer
         for feature in second_layer.getFeatures():
-            # Check if the feature's lsid is not in the active layer
-            if feature[idstr] not in active_layer_set:
-                max_id +=1
-                
-                feature.setAttribute(0, max_id)
-                feature.setId(max_id)
+            feature.setAttribute(0, feature_id)
+            feature.setId(feature_id)
 
-                new_features.append(feature)
+            feature_id +=1
+            
+            new_features.append(feature)
 
-        if new_features:
-            self.signal_info_message(f"{active_layer_name}: {len([f.id() for f in new_features])} nye objekter")
-        else:
-            self.signal_info_message(f"{active_layer_name}: Ingen ny data")
+        changed_status_filepath = os.path.join(self._filepath, self.changed_status_filename)
         
-        old_feature_list = [f.id() for f in active_layer.getFeatures()]
+        if idstr == "lsid" and os.path.exists(changed_status_filepath):
+            changed_status_df = pd.read_csv(changed_status_filepath)
+        
+            for _, row in changed_status_df.iterrows():
+                lsid = row["lsid"]
+                project_area_id = row["project_area_id"]
+                status = row["new_status"]
+
+                feature_to_change = [feat for feat in new_features if feat["lsid"] == lsid and feat["project_area_id"] == project_area_id]
+
+                if feature_to_change:
+                    feature = feature_to_change[0]
+                    
+                    feature["status_internal"] = status
 
         # Add the feature to the active layer
         active_layer.addFeatures(new_features)
 
         # Commit the changes to the active layer immediately
         active_layer.commitChanges()
-
-        new_feature_list = [f.id() for f in active_layer.getFeatures()]
-        if new_features and len(old_feature_list) == len(new_feature_list):
-            self.signal_warning_message(f"Feil i synkronisering: {len(new_feature_list)} burde være {len(old_feature_list) + len(new_features)}")
 
         # Refresh the active layer to see the changes
         active_layer.triggerRepaint()

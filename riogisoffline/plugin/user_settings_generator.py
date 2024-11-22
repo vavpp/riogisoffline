@@ -36,8 +36,6 @@ class UserSettingsGenerator:
 
     def write_user_settings(self):
 
-        utils.printSuccessMessage(f"Writing settings file: operator {self.user_settings_path}")
-
         with open(self.user_settings_path, "w", encoding='utf-8') as file:
             json.dump(self.user_settings_dict, file, ensure_ascii=False, indent=4)
 
@@ -50,6 +48,8 @@ class UserSettingsGenerator:
         with open(backup, "w", encoding='utf-8') as file:
             json.dump(self.user_settings_dict, file, ensure_ascii=False, indent=4)
         
+        utils.printSuccessMessage(f"Opprettet brukerinnstillinger-fil: operator {self.user_settings_path}")
+
 
     def validate_input(self):
         
