@@ -211,7 +211,7 @@ class AzureBlobStorageConnection:
 
         json_object = json.dumps(status_change_dict, indent=4)
 
-        new_azure_path = os.path.join(self.env, "changed_status", f"{status_change_dict["lsid"]}_status_change.json")
+        new_azure_path = os.path.join(self.env, "changed_status", f"{status_change_dict['lsid']}_status_change.json")
 
         container_client = self.blob_service_client.get_container_client(container="wincan-files")
         blob_client = container_client.get_blob_client(new_azure_path)
