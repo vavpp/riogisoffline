@@ -14,6 +14,7 @@ from .riogis_dockedwidget import RioGISDocked
 from .settings_dialog import SettingsDialog
 from .azure_blob_storage_connection import AzureBlobStorageConnection
 from .change_status_dialog import ChangeStatusDialog
+from .search_box import SearchBox
 
 import os.path
 import configparser
@@ -148,6 +149,10 @@ class RioGIS:
         
         self.setButtonsEnabled(False)
         self.show_necessary_panels()
+
+        # Search
+        search_box = SearchBox(self.dlg, self.iface)
+        search_box.setup()
 
     def show_necessary_panels(self):
         
