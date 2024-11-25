@@ -611,8 +611,8 @@ class MapRefresher:
                 root_rule = renderer.rootRule()
                 try:
                     rule = root_rule.children()[0]
-                except: 
-                    utils.printCriticalMessage("Lasting av kart feilet! Start QGIS på nytt og prøv igjen!", message_duration=0)
+                except Exception as e: 
+                    utils.printCriticalMessage(f"Lasting av kartlag {name} - {layer.name()} feilet! Start QGIS på nytt og prøv igjen! \n{str(e)}", message_duration=0)
                     return
             else:
                 rule = root_rule.children()[0].clone()
