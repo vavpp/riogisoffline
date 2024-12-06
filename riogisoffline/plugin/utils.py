@@ -180,8 +180,13 @@ def write_changed_status_to_file(settings, lsid, new_status, comment, project_ar
             }
 
             status_df = pd.DataFrame.from_dict(status_change_dict)
-            field_headers = status_change_dict.keys()
-            status_df.to_csv(changed_status_filename, mode="a", header=field_headers, index=False) 
+
+            # don't write header if file exists
+            if os.path.exists(changed_status_filename):
+                status_df.to_csv(changed_status_filename, mode="a", header=False, index=False) 
+            else:
+                field_headers = status_change_dict.keys()
+                status_df.to_csv(changed_status_filename, mode="a", header=field_headers, index=False) 
 
         except Exception as e:
             printWarningMessage(str(e))
