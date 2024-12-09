@@ -2,11 +2,9 @@
 import json
 import riogisoffline.plugin.utils as utils
 from azure.storage.blob import BlobServiceClient, BlobBlock
-from azure.data.tables import TableClient
 import os
 from pathlib import Path
 import uuid
-from datetime import datetime
 import pandas as pd
 
 class AzureBlobStorageConnection:
@@ -33,7 +31,6 @@ class AzureBlobStorageConnection:
         try:
             self.blob_service_client = BlobServiceClient.from_connection_string(connect_str)
             self.connected = True
-            self.table_client = TableClient.from_connection_string(conn_str=self.connect_str, table_name="UploadedDirectories")
             utils.printInfoMessage("Connected to Azure Blob Storage")
         except Exception as e:
             utils.printCriticalMessage("Failed to connect to Azure Blob Storage! Make sure the connection string / azure key is correct!")
@@ -65,7 +62,7 @@ class AzureBlobStorageConnection:
         
         syncronizer.signal_progress(100)
 
-    def upload_dir(self, all_insp_dir_path, worker):
+    def upload_projects(self, parent_dir_path, selected_projects, worker):
         """
         Upload content of directory containing WinCan-output directories
 
@@ -74,7 +71,6 @@ class AzureBlobStorageConnection:
             worker (Worker): worker running function
         """
 
-
         subdirs_to_upload = {
             "DB": "DB",
             "Document": "Misc/Docu",
@@ -82,17 +78,14 @@ class AzureBlobStorageConnection:
             "Video": "Video/Sec",
         }
 
+        projects_to_upload_full_path = [os.path.join(parent_dir_path, project) for project in selected_projects]
 
-        for dir_path in [f.path for f in os.scandir(all_insp_dir_path) if f.is_dir()]:
+        for dir_path in projects_to_upload_full_path:
 
             dir_name = os.path.split(dir_path)[-1]
             new_azure_dir = os.path.join(self.env, "new", dir_name)
 
             worker.info.emit(f"Mappe: {dir_name}")
-
-            if self.dir_has_been_uploaded_before(dir_name):
-                worker.info.emit(f" - Hopper over. Allerede lastet opp mappe med navn: {dir_name}")
-                continue
             
             
             # test that subdirs exist in given dir
@@ -139,41 +132,7 @@ class AzureBlobStorageConnection:
                         worker.info.emit(f" - Lastet opp {dir_name}/{subdir_to_upload_name}/{filename}")
             
 
-            self.add_dir_name_to_table(dir_name)
-
-
         worker.finished.emit(False)
-
-
-    def dir_has_been_uploaded_before(self, dir_name):
-        """
-        Return true if dir has been uploaded before
-
-        Args:
-            dir_name (str): inspection directory name
-
-        Returns:
-            bool: True if dir has been uploaded before, False otherwise
-        """
-        query_filter = f"PartitionKey eq '{self.env}'"
-        entities = self.table_client.query_entities(query_filter)
-        return dir_name in [e["dir_name"] for e in entities if "dir_name" in e.keys()]
-    
-    def add_dir_name_to_table(self, dir_name):
-        """
-        Insert dir name into table that lists what directories have been uploaded before
-
-        Args:
-            dir_name (str): inspection directory name
-        """
-        rowKey = str(uuid.uuid4())
-        new_row = {
-            u'PartitionKey': self.env,
-            u'RowKey': rowKey,
-            u'dir_name': dir_name,
-            u"upload_time": str(datetime.now())
-        }
-        self.table_client.create_entity(entity=new_row)
 
     def upload_status_changes(self, settings):
 

@@ -14,7 +14,9 @@ from .riogis_dockedwidget import RioGISDocked
 from .settings_dialog import SettingsDialog
 from .azure_blob_storage_connection import AzureBlobStorageConnection
 from .change_status_dialog import ChangeStatusDialog
+from .upload_dialog import UploadDialog
 from .search_box import SearchBox
+from .multi_thread_job import MultiThreadJob
 
 import os.path
 import configparser
@@ -125,7 +127,21 @@ class RioGIS:
         # disable export-button until a feature is selected
         self.dlg.btnEksport.setEnabled(False)
 
-        self.dlg.btnUpload.clicked.connect(self.run_upload_wincan_dir_in_background)
+        # Upload
+        def _handle_upload_button_click():
+            uploadDialog = UploadDialog(self)
+            upload_dir_is_valid = uploadDialog.setup_file_view(self.dlg.selectUploadDir.filePath())
+            if upload_dir_is_valid:
+                uploadDialog.exec_()
+
+        self.dlg.btnUpload.clicked.connect(_handle_upload_button_click)
+        self.dlg.btnUpload.setEnabled(False)
+
+        self.dlg.selectUploadDir.fileChanged.connect(lambda: 
+                self.dlg.btnUpload.setEnabled(True) if self.dlg.selectUploadDir.filePath() else self.dlg.btnUpload.setEnabled(False)
+            )
+
+        self.dlg.selectUploadDir.filePath()
 
         # User settings
         selectFileDialog = SettingsDialog()
@@ -472,16 +488,6 @@ class RioGIS:
         with open(self.filename, "w") as f:
             config.write(f, space_around_delimiters=False)
 
-    def uploadFiles(self):
-
-        if not self.establish_azure_connection():
-            return
-
-        dir_path_to_upload = self.dlg.selectUploadDir.filePath()
-        self.azure_connection.upload_dir(dir_path_to_upload)
-
-        self.azure_connection.upload_status_changes(self.settings)
-
 
     def populate_select_values(self):
         models = self.settings["ui_models"]
@@ -535,14 +541,8 @@ class RioGIS:
         return True
     
     def run_syncronize_in_background(self):
-        from .multi_thread_job import MultiThreadJob
         mtj = MultiThreadJob(self)
         mtj.startSyncWorker()
-
-    def run_upload_wincan_dir_in_background(self):
-        from .multi_thread_job import MultiThreadJob
-        mtj = MultiThreadJob(self)
-        mtj.startUploadWorker()
         
 
 def getFieldNames(obj):

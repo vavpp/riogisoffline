@@ -69,8 +69,6 @@ class SearchBox:
             return
         
         layer = layers[0]
-        #self.dlg.searchBox.setText(text)
-        #self.onTextChanged(text)
             
         request = QgsFeatureRequest().setFilterExpression(f'"{layer_id_attr}" = \'{text}\'')
         feature = next(layer.getFeatures(request))

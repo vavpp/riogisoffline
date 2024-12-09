@@ -25,17 +25,22 @@ class MultiThreadJob:
         Start worker in new thread that runs Syncronizer.sync_now()
         """
         utils.printInfoMessage("Starter synkronisering")
-        self.startWorker(SyncWorker)
 
-    def startUploadWorker(self):
+        # create a new worker instance
+        worker = SyncWorker(self.riogis)
+        self.startWorker(worker)
+
+    def startUploadWorker(self, selected_projects):
         """
-        Start worker in new thread that runs AzureBlobStorageConnection.upload_dir()
+        Start worker in new thread that runs AzureBlobStorageConnection.upload_projects()
         """
         utils.printInfoMessage("Starter opplasting")
-        self.startWorker(UploadWorker)
+
+        worker = UploadWorker(self.riogis, selected_projects)
+        self.startWorker(worker)
 
 
-    def startWorker(self, worker_class):
+    def startWorker(self, worker):
         """
         Start a worker of given class in new thread
 
@@ -47,9 +52,6 @@ class MultiThreadJob:
             return
         
         utils.set_busy_cursor(True)
-
-        # create a new worker instance
-        worker = worker_class(self.riogis)
 
         # start the worker in a new thread
         thread = QtCore.QThread(self.riogis.dlg)
@@ -160,14 +162,22 @@ class SyncWorker(Worker):
 
 class UploadWorker(Worker):
 
+    def __init__(self, riogis, selected_projects):
+        super().__init__(riogis)
+        self.selected_projects = selected_projects
+
     def run(self):
         try:
 
             # disable button when running
             self.riogis.dlg.btnUpload.setEnabled(False)
 
-            dir_path = self.riogis.dlg.selectUploadDir.filePath()
-            self.riogis.azure_connection.upload_dir(dir_path, self)
+            # upload selected projects
+            parent_dir_path = self.riogis.dlg.selectUploadDir.filePath()
+            self.riogis.azure_connection.upload_projects(parent_dir_path, self.selected_projects, self)
+
+            # upload changed statuses
+            self.riogis.azure_connection.upload_status_changes(self.riogis.settings)
         except Exception as e:
             # forward the exception upstream
             self.error.emit(e, traceback.format_exc())
