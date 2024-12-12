@@ -16,12 +16,12 @@
         "prewashed": {
             "ui": "cmbSelectPrewashed",
             "keys": [
-                "Ja",
-                "Nei"
+                "Nei",
+                "Ja"
             ],
             "values": [
-                "J",
-                "N"
+                "N",
+                "J"
             ]
         },
         "purpose": {

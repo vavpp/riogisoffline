@@ -57,17 +57,20 @@ class ExportDialog(QtWidgets.QDialog, FORM_CLASS):
             dlg_obj.addItems(items)
 
     def export(self):
-
-        feature = self.riogis.feature
                 
-        self.write_output_file()
-        self.update_feature_status()
-        utils.printSuccessMessage("Lagret som: " + self.riogis.filename)
+        self.riogis.data.update(self.get_data_from_select_elements())
 
-        self.riogis.dlg.textLedningValgt.setText("Eksportert " + os.path.split(self.filename)[-1])        
-        self.rioigs.dlg.btnEksport.setEnabled(False)
+        self.riogis.write_output_file()
+        self.riogis.update_feature_status()
 
-        if self.selectedFeatureHasInternalStatus():
+        filename = self.riogis.filename
+        utils.printSuccessMessage("Lagret som: " + filename)
+
+        self.riogis.dlg.textLedningValgt.setText("Eksportert " + os.path.split(filename)[-1])        
+        self.riogis.dlg.btnEksport.setEnabled(False)
+
+        if self.riogis.selectedFeatureHasInternalStatus():
+            feature = self.riogis.feature
             
             lsid = feature["lsid"]
             project_area_id = feature["project_area_id"]
@@ -75,4 +78,20 @@ class ExportDialog(QtWidgets.QDialog, FORM_CLASS):
             new_status = 2
             utils.write_changed_status_to_file(self.riogis.settings, lsid, new_status, comment, project_area_id)
 
-        self.done(1)
+        self.accept()
+
+    def get_data_from_select_elements(self):
+        """ Leser ui_models i settings.json og lager en mapping dictionary"""
+        data = {}
+        models = self.riogis.settings["ui_models"]
+        for name, item in models.items():
+            ui = item["ui"]
+
+            if not hasattr(self, ui):
+                continue
+
+            dlg_obj = getattr(self, ui)
+            index = dlg_obj.currentIndex()
+            items = item["values"]
+            data[name] = items[index]
+        return data

@@ -120,10 +120,9 @@ class RioGIS:
         """ Initiates GUI elements the first time the plugin runs """
 
         self.dlg = RioGISDocked()
-        self.populate_select_values()
 
         # Select feature
-        self.dlg.btnSelectMapClick.clicked.connect(lambda: self.handle_map_click(self.export_feature))
+        self.dlg.btnSelectMapClick.clicked.connect(lambda: self.handle_map_click(self.handle_select_feature))
 
         # Select project
         self.dlg.btnSelectProject.clicked.connect(lambda: self.handle_map_click(self.select_project))
@@ -211,10 +210,11 @@ class RioGIS:
         if self.map_has_been_clicked:
             self.iface.mapCanvas().unsetMapTool(self.mapTool)
         
-        if self.map_has_been_clicked and self.data and self.data.get("PipeID"):
-                export_dialog = ExportDialog(self)
-                export_dialog.update_label()
-                export_dialog.exec()
+        export_dialog = ExportDialog(self)
+
+        #if self.map_has_been_clicked and self.data and self.data.get("PipeID"):
+        export_dialog.update_label()
+        export_dialog.exec()
 
     def unload(self):
         for action in self.actions:
@@ -233,27 +233,12 @@ class RioGIS:
         if os.path.exists(user_settings_path): 
             self.settings.update(utils.load_json(user_settings_path))
 
-    def load_select_elements(self):
-        """ Leser ui_models i settings.json og lager en mapping dictionary"""
-        data = {}
-        models = self.settings["ui_models"]
-        for name, item in models.items():
-            ui = item["ui"]
-
-            if not hasattr(self.dlg, ui):
-                continue
-
-            dlg_obj = getattr(self.dlg, ui)
-            index = dlg_obj.currentIndex()
-            items = item["values"]
-            data[name] = items[index]
-        return data
-
-    def map_attributes(self, data):
+    def map_attributes(self):
         """Map to new keys and values"""
 
+        data = self.data
+        
         data["datenow"] = datetime.datetime.now().strftime("%Y.%m.%d")
-        data.update(self.load_select_elements())
 
         if "status_internal" in data:
             data["InternalStatus"] = data["status_internal"]
@@ -281,13 +266,13 @@ class RioGIS:
         self.mapTool.canvasClicked.connect(click_map_action)
         self.canvas.setMapTool(self.mapTool)
 
-    def export_feature(self, point, mouse_button, layers=None):
+    def handle_select_feature(self, point, mouse_button, layers=None):
         
         feature_layers = layers if layers else self.iface.mapCanvas().layers()
         self.selected_layer = None
 
         self.select_layer(feature_layers, self.settings["feature_name"])
-        self.select_feature(point, layers=feature_layers)
+        self.select_nearest_feature(point, layers=feature_layers)
 
         if self.feature:
             if self.selectedFeatureHasInternalStatus():
@@ -297,7 +282,7 @@ class RioGIS:
 
             data = self.get_feature_data()
             self.show_selected_feature(data)
-            self.map_attributes(data)
+            self.data = data
         else:
             self.show_selected_feature(None)
             self.setButtonsEnabled(False)
@@ -401,7 +386,7 @@ class RioGIS:
             dlgText += "<p style='color:#d60;'><strong style='color:#f40;'>Advarsel:</strong> Ledningen er ikke bestilt, og vil opprette en ny bestilling! Hvis du prøver å velge en eksisterende bestilling kan du prøve å skru av laget \"VA-data\", og velge ledningen på nytt.</p>"
         self.dlg.textLedningValgt.setText(dlgText)
 
-    def select_feature(self, point, layers=None):
+    def select_nearest_feature(self, point, layers=None):
         """
         Get nearest feature
 
@@ -539,7 +524,6 @@ class RioGIS:
 
         # TODO: fails when adding feature. returns false
         res = self.layer.dataProvider().addFeature(new_feature)
-        print("RESULTAT:", res)
         
         self.layer.updateFeature(new_feature)
         
@@ -596,6 +580,9 @@ class RioGIS:
 
 
     def write_output_file(self):
+
+        self.map_attributes()
+
         lsid = self.data.get("PipeID")
         fcode = self.data.get("PipeFeature")
         folder = self.settings["output_folder"]
@@ -610,20 +597,6 @@ class RioGIS:
         # write out the wincan file its a python config file format
         with open(self.filename, "w") as f:
             config.write(f, space_around_delimiters=False)
-
-
-    def populate_select_values(self):
-        models = self.settings["ui_models"]
-        for _, item in models.items():
-            ui = item["ui"]
-
-            if not hasattr(self.dlg, ui):
-                continue
-             
-            dlg_obj = getattr(self.dlg, ui)
-            dlg_obj.clear()
-            items = item["keys"]
-            dlg_obj.addItems(items)
 
     def select_layer(self, layers, name):
         # Fetch currently loaded layers
