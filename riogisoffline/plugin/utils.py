@@ -201,7 +201,6 @@ def change_project_status(settings, layer, project_feature, new_status, comment)
         write_changed_project_status_to_file(settings, project_area_id, new_status, comment)
 
         # TODO! 1. change sync to work for projects 2. change bilimport riogisoffline 3. show better info 4. avvist project
-        # TODO TEST 154216 er riktig? skal bli fullført
 
         # repaint project
         layer.startEditing()

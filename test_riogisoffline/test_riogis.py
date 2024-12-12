@@ -12,6 +12,8 @@ from riogisoffline.plugin.utils import get_plugin_dir
 from mock_extension import Layer, Point
 from qgis.core import QgsPointXY
 
+FEATURE_LAYER_NAME = "Bestillinger"
+
 @pytest.fixture(scope="session", autouse=True)
 def virtual_display():
     # Start a virtual display
@@ -50,7 +52,7 @@ def riogis_without_run():
 @pytest.fixture
 def riogis(riogis_without_run):
     riogis_without_run.run()
-    riogis_without_run.select_layer([Layer()])
+    riogis_without_run.select_layer([Layer()], FEATURE_LAYER_NAME)
     #riogis_without_run.layer = Layer()
     return riogis_without_run
     
@@ -59,7 +61,7 @@ def test_run(riogis_without_run):
 
 def test_select_layer(riogis_without_run):
     riogis_without_run.run()
-    riogis_without_run.select_layer([Layer()])
+    riogis_without_run.select_layer([Layer()], FEATURE_LAYER_NAME)
 
 def test_load_select_elements(riogis):
     data = riogis.load_select_elements()
@@ -73,14 +75,14 @@ def test_select_feature(riogis):
 
 def test_get_feature_data(riogis):
     
-    riogis.select_layer([Layer()])
+    riogis.select_layer([Layer()], FEATURE_LAYER_NAME)
     point = QgsPointXY(0,0)
     riogis.select_feature(point, layers=[Layer()])
     data = riogis.get_feature_data()
     assert data
 
 def test_map_attributes(riogis):
-    riogis.select_layer([Layer()])
+    riogis.select_layer([Layer()], FEATURE_LAYER_NAME)
     point = QgsPointXY(0,0)
     riogis.select_feature(point, layers=[Layer()])
     data = riogis.get_feature_data()
@@ -93,7 +95,7 @@ def test_handle_map_click(riogis):
     riogis.handle_map_click()
     
 def test_export_feature(riogis):
-    riogis.select_layer([Layer()])
+    riogis.select_layer([Layer()], FEATURE_LAYER_NAME)
     point = QgsPointXY(0,0)
     riogis.select_feature(point, layers=[Layer()])
     data = riogis.get_feature_data()
@@ -105,7 +107,7 @@ def test_export_feature(riogis):
     riogis.export_feature(point, None)
     
 def test_update_feature_status(riogis):
-    riogis.select_layer([Layer()])
+    riogis.select_layer([Layer()], FEATURE_LAYER_NAME)
     point = QgsPointXY(0,0)
     riogis.select_feature(point, layers=[Layer()])
     data = riogis.get_feature_data()
@@ -122,7 +124,7 @@ def test_refresh_map(riogis):
 
 def test_write_output_file(riogis):
     # AttributeError: 'NoneType' object has no attribute 'get'
-    riogis.select_layer([Layer()])
+    riogis.select_layer([Layer()], FEATURE_LAYER_NAME)
     point = QgsPointXY(0,0)
     riogis.select_feature(point, layers=[Layer()])
     data = riogis.get_feature_data()
