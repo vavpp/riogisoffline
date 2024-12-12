@@ -1,11 +1,7 @@
-
-import os
-
 from qgis.PyQt import uic, QtWidgets
 from qgis.PyQt.QtCore import Qt
 
 import riogisoffline.plugin.utils as utils
-from .azure_blob_storage_connection import AzureBlobStorageConnection
 
 FORM_CLASS, _ = uic.loadUiType(
     utils.get_plugin_dir("dialog/riogis_dialog_change_status.ui")
@@ -77,7 +73,7 @@ class ChangeStatusDialog(QtWidgets.QDialog, FORM_CLASS):
         project_area_id = selected_feature["project_area_id"]
 
         utils.write_changed_status_to_file(self.riogis.settings, lsid, new_status, comment, project_area_id)
-
+        
         layer.startEditing()
 
         selected_feature["status_internal"] = new_status
@@ -85,5 +81,8 @@ class ChangeStatusDialog(QtWidgets.QDialog, FORM_CLASS):
 
         layer.commitChanges()
         layer.triggerRepaint()
+
+        if new_status == 2 or new_status == 4:
+            self.riogis.update_project_to_in_progress(selected_feature)
 
         self.done(1)

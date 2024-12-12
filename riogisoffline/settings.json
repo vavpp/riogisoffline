@@ -80,6 +80,19 @@
                 5,
                 8
             ]
+        },
+        "project_status": {
+            "ui": "cmbSelectProjectStatus",
+            "keys": [
+                "Bestilt",
+                "Under utførelse",
+                "Fullført"
+            ],
+            "values": [
+                1,
+                2,
+                4
+            ]
         }
     },
     "mapping": {
@@ -113,5 +126,6 @@
         "Prosjekt": "project_area_id"
     },
     "project_filename": "riogis.qgz",
-    "changed_status_filename": "changed_status.csv"
+    "changed_status_filename": "changed_status.csv",
+    "changed_project_status_filename": "changed_project_status.csv"
 }
