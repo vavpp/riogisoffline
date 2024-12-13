@@ -81,24 +81,24 @@ def test_map_attributes(riogis):
     riogis.select_layer([Layer()], FEATURE_LAYER_NAME)
     point = QgsPointXY(0,0)
     riogis.select_nearest_feature(point, layers=[Layer()])
-    data = riogis.get_feature_data()
+    riogis.data = riogis.get_feature_data()
     riogis.settings.update({
         "operator": "Operator"
     })
-    riogis.map_attributes(data)
+    riogis.map_attributes()
 
 def test_handle_map_click(riogis):
-    riogis.handle_map_click()
+    riogis.handle_map_click(lambda: ...)
     
 def test_export_feature(riogis):
     riogis.select_layer([Layer()], FEATURE_LAYER_NAME)
     point = QgsPointXY(0,0)
     riogis.select_nearest_feature(point, layers=[Layer()])
-    data = riogis.get_feature_data()
+    riogis.data = riogis.get_feature_data()
     riogis.settings.update({
         "operator": "Operator"
     })
-    riogis.map_attributes(data)
+    riogis.map_attributes()
     riogis.iface.activeLayer = lambda: Layer()
     riogis.export_feature(point, None)
     
@@ -106,11 +106,11 @@ def test_update_feature_status(riogis):
     riogis.select_layer([Layer()], FEATURE_LAYER_NAME)
     point = QgsPointXY(0,0)
     riogis.select_nearest_feature(point, layers=[Layer()])
-    data = riogis.get_feature_data()
+    riogis.data = riogis.get_feature_data()
     riogis.settings.update({
         "operator": "Operator"
     })
-    riogis.map_attributes(data)
+    riogis.map_attributes()
     riogis.update_feature_status()
 
 def test_refresh_map(riogis):
@@ -123,12 +123,12 @@ def test_write_output_file(riogis):
     riogis.select_layer([Layer()], FEATURE_LAYER_NAME)
     point = QgsPointXY(0,0)
     riogis.select_nearest_feature(point, layers=[Layer()])
-    data = riogis.get_feature_data()
+    riogis.data = riogis.get_feature_data()
     riogis.settings.update({
         "operator": "Operator",
         "output_folder": get_plugin_dir()
     })
-    riogis.map_attributes(data)
+    riogis.map_attributes()
     riogis.iface.activeLayer = lambda: Layer()
     riogis.export_feature(point, None)
     riogis.write_output_file()
