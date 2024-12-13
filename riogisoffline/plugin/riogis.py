@@ -630,14 +630,16 @@ class RioGIS:
         if not os.path.exists(folder):
             os.makedirs(folder, exist_ok=True)
 
-        self.filename = os.path.join(folder, f"{fcode}-{lsid}.txt")
+        filename = os.path.join(folder, f"{fcode}-{lsid}.txt")
         config = configparser.ConfigParser()
         config.optionxform = str
         config[f"Inspection1"] = self.data
 
         # write out the wincan file its a python config file format
-        with open(self.filename, "w") as f:
+        with open(filename, "w") as f:
             config.write(f, space_around_delimiters=False)
+
+        return filename
 
     def select_layer(self, layers, name):
         # Fetch currently loaded layers

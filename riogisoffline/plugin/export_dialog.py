@@ -60,10 +60,9 @@ class ExportDialog(QtWidgets.QDialog, FORM_CLASS):
                 
         self.riogis.data.update(self.get_data_from_select_elements())
 
-        self.riogis.write_output_file()
+        filename = self.riogis.write_output_file()
         self.riogis.update_feature_status()
 
-        filename = self.riogis.filename
         utils.printSuccessMessage("Lagret som: " + filename)
 
         self.riogis.dlg.textLedningValgt.setText("Eksportert " + os.path.split(filename)[-1])        
