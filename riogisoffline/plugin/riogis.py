@@ -732,6 +732,9 @@ class RioGIS:
 
     def show_last_sync_time_date(self):
 
+        if not "file_folder" in self.settings:
+            return
+
         default_text = "Last ned kartdata"
 
         filepath = self.settings["file_folder"]
