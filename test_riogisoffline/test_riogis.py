@@ -114,12 +114,9 @@ def test_update_feature_status(riogis):
     riogis.update_feature_status()
 
 def test_refresh_map(riogis):
-    # AttributeError: 'NoneType' object has no attribute 'messageBar'
-    
     riogis.refresh_map()
 
 def test_write_output_file(riogis):
-    # AttributeError: 'NoneType' object has no attribute 'get'
     riogis.select_layer([Layer()], FEATURE_LAYER_NAME)
     point = QgsPointXY(0,0)
     riogis.select_nearest_feature(point, layers=[Layer()])
@@ -131,7 +128,7 @@ def test_write_output_file(riogis):
     riogis.map_attributes()
     riogis.iface.activeLayer = lambda: Layer()
     riogis.handle_select_feature(point, None)
-    print(riogis.write_output_file())
+    riogis.write_output_file()
     output_dirlist = os.listdir(get_plugin_dir())
     print(output_dirlist)
     assert 'AF-123.txt' in output_dirlist
