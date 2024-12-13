@@ -27,6 +27,7 @@ import datetime
 import riogisoffline.plugin.utils as utils
 
 
+
 class RioGIS:
     """ Handles initialization and interaction with GUI-elements """
 
@@ -132,6 +133,8 @@ class RioGIS:
 
         # Syncronize
         self.dlg.btnSync.clicked.connect(self.run_syncronize_in_background)
+
+        self.show_last_sync_time_date()
 
         # Export
         self.dlg.btnEksport.clicked.connect(self._handle_export)
@@ -726,6 +729,23 @@ class RioGIS:
     def run_syncronize_in_background(self):
         mtj = MultiThreadJob(self)
         mtj.startSyncWorker()
+
+    def show_last_sync_time_date(self):
+
+        default_text = "Last ned kartdata"
+
+        filepath = self.settings["file_folder"]
+        filename = os.path.join(filepath, utils.get_db_name())
+        root, ext = os.path.splitext(filename)
+        up_filename = root + "_update" + ext
+
+        if not os.path.exists(up_filename):
+            self.dlg.textSync.setText(default_text)
+            return
+
+        sync_time = os.path.getmtime(up_filename)
+        datetime_last_sync = datetime.datetime.fromtimestamp(sync_time).strftime("%d. %b. %Y, %H:%M")
+        self.dlg.textSync.setText(f"{default_text}\n(Synket sist: {datetime_last_sync})")
         
 
 def getFieldNames(obj):

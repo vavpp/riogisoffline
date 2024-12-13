@@ -96,6 +96,8 @@ class MultiThreadJob:
         self.thread.deleteLater()
 
         self.riogis.iface.mainWindow().statusBar().removeWidget(self.bar)
+
+        self.riogis.show_last_sync_time_date()
         
         utils.set_busy_cursor(False)
 
