@@ -381,7 +381,7 @@ class RioGIS:
         text = f'Prosjekt valgt:<br>'
 
         project_info_dict = {
-            "Status": project["status"],
+            "Status": utils.get_status_text(project["status"], self.settings['ui_models']['project_status']),
             "Kommentar": project["comments"],
             "Bestilt": project["ordered_date"],
             "Bestilt av": project["ordered_email"],
@@ -395,6 +395,9 @@ class RioGIS:
             "Gjenstående meter": remaining_total_length,
         }
 
+        for k,v in project_info_dict.items():
+            project_info_dict[k] = k if k else ""
+
         text += "<br>".join([f"<strong>{k}</strong>: {v}" for k,v in project_info_dict.items()])
 
         self.dlg.textSelectedProject.setText(text)
@@ -402,8 +405,16 @@ class RioGIS:
 
         orders_in_project.sort(key=lambda x: x["status_internal"])
         for order_feature in orders_in_project:
+            fcode = order_feature['fcode']
+            lsid = order_feature['lsid'] 
+            status_internal = utils.get_status_text(order_feature['status_internal'], self.settings['ui_models']['status'])
+            material = order_feature['material'] 
+            dim = order_feature['dim']
+            construction_year = order_feature['construction_year'] 
+            owner = order_feature['owner'] 
+            pipe_status = order_feature['pipe_status']
 
-            list_item_text = f"{order_feature['fcode']}{order_feature['lsid']} ({utils.get_status_text(order_feature['status_internal'], self.settings["ui_models"]["status"])}) - {order_feature['material']} {order_feature['dim']} mm - {order_feature['construction_year']} - {order_feature['owner']} {order_feature['pipe_status']}"
+            list_item_text = f"{fcode}{lsid} ({status_internal}) - {material} {dim} - {construction_year} - {owner} {pipe_status}"
             order_item = QListWidgetItem(list_item_text)
             order_item.setData(Qt.UserRole, order_feature)
             self.dlg.listOrdersInProject.addItem(order_item)
@@ -441,7 +452,7 @@ class RioGIS:
         streetname = data["streetname"] if "streetname" in data else "-"
         fcode = utils.fcode_to_text(data["fcode"]) if str(data["fcodegroup"]).isnumeric() else data["fcodegroup"]
 
-        text = f'Ledning valgt: LSID: <strong>{data["lsid"]}</strong> (fra PSID {data["from_psid"]} til {data["to_psid"]}), Gate: <strong>{streetname}</strong>, Type: <strong>{fcode}</strong>, Dim: <strong>{data["dim"]}</strong>, Materiale: <strong>{data["material"]}</strong>'
+        text = f'Ledning valgt: LSID: <strong>{data["lsid"]}</strong> (fra PSID {data["from_psid"]} til {data["to_psid"]}), Gate: <strong>{streetname}</strong>, Type: <strong>{fcode}</strong>, Dim: <strong>{data["dim"]} mm</strong>, Materiale: <strong>{data["material"]}</strong>'
         
         # show in message
         utils.printInfoMessage(text, message_duration=5)
