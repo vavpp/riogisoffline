@@ -52,7 +52,7 @@ LAYERS = [
                             {
                                 "expression": '"status_internal" = 3',
                                 "color": QColor(230, 0, 0, alpha=255),
-                                "legend_label": "Ikke inspisert",
+                                "legend_label": "Kunne ikke inspiseres",
                                 "width": DEFAULT_BESTILLINGER_LINE_WIDTH,
                             },
                             {

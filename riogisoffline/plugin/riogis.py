@@ -179,7 +179,6 @@ class RioGIS:
 
         # Change project status
         self.dlg.btnChangeProjectStatus.setEnabled(False)
-
         
         changeProjectStatusDialog = ChangeProjectStatusDialog(self)
         changeProjectStatusDialog.populate_select_values()
@@ -211,8 +210,6 @@ class RioGIS:
             self.iface.mapCanvas().unsetMapTool(self.mapTool)
         
         export_dialog = ExportDialog(self)
-
-        #if self.map_has_been_clicked and self.data and self.data.get("PipeID"):
         export_dialog.update_label()
         export_dialog.exec()
 
@@ -290,35 +287,32 @@ class RioGIS:
     def select_project(self, point, mouse_button, layers=None):
         
         feature_layer = "Prosjekt"
-
         feature_layers = layers if layers else self.iface.mapCanvas().layers()
-
         self.select_layer(feature_layers, feature_layer)
-
         point_click = QgsGeometry.fromPointXY(QgsPointXY(point.x(), point.y()))
 
         all_features = self.get_all_features_from_all_feature_layers(feature_layers, [feature_layer])
 
-        near_features = list(
+        near_projects = list(
             filter(
                 lambda feat: point_click.distance(feat.geometry()) == 0,
                 all_features,
             )
         )
 
-        if not near_features:
+        if not near_projects:
             self.dlg.btnChangeProjectStatus.setEnabled(False)
             self.dlg.textSelectedProject.setText("Ingen prosjekter er valgt")
             return
         
         features_with_meters_in_order = {
-            feat: feat["meters_in_order"] for feat in near_features
+            feat: feat["meters_in_order"] for feat in near_projects
         }
         
         nearest_feature_distances_list = list(features_with_meters_in_order.values())
         min_dist = min(nearest_feature_distances_list)
         idx = nearest_feature_distances_list.index(min_dist)
-        self.selected_project = near_features[idx]
+        self.selected_project = near_projects[idx]
 
         self.dlg.btnChangeProjectStatus.setEnabled(True)
 
@@ -326,30 +320,79 @@ class RioGIS:
         # flash geometry
         self.iface.mapCanvas().flashGeometries([self.selected_project.geometry()], flashes=1, duration=500, startColor=QColor(100, 0, 100, 150), endColor=QColor(255, 255, 255, 0))
 
+        self.show_project_information(self.selected_project)
+
+    def show_project_information(self, project):
+        """
+        Show project information in widget
+
+        Args:
+            project (QgsFeature): selected project
+        """
+
+        # get all orders in project
+        all_order_features = self.get_layer_by_name("Bestillinger").getFeatures()
+
+        orders_in_project = list(
+            filter(
+                lambda feat: project.geometry().distance(feat.geometry()) == 0 and feat["project_area_id"] == project["project_area_id"],
+                all_order_features,
+            )
+        )
+
+        completed_total_length = 0
+        cant_inspect_total_length = 0
+        interrupted_total_length = 0
+        spyling_total_length = 0
+        remaining_total_length = 0
+
+
+        for order in orders_in_project:
+            length = order["length"]
+            status = order["status_internal"]
+
+            if not length:
+                length = 0
+
+            if status == 3:
+                cant_inspect_total_length += length
+            elif status == 4:
+                completed_total_length += length
+            elif status == 5:
+                interrupted_total_length += length
+            elif status == 8:
+                spyling_total_length += length
+
+        remaining_total_length = project["meters_in_order"]-completed_total_length
 
         # show project information
         text = f'Prosjekt valgt:<br>'
 
         project_info_dict = {
-            "Status": self.selected_project["status"],
-            "Kommentar": self.selected_project["comments"],
-            "Bestilt": self.selected_project["ordered_date"],
-            "Bestilt av": self.selected_project["ordered_email"],
-            "Inspeksjonsformål": self.selected_project["purpose"],
-            "ISY prosjektnummer": self.selected_project["isy_project_reference"],
-            "Totalt antall meter i bestilling": self.selected_project["meters_in_order"],
-            "Antall meter fullført": "",
-            "Antall meter som ikke kunne inspiseres": "",
-            "Antall meter avbrutt": "",
-            "Antall meter annullert": "",
-            "Antall meter avvist": "",
-            "Antall meter spyling": "",
-            "Gjenstående meter": "",
+            "Status": project["status"],
+            "Kommentar": project["comments"],
+            "Bestilt": project["ordered_date"],
+            "Bestilt av": project["ordered_email"],
+            "Inspeksjonsformål": project["purpose"],
+            "ISY prosjektnummer": project["isy_project_reference"],
+            "Totalt antall meter i bestilling": project["meters_in_order"],
+            "Antall meter fullført": completed_total_length,
+            "Antall meter som ikke kunne inspiseres": cant_inspect_total_length,
+            "Antall meter avbrutt": interrupted_total_length,
+            "Antall meter spyling": spyling_total_length,
+            "Gjenstående meter": remaining_total_length,
         }
 
         text += "<br>".join([f"<strong>{k}</strong>: {v}" for k,v in project_info_dict.items()])
 
         self.dlg.textSelectedProject.setText(text)
+
+
+
+        self.dlg.listOrdersInProject.clear()
+
+        for i in orders_in_project:
+            self.dlg.listOrdersInProject.addItem(f"{i['fcode']}{i['lsid']}")
 
 
     def setButtonsEnabled(self, enabled):
@@ -607,6 +650,16 @@ class RioGIS:
             self.iface.setActiveLayer(self.layer)
         else:
             self.layer = self.iface.activeLayer()
+
+    def get_layer_by_name(self, name):
+
+        layers = self.iface.mapCanvas().layers()
+
+        # Fetch currently loaded layers
+        names = [l.name() for l in layers]
+        if name in names:
+            index = names.index(name)
+            return layers[index]
 
     def run(self):
         """ Run when user clicks plugin icon """         

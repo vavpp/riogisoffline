@@ -65,8 +65,8 @@ class ChangeStatusDialog(QtWidgets.QDialog, FORM_CLASS):
             utils.printInfoMessage("Endret status må være annen en nåværende status")
             return
         
-        if  not comment and self.cmbSelectStatus.currentText() in ["Avbrutt", "Ikke inspisert"]:
-            utils.printInfoMessage("Kommentar er påkrevd hvis status settes til \"Avbrutt\" eller \"Ikke inspisert\"")
+        if  not comment and self.cmbSelectStatus.currentText() in ["Avbrutt", "Kunne ikke inspiseres"]:
+            utils.printInfoMessage("Kommentar er påkrevd hvis status settes til \"Avbrutt\" eller \"Kunne ikke inspiseres\"")
             return
 
         lsid = selected_feature["lsid"]
