@@ -12,6 +12,8 @@ from riogisoffline.plugin.utils import get_plugin_dir
 from mock_extension import Layer, Point
 from qgis.core import QgsPointXY
 
+FEATURE_LAYER_NAME = "Bestillinger"
+
 @pytest.fixture(scope="session", autouse=True)
 def virtual_display():
     # Start a virtual display
@@ -50,7 +52,7 @@ def riogis_without_run():
 @pytest.fixture
 def riogis(riogis_without_run):
     riogis_without_run.run()
-    riogis_without_run.select_layer([Layer()])
+    riogis_without_run.select_layer([Layer()], FEATURE_LAYER_NAME)
     #riogis_without_run.layer = Layer()
     return riogis_without_run
     
@@ -59,88 +61,75 @@ def test_run(riogis_without_run):
 
 def test_select_layer(riogis_without_run):
     riogis_without_run.run()
-    riogis_without_run.select_layer([Layer()])
-
-def test_load_select_elements(riogis):
-    data = riogis.load_select_elements()
-    assert data
+    riogis_without_run.select_layer([Layer()], FEATURE_LAYER_NAME)
     
-def test_select_feature(riogis):
+def test_select_nearest_feature(riogis):
     
     point = QgsPointXY(0,0)
-    riogis.select_feature(point, layers=[Layer()])
+    riogis.select_nearest_feature(point, layers=[Layer()])
     assert riogis.feature is not None
 
 def test_get_feature_data(riogis):
     
-    riogis.select_layer([Layer()])
+    riogis.select_layer([Layer()], FEATURE_LAYER_NAME)
     point = QgsPointXY(0,0)
-    riogis.select_feature(point, layers=[Layer()])
+    riogis.select_nearest_feature(point, layers=[Layer()])
     data = riogis.get_feature_data()
     assert data
 
 def test_map_attributes(riogis):
-    riogis.select_layer([Layer()])
+    riogis.select_layer([Layer()], FEATURE_LAYER_NAME)
     point = QgsPointXY(0,0)
-    riogis.select_feature(point, layers=[Layer()])
-    data = riogis.get_feature_data()
+    riogis.select_nearest_feature(point, layers=[Layer()])
+    riogis.data = riogis.get_feature_data()
     riogis.settings.update({
         "operator": "Operator"
     })
-    riogis.map_attributes(data)
+    riogis.map_attributes()
 
 def test_handle_map_click(riogis):
-    riogis.handle_map_click()
+    riogis.handle_map_click(lambda: ...)
     
 def test_export_feature(riogis):
-    riogis.select_layer([Layer()])
+    riogis.select_layer([Layer()], FEATURE_LAYER_NAME)
     point = QgsPointXY(0,0)
-    riogis.select_feature(point, layers=[Layer()])
-    data = riogis.get_feature_data()
+    riogis.select_nearest_feature(point, layers=[Layer()])
+    riogis.data = riogis.get_feature_data()
     riogis.settings.update({
         "operator": "Operator"
     })
-    riogis.map_attributes(data)
+    riogis.map_attributes()
     riogis.iface.activeLayer = lambda: Layer()
-    riogis.export_feature(point, None)
+    riogis.handle_select_feature(point, None)
     
 def test_update_feature_status(riogis):
-    riogis.select_layer([Layer()])
+    riogis.select_layer([Layer()], FEATURE_LAYER_NAME)
     point = QgsPointXY(0,0)
-    riogis.select_feature(point, layers=[Layer()])
-    data = riogis.get_feature_data()
+    riogis.select_nearest_feature(point, layers=[Layer()])
+    riogis.data = riogis.get_feature_data()
     riogis.settings.update({
         "operator": "Operator"
     })
-    riogis.map_attributes(data)
+    riogis.map_attributes()
     riogis.update_feature_status()
 
 def test_refresh_map(riogis):
-    # AttributeError: 'NoneType' object has no attribute 'messageBar'
-    
     riogis.refresh_map()
 
 def test_write_output_file(riogis):
-    # AttributeError: 'NoneType' object has no attribute 'get'
-    riogis.select_layer([Layer()])
+    riogis.select_layer([Layer()], FEATURE_LAYER_NAME)
     point = QgsPointXY(0,0)
-    riogis.select_feature(point, layers=[Layer()])
-    data = riogis.get_feature_data()
+    riogis.select_nearest_feature(point, layers=[Layer()])
+    riogis.data = riogis.get_feature_data()
     riogis.settings.update({
         "operator": "Operator",
         "output_folder": get_plugin_dir()
     })
-    riogis.map_attributes(data)
+    riogis.map_attributes()
     riogis.iface.activeLayer = lambda: Layer()
-    riogis.export_feature(point, None)
+    riogis.handle_select_feature(point, None)
     riogis.write_output_file()
     output_dirlist = os.listdir(get_plugin_dir())
     print(output_dirlist)
     assert 'AF-123.txt' in output_dirlist
-
-def test_populate_select_values(riogis):
-    riogis.populate_select_values()
-
-def test_select_layer(riogis):
-    riogis.populate_select_values()
 

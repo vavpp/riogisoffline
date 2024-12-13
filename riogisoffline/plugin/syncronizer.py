@@ -22,6 +22,7 @@ class Syncronizer:
         settings = utils.load_json(self._settings)
         self._layer_definitions = settings["layer_definitions"]
         self.changed_status_filename = settings["changed_status_filename"]
+        self.changed_project_status_filename = settings["changed_project_status_filename"]
         
         # read user settings
         user_settings = utils.load_json(self._user_settings)
@@ -174,6 +175,7 @@ class Syncronizer:
             new_features.append(feature)
 
         changed_status_filepath = os.path.join(self._filepath, self.changed_status_filename)
+        changed_project_status_filepath = os.path.join(self._filepath, self.changed_project_status_filename)
         
         if idstr == "lsid" and os.path.exists(changed_status_filepath):
             changed_status_df = pd.read_csv(changed_status_filepath)
@@ -189,6 +191,19 @@ class Syncronizer:
                     feature = feature_to_change[0]
                     
                     feature["status_internal"] = status
+        elif idstr == "project_area_id" and os.path.exists(changed_project_status_filepath):
+            changed_project_status_df = pd.read_csv(changed_project_status_filepath)
+        
+            for _, row in changed_project_status_df.iterrows():
+                project_area_id = row["GlobalID"]
+                status = row["new_status"]
+
+                feature_to_change = [feat for feat in new_features if feat["project_area_id"] == project_area_id]
+
+                if feature_to_change:
+                    feature = feature_to_change[0]
+                    
+                    feature["status"] = status
 
         # Add the feature to the active layer
         active_layer.addFeatures(new_features)

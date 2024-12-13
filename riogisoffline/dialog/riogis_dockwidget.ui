@@ -6,13 +6,13 @@
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>360</width>
-    <height>577</height>
+    <width>436</width>
+    <height>1091</height>
    </rect>
   </property>
   <property name="minimumSize">
    <size>
-    <width>340</width>
+    <width>400</width>
     <height>134</height>
    </size>
   </property>
@@ -72,19 +72,12 @@ QPushButton::disabled {
         <rect>
          <x>0</x>
          <y>0</y>
-         <width>323</width>
-         <height>804</height>
+         <width>416</width>
+         <height>1047</height>
         </rect>
        </property>
        <layout class="QGridLayout" name="gridLayout">
-        <item row="13" column="0" colspan="2">
-         <widget class="QLabel" name="lblSelectPurpose">
-          <property name="text">
-           <string>Inspeksjonsformål:</string>
-          </property>
-         </widget>
-        </item>
-        <item row="31" column="0" colspan="2">
+        <item row="26" column="0" colspan="2">
          <widget class="QLabel" name="textLedningValgt">
           <property name="text">
            <string>Ingen ledning er valgt</string>
@@ -92,40 +85,40 @@ QPushButton::disabled {
           <property name="wordWrap">
            <bool>true</bool>
           </property>
+          <property name="indent">
+           <number>10</number>
+          </property>
          </widget>
         </item>
-        <item row="37" column="0" colspan="2">
-         <widget class="QPushButton" name="btnSelectSettingsFile">
+        <item row="28" column="0">
+         <widget class="QLabel" name="label_2">
+          <property name="text">
+           <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;&lt;span style=&quot; font-weight:600;&quot;&gt;Prosjekt&lt;/span&gt;&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
+          </property>
+         </widget>
+        </item>
+        <item row="29" column="0" colspan="2">
+         <widget class="QPushButton" name="btnSelectProject">
           <property name="cursor">
            <cursorShape>PointingHandCursor</cursorShape>
           </property>
+          <property name="toolTip">
+           <string/>
+          </property>
+          <property name="toolTipDuration">
+           <number>-1</number>
+          </property>
           <property name="text">
-           <string>Legg til bruker-info...</string>
+           <string>✛ Velg prosjekt i kart</string>
           </property>
          </widget>
         </item>
-        <item row="32" column="0">
-         <widget class="QPushButton" name="btnMarker">
-          <property name="cursor">
-           <cursorShape>PointingHandCursor</cursorShape>
-          </property>
+        <item row="11" column="0">
+         <widget class="QLabel" name="label">
           <property name="text">
-           <string>Marker som...</string>
+           <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;&lt;span style=&quot; font-weight:600;&quot;&gt;Ledning&lt;/span&gt;&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
           </property>
          </widget>
-        </item>
-        <item row="16" column="0" colspan="2">
-         <widget class="QComboBox" name="cmbSelectPrewashed"/>
-        </item>
-        <item row="11" column="0" colspan="2">
-         <widget class="QLabel" name="lblSelectWeather">
-          <property name="text">
-           <string>Nedbør:</string>
-          </property>
-         </widget>
-        </item>
-        <item row="12" column="0" colspan="2">
-         <widget class="QComboBox" name="cmbSelectWeather"/>
         </item>
         <item row="47" column="0" colspan="2">
          <spacer name="horizontalSpacer">
@@ -140,6 +133,20 @@ QPushButton::disabled {
           </property>
          </spacer>
         </item>
+        <item row="7" column="0">
+         <widget class="QLabel" name="textSync">
+          <property name="text">
+           <string>Last ned kartdata</string>
+          </property>
+         </widget>
+        </item>
+        <item row="3" column="0" colspan="2">
+         <widget class="Line" name="line_4">
+          <property name="orientation">
+           <enum>Qt::Horizontal</enum>
+          </property>
+         </widget>
+        </item>
         <item row="46" column="1">
          <spacer name="verticalSpacer">
           <property name="orientation">
@@ -153,17 +160,167 @@ QPushButton::disabled {
           </property>
          </spacer>
         </item>
-        <item row="17" column="0" colspan="2">
-         <widget class="QLabel" name="lblSelectStandard">
+        <item row="25" column="1">
+         <widget class="QPushButton" name="btnEksport">
+          <property name="cursor">
+           <cursorShape>PointingHandCursor</cursorShape>
+          </property>
           <property name="text">
-           <string>Inspeksjonsstandard:</string>
+           <string>Eksporter til WinCan</string>
+          </property>
+         </widget>
+        </item>
+        <item row="2" column="0" colspan="2">
+         <widget class="QListWidget" name="searchResults">
+          <property name="maximumSize">
+           <size>
+            <width>16777215</width>
+            <height>100</height>
+           </size>
+          </property>
+         </widget>
+        </item>
+        <item row="44" column="0" colspan="2">
+         <widget class="QgsFileWidget" name="selectUploadDir">
+          <property name="storageMode">
+           <enum>QgsFileWidget::GetDirectory</enum>
+          </property>
+         </widget>
+        </item>
+        <item row="33" column="0" colspan="2">
+         <widget class="QLabel" name="textSelectedProject">
+          <property name="frameShape">
+           <enum>QFrame::NoFrame</enum>
+          </property>
+          <property name="frameShadow">
+           <enum>QFrame::Plain</enum>
+          </property>
+          <property name="text">
+           <string>Ingen prosjekter er valgt</string>
+          </property>
+          <property name="wordWrap">
+           <bool>true</bool>
+          </property>
+          <property name="indent">
+           <number>10</number>
+          </property>
+         </widget>
+        </item>
+        <item row="27" column="0" colspan="2">
+         <widget class="Line" name="line_5">
+          <property name="orientation">
+           <enum>Qt::Horizontal</enum>
+          </property>
+         </widget>
+        </item>
+        <item row="37" column="0" colspan="2">
+         <widget class="QPushButton" name="btnSelectSettingsFile">
+          <property name="cursor">
+           <cursorShape>PointingHandCursor</cursorShape>
+          </property>
+          <property name="text">
+           <string>Legg til bruker-info...</string>
+          </property>
+         </widget>
+        </item>
+        <item row="40" column="0" colspan="2">
+         <widget class="QLabel" name="label_7">
+          <property name="text">
+           <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p align=&quot;left&quot;&gt;&lt;span style=&quot; font-weight:600;&quot;&gt;Last opp ferdige inspeksjoner&lt;/span&gt;&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
+          </property>
+         </widget>
+        </item>
+        <item row="41" column="0" colspan="2">
+         <widget class="QLabel" name="label_5">
+          <property name="text">
+           <string>Velg mappe med WinCan-prosjekter</string>
+          </property>
+          <property name="wordWrap">
+           <bool>true</bool>
+          </property>
+         </widget>
+        </item>
+        <item row="7" column="1">
+         <widget class="QPushButton" name="btnSync">
+          <property name="cursor">
+           <cursorShape>PointingHandCursor</cursorShape>
+          </property>
+          <property name="text">
+           <string>⭳ Synkroniser</string>
+          </property>
+         </widget>
+        </item>
+        <item row="35" column="0" colspan="2">
+         <widget class="Line" name="line">
+          <property name="orientation">
+           <enum>Qt::Horizontal</enum>
+          </property>
+         </widget>
+        </item>
+        <item row="1" column="0" colspan="2">
+         <widget class="QLineEdit" name="searchBox">
+          <property name="text">
+           <string/>
+          </property>
+         </widget>
+        </item>
+        <item row="9" column="1">
+         <widget class="QPushButton" name="btnReset">
+          <property name="cursor">
+           <cursorShape>PointingHandCursor</cursorShape>
+          </property>
+          <property name="text">
+           <string>⟳ Last kart</string>
+          </property>
+         </widget>
+        </item>
+        <item row="45" column="0" colspan="2">
+         <widget class="QPushButton" name="btnUpload">
+          <property name="cursor">
+           <cursorShape>PointingHandCursor</cursorShape>
+          </property>
+          <property name="text">
+           <string>⭱ Last opp...</string>
           </property>
          </widget>
         </item>
         <item row="15" column="0" colspan="2">
-         <widget class="QLabel" name="lblSelectCleaned">
+         <widget class="QPushButton" name="btnSelectMapClick">
+          <property name="cursor">
+           <cursorShape>PointingHandCursor</cursorShape>
+          </property>
+          <property name="styleSheet">
+           <string notr="true"/>
+          </property>
           <property name="text">
-           <string>Rengjort:</string>
+           <string>✛ Velg ledning i kart</string>
+          </property>
+         </widget>
+        </item>
+        <item row="25" column="0">
+         <widget class="QPushButton" name="btnMarker">
+          <property name="cursor">
+           <cursorShape>PointingHandCursor</cursorShape>
+          </property>
+          <property name="text">
+           <string>Marker som...</string>
+          </property>
+         </widget>
+        </item>
+        <item row="9" column="0">
+         <widget class="QLabel" name="label_4">
+          <property name="text">
+           <string>Last kart på nytt</string>
+          </property>
+         </widget>
+        </item>
+        <item row="32" column="0" colspan="2">
+         <widget class="QPushButton" name="btnChangeProjectStatus">
+          <property name="cursor">
+           <cursorShape>PointingHandCursor</cursorShape>
+          </property>
+          <property name="text">
+           <string>Endre prosjekt-status...</string>
           </property>
          </widget>
         </item>
@@ -181,16 +338,6 @@ QPushButton::disabled {
           </property>
          </widget>
         </item>
-        <item row="7" column="1">
-         <widget class="QPushButton" name="btnSync">
-          <property name="cursor">
-           <cursorShape>PointingHandCursor</cursorShape>
-          </property>
-          <property name="text">
-           <string>Synkroniser</string>
-          </property>
-         </widget>
-        </item>
         <item row="36" column="0" colspan="2">
          <widget class="QLabel" name="textBrukerInfo">
           <property name="text">
@@ -201,13 +348,6 @@ QPushButton::disabled {
           </property>
          </widget>
         </item>
-        <item row="7" column="0">
-         <widget class="QLabel" name="label_3">
-          <property name="text">
-           <string>Last ned kartdata</string>
-          </property>
-         </widget>
-        </item>
         <item row="0" column="0" colspan="2">
          <widget class="QLabel" name="label_6">
           <property name="text">
@@ -215,113 +355,15 @@ QPushButton::disabled {
           </property>
          </widget>
         </item>
-        <item row="44" column="0" colspan="2">
-         <widget class="QgsFileWidget" name="selectUploadDir">
-          <property name="storageMode">
-           <enum>QgsFileWidget::GetDirectory</enum>
-          </property>
-         </widget>
-        </item>
-        <item row="1" column="0" colspan="2">
-         <widget class="QLineEdit" name="searchBox">
-          <property name="text">
-           <string/>
-          </property>
-         </widget>
-        </item>
-        <item row="19" column="0" colspan="2">
-         <widget class="QComboBox" name="cmbSelectStandard"/>
-        </item>
-        <item row="22" column="0" colspan="2">
-         <widget class="QPushButton" name="btnSelectMapClick">
-          <property name="cursor">
-           <cursorShape>PointingHandCursor</cursorShape>
-          </property>
-          <property name="styleSheet">
-           <string notr="true"/>
-          </property>
-          <property name="text">
-           <string>Velg ledning i kart</string>
-          </property>
-         </widget>
-        </item>
-        <item row="9" column="1">
-         <widget class="QPushButton" name="btnReset">
-          <property name="cursor">
-           <cursorShape>PointingHandCursor</cursorShape>
-          </property>
-          <property name="text">
-           <string>Last kart</string>
-          </property>
-         </widget>
-        </item>
-        <item row="32" column="1">
-         <widget class="QPushButton" name="btnEksport">
-          <property name="cursor">
-           <cursorShape>PointingHandCursor</cursorShape>
-          </property>
-          <property name="text">
-           <string>Eksporter til WinCan</string>
-          </property>
-         </widget>
-        </item>
-        <item row="45" column="0" colspan="2">
-         <widget class="QPushButton" name="btnUpload">
-          <property name="cursor">
-           <cursorShape>PointingHandCursor</cursorShape>
-          </property>
-          <property name="text">
-           <string>Last opp...</string>
-          </property>
-         </widget>
-        </item>
-        <item row="3" column="0" colspan="2">
-         <widget class="Line" name="line_4">
-          <property name="orientation">
-           <enum>Qt::Horizontal</enum>
-          </property>
-         </widget>
-        </item>
-        <item row="9" column="0">
-         <widget class="QLabel" name="label_4">
-          <property name="text">
-           <string>Last kart på nytt</string>
-          </property>
-         </widget>
-        </item>
-        <item row="41" column="0" colspan="2">
-         <widget class="QLabel" name="label_5">
-          <property name="text">
-           <string>Velg mappe med WinCan-prosjekter</string>
-          </property>
-          <property name="wordWrap">
+        <item row="34" column="0" colspan="2">
+         <widget class="QListWidget" name="listOrdersInProject">
+          <property name="enabled">
            <bool>true</bool>
           </property>
-         </widget>
-        </item>
-        <item row="14" column="0" colspan="2">
-         <widget class="QComboBox" name="cmbSelectPurpose"/>
-        </item>
-        <item row="35" column="0" colspan="2">
-         <widget class="Line" name="line">
-          <property name="orientation">
-           <enum>Qt::Horizontal</enum>
-          </property>
-         </widget>
-        </item>
-        <item row="40" column="0" colspan="2">
-         <widget class="QLabel" name="label_7">
-          <property name="text">
-           <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p align=&quot;left&quot;&gt;&lt;span style=&quot; font-weight:600;&quot;&gt;Last opp ferdige inspeksjoner&lt;/span&gt;&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
-          </property>
-         </widget>
-        </item>
-        <item row="2" column="0" colspan="2">
-         <widget class="QListWidget" name="searchResults">
           <property name="maximumSize">
            <size>
             <width>16777215</width>
-            <height>100</height>
+            <height>150</height>
            </size>
           </property>
          </widget>

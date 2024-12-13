@@ -193,3 +193,55 @@ def write_changed_status_to_file(settings, lsid, new_status, comment, project_ar
             return False
 
         return True
+
+def change_project_status(settings, layer, project_feature, new_status, comment):
+        project_area_id = project_feature["project_area_id"]
+
+        # write to file
+        write_changed_project_status_to_file(settings, project_area_id, new_status, comment)
+
+        # repaint project
+        layer.startEditing()
+
+        project_feature["status"] = new_status
+        layer.updateFeature(project_feature)
+
+        layer.commitChanges()
+        layer.triggerRepaint()
+
+def write_changed_project_status_to_file(settings, project_area_id, new_status, comment):
+        try:
+            user_settings = get_user_settings_path()
+            # read user settings
+            user_settings = load_json(user_settings)
+            file_folder_path = user_settings["file_folder"]
+            
+            changed_project_status_filename = os.path.join(file_folder_path, settings["changed_project_status_filename"])
+
+            status_change_dict = {
+                "GlobalID": [project_area_id],
+                "new_status": [new_status],
+                "comments_inspector": [comment]
+            }
+
+            status_df = pd.DataFrame.from_dict(status_change_dict)
+
+            # don't write header if file exists
+            if os.path.exists(changed_project_status_filename):
+                status_df.to_csv(changed_project_status_filename, mode="a", header=False, index=False) 
+            else:
+                field_headers = status_change_dict.keys()
+                status_df.to_csv(changed_project_status_filename, mode="a", header=field_headers, index=False) 
+
+        except Exception as e:
+            printWarningMessage(str(e))
+            return False
+
+        return True
+
+def get_status_text(status, status_items):
+    status_values = status_items["values"]
+    status_keys = status_items["keys"]
+    status_text = status_keys[status_values.index(status)]
+
+    return status_text

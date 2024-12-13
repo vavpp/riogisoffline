@@ -16,12 +16,12 @@
         "prewashed": {
             "ui": "cmbSelectPrewashed",
             "keys": [
-                "Ja",
-                "Nei"
+                "Nei",
+                "Ja"
             ],
             "values": [
-                "J",
-                "N"
+                "N",
+                "J"
             ]
         },
         "purpose": {
@@ -67,7 +67,7 @@
             "keys": [
                 "Bestilt",
                 "Under utførelse",
-                "Ikke inspisert",
+                "Kunne ikke inspiseres",
                 "Fullført",
                 "Avbrutt",
                 "Må spyles"
@@ -79,6 +79,19 @@
                 4,
                 5,
                 8
+            ]
+        },
+        "project_status": {
+            "ui": "cmbSelectProjectStatus",
+            "keys": [
+                "Bestilt",
+                "Under utførelse",
+                "Fullført"
+            ],
+            "values": [
+                1,
+                2,
+                4
             ]
         }
     },
@@ -113,5 +126,6 @@
         "Prosjekt": "project_area_id"
     },
     "project_filename": "riogis.qgz",
-    "changed_status_filename": "changed_status.csv"
+    "changed_status_filename": "changed_status.csv",
+    "changed_project_status_filename": "changed_project_status.csv"
 }

@@ -6,8 +6,8 @@
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>704</width>
-    <height>455</height>
+    <width>544</width>
+    <height>293</height>
    </rect>
   </property>
   <property name="windowTitle">
@@ -46,47 +46,57 @@ QPushButton::disabled {
 </string>
   </property>
   <layout class="QFormLayout" name="formLayout">
-   <item row="4" column="0" colspan="2">
-    <widget class="QLabel" name="label_3">
-     <property name="text">
-      <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Kommentar (påkrevd hvis &amp;quot;Avbrutt&amp;quot; eller &amp;quot;Kunne ikke inspiseres&amp;quot;, valgfritt ellers):&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
-     </property>
-    </widget>
-   </item>
    <item row="0" column="0" colspan="2">
     <widget class="QLabel" name="label_6">
      <property name="text">
-      <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;&lt;span style=&quot; font-weight:600;&quot;&gt;Endre status&lt;/span&gt;&lt;/p&gt;&lt;p&gt;Her kan du endre status til en bestilt ledning. Endringer du gjør her lagres først lokalt på PCen, og lastes opp når du trykker &amp;quot;Last opp...&amp;quot;.&lt;/p&gt;&lt;p&gt;&lt;br/&gt;&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
+      <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;&lt;span style=&quot; font-weight:600;&quot;&gt;Eksporter WinCan-fil&lt;/span&gt;&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
      </property>
      <property name="wordWrap">
       <bool>true</bool>
      </property>
     </widget>
+   </item>
+   <item row="9" column="0" colspan="2">
+    <widget class="QComboBox" name="cmbSelectStandard"/>
+   </item>
+   <item row="7" column="0" colspan="2">
+    <widget class="QComboBox" name="cmbSelectPrewashed"/>
    </item>
    <item row="5" column="0" colspan="2">
-    <widget class="QPlainTextEdit" name="textComment"/>
+    <widget class="QComboBox" name="cmbSelectPurpose"/>
    </item>
    <item row="3" column="0" colspan="2">
-    <widget class="QComboBox" name="cmbSelectStatus"/>
+    <widget class="QComboBox" name="cmbSelectWeather"/>
    </item>
    <item row="2" column="0" colspan="2">
-    <widget class="QLabel" name="label_2">
+    <widget class="QLabel" name="label">
      <property name="text">
-      <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Endre status til:&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
+      <string>Nedbør:</string>
      </property>
     </widget>
    </item>
-   <item row="1" column="0">
-    <widget class="QLabel" name="labelLSID">
+   <item row="4" column="0" colspan="2">
+    <widget class="QLabel" name="label_2">
      <property name="text">
-      <string>hvilken LSID er valgt og hvilken status har den nå</string>
-     </property>
-     <property name="wordWrap">
-      <bool>true</bool>
+      <string>Inspeksjonsformål:</string>
      </property>
     </widget>
    </item>
    <item row="6" column="0" colspan="2">
+    <widget class="QLabel" name="label_3">
+     <property name="text">
+      <string>Rengjort:</string>
+     </property>
+    </widget>
+   </item>
+   <item row="8" column="0" colspan="2">
+    <widget class="QLabel" name="label_4">
+     <property name="text">
+      <string>Inspeksjonsstandard:</string>
+     </property>
+    </widget>
+   </item>
+   <item row="10" column="0" colspan="2">
     <widget class="QPushButton" name="btnSubmit">
      <property name="maximumSize">
       <size>
@@ -95,7 +105,17 @@ QPushButton::disabled {
       </size>
      </property>
      <property name="text">
-      <string>Endre status</string>
+      <string>Eksporter</string>
+     </property>
+    </widget>
+   </item>
+   <item row="1" column="0" colspan="2">
+    <widget class="QLabel" name="labelLSID">
+     <property name="text">
+      <string>Valgt LSID og litt info</string>
+     </property>
+     <property name="wordWrap">
+      <bool>true</bool>
      </property>
     </widget>
    </item>

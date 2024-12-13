@@ -44,7 +44,6 @@ def classFactory(iface):  # pylint: disable=invalid-name
     # Install requirements
     try:
         import azure.storage.blob
-        import azure.data.tables
     except:
         from riogisoffline.plugin.dependency_installer import DependencyInstaller
         deps = DependencyInstaller()
