@@ -60,6 +60,7 @@ class ExportDialog(QtWidgets.QDialog, FORM_CLASS):
                 
         self.riogis.data.update(self.get_data_from_select_elements())
 
+        self.riogis.map_attributes()
         filename = self.riogis.write_output_file()
         self.riogis.update_feature_status()
 

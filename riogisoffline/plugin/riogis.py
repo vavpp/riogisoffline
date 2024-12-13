@@ -622,15 +622,9 @@ class RioGIS:
 
     def write_output_file(self):
 
-        print(self.data)
-
-        self.map_attributes()
-        print(self.data)
-
         lsid = self.data.get("PipeID")
         fcode = self.data.get("PipeFeature")
         folder = self.settings["output_folder"]
-        print(lsid, fcode)
         if not os.path.exists(folder):
             os.makedirs(folder, exist_ok=True)
 
