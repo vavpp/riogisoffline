@@ -285,6 +285,8 @@ class RioGIS:
             self.setButtonsEnabled(False)
 
     def select_project(self, point, mouse_button, layers=None):
+
+        self.dlg.listOrdersInProject.clear()
         
         feature_layer = "Prosjekt"
         feature_layers = layers if layers else self.iface.mapCanvas().layers()
@@ -386,10 +388,6 @@ class RioGIS:
         text += "<br>".join([f"<strong>{k}</strong>: {v}" for k,v in project_info_dict.items()])
 
         self.dlg.textSelectedProject.setText(text)
-
-
-
-        self.dlg.listOrdersInProject.clear()
 
         for i in orders_in_project:
             self.dlg.listOrdersInProject.addItem(f"{i['fcode']}{i['lsid']}")
