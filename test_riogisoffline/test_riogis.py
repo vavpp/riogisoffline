@@ -100,7 +100,7 @@ def test_export_feature(riogis):
     })
     riogis.map_attributes()
     riogis.iface.activeLayer = lambda: Layer()
-    riogis.export_feature(point, None)
+    riogis.handle_select_feature(point, None)
     
 def test_update_feature_status(riogis):
     riogis.select_layer([Layer()], FEATURE_LAYER_NAME)
@@ -130,7 +130,7 @@ def test_write_output_file(riogis):
     })
     riogis.map_attributes()
     riogis.iface.activeLayer = lambda: Layer()
-    riogis.export_feature(point, None)
+    riogis.handle_select_feature(point, None)
     riogis.write_output_file()
     output_dirlist = os.listdir(get_plugin_dir())
     print(output_dirlist)
