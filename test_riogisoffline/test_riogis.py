@@ -124,13 +124,16 @@ def test_write_output_file(riogis):
     point = QgsPointXY(0,0)
     riogis.select_nearest_feature(point, layers=[Layer()])
     riogis.data = riogis.get_feature_data()
+    print(riogis.data)
     riogis.settings.update({
         "operator": "Operator",
         "output_folder": get_plugin_dir()
     })
     riogis.map_attributes()
+    print(riogis.data)
     riogis.iface.activeLayer = lambda: Layer()
     riogis.handle_select_feature(point, None)
+    print(riogis.data)
     riogis.write_output_file()
     output_dirlist = os.listdir(get_plugin_dir())
     print(output_dirlist)
