@@ -32,10 +32,8 @@ class ChangeProjectStatusDialog(QtWidgets.QDialog, FORM_CLASS):
         project_name = selected_feature["project_name"]
         status = selected_feature["status"]
         comments = selected_feature["comments"]
-        
-        status_values = self.status_items["values"]
-        status_keys = self.status_items["keys"]
-        status_text = status_keys[status_values.index(status)]
+
+        status_text = utils.get_status_text(status, self.status_items)
 
         text = f"Valgt: <strong>{project_name}</strong> - <strong>{status_text}</strong><br>{comments}"
 

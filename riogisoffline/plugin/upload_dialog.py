@@ -18,7 +18,7 @@ class UploadDialog(QtWidgets.QDialog, FORM_CLASS):
         """Constructor."""
         super(UploadDialog, self).__init__(parent)
         self.setupUi(self)
-        self.setWindowFlags(Qt.WindowStaysOnTopHint)
+        #self.setWindowFlags(Qt.WindowStaysOnTopHint)
 
         self.listWidget.itemClicked.connect(self._item_clicked)
         self.btnSubmit.clicked.connect(self._submit_upload)
@@ -26,6 +26,9 @@ class UploadDialog(QtWidgets.QDialog, FORM_CLASS):
         self.riogis = riogis
 
         self.selected_items = []
+
+        self.has_changed_project_status = False
+        self.has_changed_status = False
 
     
     def _submit_upload(self):
@@ -40,6 +43,8 @@ class UploadDialog(QtWidgets.QDialog, FORM_CLASS):
         
 
     def setup_file_view(self, path):
+
+        self._show_if_changed_statuses()
 
         self.listWidget.clear()
         self.selected_items = []
@@ -83,6 +88,18 @@ class UploadDialog(QtWidgets.QDialog, FORM_CLASS):
                 self.listWidget.addItem(list_item)
 
         return True
+    
+    def _show_if_changed_statuses(self):
+        # show status change uploads
+        user_settings = utils.get_user_settings_path()
+        user_settings = utils.load_json(user_settings)
+        file_folder_path = user_settings["file_folder"]
+
+        changed_status_filename = os.path.join(file_folder_path, self.riogis.settings["changed_status_filename"])
+        self.has_changed_status = os.path.exists(changed_status_filename)
+
+        changed_project_status_filename = os.path.join(file_folder_path, self.riogis.settings["changed_project_status_filename"])
+        self.has_changed_project_status = os.path.exists(changed_project_status_filename)
         
 
     def _item_clicked(self, item):
@@ -106,7 +123,14 @@ class UploadDialog(QtWidgets.QDialog, FORM_CLASS):
         for item_text in self.selected_items:
             self.selectedItemsWidget.addItem(item_text)
 
-        if self.selected_items:
+        if self.has_changed_project_status:
+            self.selectedItemsWidget.addItem("Endret status på prosjekt(er)")
+
+        if self.has_changed_status:
+            self.selectedItemsWidget.addItem("Endret status på bestilt(e) ledning(er)")
+
+
+        if self.selected_items or self.has_changed_project_status or self.has_changed_status:
             self.btnSubmit.setEnabled(True)
         else:
             self.btnSubmit.setEnabled(False)

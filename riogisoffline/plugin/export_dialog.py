@@ -33,11 +33,8 @@ class ExportDialog(QtWidgets.QDialog, FORM_CLASS):
         lsid = selected_feature["lsid"]
         fcode = selected_feature["fcode"]
         status = selected_feature["status_internal"]
-
-        status_items = self.riogis.settings["ui_models"]["status"]
-        status_values = status_items["values"]
-        status_keys = status_items["keys"]
-        status_text = status_keys[status_values.index(status)]
+        
+        status_text = utils.get_status_text(status, self.riogis.settings["ui_models"]["status"])
 
         text = f"Valgt: {fcode} {lsid} - {status_text}"
 

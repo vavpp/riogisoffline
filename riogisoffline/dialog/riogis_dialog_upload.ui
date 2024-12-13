@@ -95,7 +95,7 @@ QPushButton::disabled {
    <item row="1" column="0" colspan="2">
     <widget class="QLabel" name="label">
      <property name="text">
-      <string>Prosjektene er sortert etter opprettet dato med de nyeste prosjektene øverst</string>
+      <string>Prosjektene er sortert etter opprettet dato med de nyeste prosjektene øverst. Har du endret status på prosjekt eller bestilt ledning vil dette lastes opp når du trykker &quot;Last opp&quot;</string>
      </property>
      <property name="wordWrap">
       <bool>true</bool>

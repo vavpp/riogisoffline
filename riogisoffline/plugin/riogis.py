@@ -4,7 +4,7 @@ from qgis.core import QgsGeometry, QgsPointXY, QgsFeature, QgsFeatureRequest
 from qgis.gui import QgsMapToolEmitPoint
 from qgis.PyQt.QtCore import QSettings, QTranslator, QCoreApplication, Qt
 from qgis.PyQt.QtGui import QIcon, QColor
-from qgis.PyQt.QtWidgets import QAction, QDockWidget, QToolBar
+from qgis.PyQt.QtWidgets import QAction, QDockWidget, QToolBar, QListWidgetItem
 
 # Initialize Qt resources from file resources.py
 from .resources import *
@@ -189,6 +189,11 @@ class RioGIS:
 
         self.dlg.btnChangeProjectStatus.clicked.connect(_handle_change_project_status_button_click)
 
+        # List with orders in project
+        self.dlg.listOrdersInProject.hide()
+        self.dlg.listOrdersInProject.itemClicked.connect(self._list_item_clicked)
+        self.all_orders_in_selected_project = None
+
         # Search
         search_box = SearchBox(self.dlg, self.iface)
         search_box.setup()
@@ -271,6 +276,10 @@ class RioGIS:
         self.select_layer(feature_layers, self.settings["feature_name"])
         self.select_nearest_feature(point, layers=feature_layers)
 
+        self.select_feature()
+
+    def select_feature(self):
+
         if self.feature:
             if self.selectedFeatureHasInternalStatus():
                 self.setButtonsEnabled(True)
@@ -305,6 +314,7 @@ class RioGIS:
         if not near_projects:
             self.dlg.btnChangeProjectStatus.setEnabled(False)
             self.dlg.textSelectedProject.setText("Ingen prosjekter er valgt")
+            self.dlg.listOrdersInProject.hide()
             return
         
         features_with_meters_in_order = {
@@ -389,9 +399,25 @@ class RioGIS:
 
         self.dlg.textSelectedProject.setText(text)
 
-        for i in orders_in_project:
-            self.dlg.listOrdersInProject.addItem(f"{i['fcode']}{i['lsid']}")
 
+        orders_in_project.sort(key=lambda x: x["status_internal"])
+        for order_feature in orders_in_project:
+
+            list_item_text = f"{order_feature['fcode']}{order_feature['lsid']} ({utils.get_status_text(order_feature['status_internal'], self.settings["ui_models"]["status"])}) - {order_feature['material']} {order_feature['dim']} mm - {order_feature['construction_year']} - {order_feature['owner']} {order_feature['pipe_status']}"
+            order_item = QListWidgetItem(list_item_text)
+            order_item.setData(Qt.UserRole, order_feature)
+            self.dlg.listOrdersInProject.addItem(order_item)
+
+        self.dlg.listOrdersInProject.show()
+
+    def _list_item_clicked(self, item):
+        clicked_order_feature = item.data(Qt.UserRole)
+        self.feature = clicked_order_feature
+        self.select_feature()        
+
+        canvas = self.iface.mapCanvas()
+        canvas.setExtent(clicked_order_feature.geometry().boundingBox())
+        canvas.refresh()
 
     def setButtonsEnabled(self, enabled):
         self.dlg.btnEksport.setEnabled(enabled)

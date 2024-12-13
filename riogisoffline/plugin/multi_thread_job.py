@@ -172,12 +172,13 @@ class UploadWorker(Worker):
             # disable button when running
             self.riogis.dlg.btnUpload.setEnabled(False)
 
+            # upload changed statuses
+            self.riogis.azure_connection.upload_status_changes(self.riogis.settings)
+
             # upload selected projects
             parent_dir_path = self.riogis.dlg.selectUploadDir.filePath()
             self.riogis.azure_connection.upload_projects(parent_dir_path, self.selected_projects, self)
 
-            # upload changed statuses
-            self.riogis.azure_connection.upload_status_changes(self.riogis.settings)
         except Exception as e:
             # forward the exception upstream
             self.error.emit(e, traceback.format_exc())

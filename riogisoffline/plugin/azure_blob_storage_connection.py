@@ -22,7 +22,7 @@ class AzureBlobStorageConnection:
             connect_str (str): Connection string to Azure
         """
         self.connect_str = connect_str
-        self.env = "prod"
+        self.env = "test"
 
         if not utils.has_internet_connection():
             utils.printCriticalMessage("Finner ikke internett-tilkobling! Du må ha nett-tilgang for å synkronisere filer!")
@@ -136,29 +136,35 @@ class AzureBlobStorageConnection:
 
     def upload_status_changes(self, settings):
 
+        status_change_files = {
+            "changed_status_filename": ["lsid", "new_status", "comment", "project_area_id"],
+            "changed_project_status_filename": ["GlobalID", "new_status", "comments_inspector"]
+        }
+
         user_settings = utils.get_user_settings_path()
         # read user settings
         user_settings = utils.load_json(user_settings)
         file_folder_path = user_settings["file_folder"]
+
+        for file, fields in status_change_files.items():
         
-        changed_status_filename = os.path.join(file_folder_path, settings["changed_status_filename"])
+            changed_status_filename = os.path.join(file_folder_path, settings[file])
 
-        if not os.path.exists(changed_status_filename):
+            if not os.path.exists(changed_status_filename):
+                return
+
+            changed_status_df = pd.read_csv(changed_status_filename)
+            changed_status_df.apply(lambda x: self._upload_status_file(x, fields), axis=1)
+
+            os.remove(changed_status_filename)
+
+    def _upload_status_file(self, row, fields):
+
+        row_id = fields[0]
+
+        if row[row_id] == row_id:
             return
 
-        changed_status_df = pd.read_csv(changed_status_filename)
-        changed_status_df.apply(self._upload_status_file, axis=1)
-
-        os.remove(changed_status_filename)
-
-        utils.printSuccessMessage("Status-endringer er opplastet")
-
-    def _upload_status_file(self, row):
-
-        if row["lsid"] == "lsid":
-            return
-
-        fields = ["lsid", "new_status", "comment", "project_area_id"]
         status_change_dict = {}
 
         for field in fields:
@@ -170,7 +176,10 @@ class AzureBlobStorageConnection:
 
         json_object = json.dumps(status_change_dict, indent=4)
 
-        new_azure_path = os.path.join(self.env, "changed_status", f"{status_change_dict['lsid']}_status_change.json")
+        if row_id == "lsid":
+            new_azure_path = os.path.join(self.env, "changed_status", f"{status_change_dict[row_id]}_status_change.json")
+        else:
+            new_azure_path = os.path.join(self.env, "changed_project_status", f"{status_change_dict[row_id]}_status_change.json")
 
         container_client = self.blob_service_client.get_container_client(container="wincan-files")
         blob_client = container_client.get_blob_client(new_azure_path)
