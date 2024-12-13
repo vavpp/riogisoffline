@@ -63,24 +63,24 @@ def test_select_layer(riogis_without_run):
     riogis_without_run.run()
     riogis_without_run.select_layer([Layer()], FEATURE_LAYER_NAME)
     
-def test_handle_select_feature(riogis):
+def test_select_nearest_feature(riogis):
     
     point = QgsPointXY(0,0)
-    riogis.handle_select_feature(point, layers=[Layer()])
+    riogis.select_nearest_feature(point, layers=[Layer()])
     assert riogis.feature is not None
 
 def test_get_feature_data(riogis):
     
     riogis.select_layer([Layer()], FEATURE_LAYER_NAME)
     point = QgsPointXY(0,0)
-    riogis.handle_select_feature(point, layers=[Layer()])
+    riogis.select_nearest_feature(point, layers=[Layer()])
     data = riogis.get_feature_data()
     assert data
 
 def test_map_attributes(riogis):
     riogis.select_layer([Layer()], FEATURE_LAYER_NAME)
     point = QgsPointXY(0,0)
-    riogis.handle_select_feature(point, layers=[Layer()])
+    riogis.select_nearest_feature(point, layers=[Layer()])
     data = riogis.get_feature_data()
     riogis.settings.update({
         "operator": "Operator"
@@ -93,7 +93,7 @@ def test_handle_map_click(riogis):
 def test_export_feature(riogis):
     riogis.select_layer([Layer()], FEATURE_LAYER_NAME)
     point = QgsPointXY(0,0)
-    riogis.handle_select_feature(point, layers=[Layer()])
+    riogis.select_nearest_feature(point, layers=[Layer()])
     data = riogis.get_feature_data()
     riogis.settings.update({
         "operator": "Operator"
@@ -105,7 +105,7 @@ def test_export_feature(riogis):
 def test_update_feature_status(riogis):
     riogis.select_layer([Layer()], FEATURE_LAYER_NAME)
     point = QgsPointXY(0,0)
-    riogis.handle_select_feature(point, layers=[Layer()])
+    riogis.select_nearest_feature(point, layers=[Layer()])
     data = riogis.get_feature_data()
     riogis.settings.update({
         "operator": "Operator"
@@ -122,7 +122,7 @@ def test_write_output_file(riogis):
     # AttributeError: 'NoneType' object has no attribute 'get'
     riogis.select_layer([Layer()], FEATURE_LAYER_NAME)
     point = QgsPointXY(0,0)
-    riogis.handle_select_feature(point, layers=[Layer()])
+    riogis.select_nearest_feature(point, layers=[Layer()])
     data = riogis.get_feature_data()
     riogis.settings.update({
         "operator": "Operator",
