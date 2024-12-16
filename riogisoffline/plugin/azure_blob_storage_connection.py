@@ -22,7 +22,7 @@ class AzureBlobStorageConnection:
             connect_str (str): Connection string to Azure
         """
         self.connect_str = connect_str
-        self.env = "test"
+        self.env = "prod"
 
         if not utils.has_internet_connection():
             utils.printCriticalMessage("Finner ikke internett-tilkobling! Du må ha nett-tilgang for å synkronisere filer!")
