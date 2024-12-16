@@ -399,7 +399,7 @@ class RioGIS:
         }
 
         for k,v in project_info_dict.items():
-            project_info_dict[k] = k if k else ""
+            project_info_dict[k] = v if v else ""
 
         text += "<br>".join([f"<strong>{k}</strong>: {v}" for k,v in project_info_dict.items()])
 
