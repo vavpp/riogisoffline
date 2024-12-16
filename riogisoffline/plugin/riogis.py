@@ -321,7 +321,7 @@ class RioGIS:
             return
         
         features_with_meters_in_order = {
-            feat: feat["meters_in_order"] for feat in near_projects
+            feat: feat.geometry().area() for feat in near_projects
         }
         
         nearest_feature_distances_list = list(features_with_meters_in_order.values())
@@ -344,6 +344,8 @@ class RioGIS:
         Args:
             project (QgsFeature): selected project
         """
+
+        print(project.geometry().area())
 
         # get all orders in project
         all_order_features = self.get_layer_by_name("Bestillinger").getFeatures()
@@ -378,19 +380,21 @@ class RioGIS:
             elif status == 8:
                 spyling_total_length += length
 
-        remaining_total_length = project["meters_in_order"]-completed_total_length
+        meters_in_order = project["meters_in_order"] if project["meters_in_order"] else 0
+        remaining_total_length = meters_in_order-completed_total_length
 
         # show project information
         text = f'Prosjekt valgt:<br>'
 
         project_info_dict = {
+            "Navn": project["project_name"],
             "Status": utils.get_status_text(project["status"], self.settings['ui_models']['project_status']),
             "Kommentar": project["comments"],
             "Bestilt": project["ordered_date"],
             "Bestilt av": project["ordered_email"],
             "Inspeksjonsformål": project["purpose"],
             "ISY prosjektnummer": project["isy_project_reference"],
-            "Totalt antall meter i bestilling": project["meters_in_order"],
+            "Totalt antall meter i bestilling": meters_in_order,
             "Antall meter fullført": completed_total_length,
             "Antall meter som ikke kunne inspiseres": cant_inspect_total_length,
             "Antall meter avbrutt": interrupted_total_length,
@@ -399,7 +403,9 @@ class RioGIS:
         }
 
         for k,v in project_info_dict.items():
-            project_info_dict[k] = v if v else ""
+            if isinstance(v, float):
+                v = "{:.2f}".format(v)
+            project_info_dict[k] = v if v or str(v) == "0" else ""
 
         text += "<br>".join([f"<strong>{k}</strong>: {v}" for k,v in project_info_dict.items()])
 

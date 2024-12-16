@@ -242,6 +242,10 @@ def write_changed_project_status_to_file(settings, project_area_id, new_status, 
 def get_status_text(status, status_items):
     status_values = status_items["values"]
     status_keys = status_items["keys"]
+
+    if not status in status_values:
+        return "Ukjent"
+
     status_text = status_keys[status_values.index(status)]
 
     return status_text
