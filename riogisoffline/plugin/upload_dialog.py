@@ -21,6 +21,7 @@ class UploadDialog(QtWidgets.QDialog, FORM_CLASS):
         #self.setWindowFlags(Qt.WindowStaysOnTopHint)
 
         self.listWidget.itemClicked.connect(self._item_clicked)
+        self.listWidget.itemSelectionChanged.connect(self._update_selected_items_list_widget)
         self.btnSubmit.clicked.connect(self._submit_upload)
 
         self.riogis = riogis
@@ -60,12 +61,9 @@ class UploadDialog(QtWidgets.QDialog, FORM_CLASS):
 
         # get all projects from path
 
-        subdirs_to_upload = {
-            "DB": "DB",
-            "Document": "Misc/Docu",
-            "Image": "Picture/Sec",
-            "Video": "Video/Sec",
-        }
+        subdirs_that_should_exist = [
+            "DB", "Video/Sec",
+        ]
 
         project_dirs = [f.path for f in os.scandir(path) if f.is_dir()]
         project_dirs.sort(key=lambda x: os.path.getmtime(x), reverse=True)
@@ -75,7 +73,7 @@ class UploadDialog(QtWidgets.QDialog, FORM_CLASS):
             dir_name = os.path.split(dir_path)[-1]
             
             # test that subdirs exist in given dir
-            for _, subdir_path in subdirs_to_upload.items():
+            for subdir_path in subdirs_that_should_exist:
                 p = Path(os.path.join(dir_path, subdir_path))
 
                 if not p.is_dir() or dir_name == "Trash":
@@ -103,25 +101,32 @@ class UploadDialog(QtWidgets.QDialog, FORM_CLASS):
         
 
     def _item_clicked(self, item):
-        
+
         if item.checkState() == Qt.Checked:
             item.setCheckState(Qt.Unchecked)
-        
-            self.selected_items.remove(item.text())
-            self._update_selected_items_list_widget()
-        
-            return
-        
-        item.setCheckState(Qt.Checked)
-        self.selected_items.append(item.text())
+        else:
+            item.setCheckState(Qt.Checked)
 
         self._update_selected_items_list_widget()
+
+    def _get_checked_list_items(self):
+        list_widget = self.listWidget
+        items = [list_widget.item(x) for x in range(list_widget.count())]
+
+        return [x for x in items if x.checkState() == Qt.Checked]
 
     def _update_selected_items_list_widget(self):
         self.selectedItemsWidget.clear()
 
-        for item_text in self.selected_items:
+        self.selected_items = []
+
+        for item in self._get_checked_list_items():
+            item_text = item.text()
+
+            self.selected_items.append(item_text)
             self.selectedItemsWidget.addItem(item_text)
+
+        print(self.selected_items)
 
         if self.has_changed_project_status:
             self.selectedItemsWidget.addItem("Endret status på prosjekt(er)")
