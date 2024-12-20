@@ -5,7 +5,7 @@ import csv
 import pandas as pd
 
 from qgis.utils import iface
-from qgis.core import Qgis
+from qgis.core import Qgis, QgsProject
 from qgis.PyQt import QtGui, QtWidgets, QtCore
 
 default_message_duration = 3
@@ -209,6 +209,8 @@ def change_project_status(settings, layer, project_feature, new_status, comment)
         layer.commitChanges()
         layer.triggerRepaint()
 
+        save_and_write_project()
+
 def write_changed_project_status_to_file(settings, project_area_id, new_status, comment):
         try:
             user_settings = get_user_settings_path()
@@ -249,3 +251,6 @@ def get_status_text(status, status_items):
     status_text = status_keys[status_values.index(status)]
 
     return status_text
+
+def save_and_write_project():
+    QgsProject.instance().write()

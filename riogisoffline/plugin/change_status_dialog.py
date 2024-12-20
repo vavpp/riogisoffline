@@ -82,4 +82,7 @@ class ChangeStatusDialog(QtWidgets.QDialog, FORM_CLASS):
         if new_status == 2 or new_status == 4:
             self.riogis.update_project_to_in_progress(selected_feature)
 
+
+        utils.save_and_write_project()
+
         self.done(1)

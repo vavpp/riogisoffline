@@ -547,6 +547,8 @@ class RioGIS:
         self.layer.commitChanges()
         self.layer.triggerRepaint()
 
+        utils.save_and_write_project()
+
         if update_project_status:
             self.update_project_to_in_progress(self.feature)
 

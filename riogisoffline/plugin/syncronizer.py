@@ -214,6 +214,8 @@ class Syncronizer:
         # Refresh the active layer to see the changes
         active_layer.triggerRepaint()
 
+        utils.save_and_write_project()
+
     def sync_now(self):
 
         # Load settings variables     
