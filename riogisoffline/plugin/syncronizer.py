@@ -5,8 +5,7 @@ import requests
 import json
 import pandas as pd
 
-from qgis.core import QgsVectorLayer, QgsFeatureRequest
-from qgis.utils import iface
+from qgis.core import QgsVectorLayer, QgsVectorLayerEditBufferGroup
 import riogisoffline.plugin.utils as utils
 
 class Syncronizer:
@@ -37,6 +36,9 @@ class Syncronizer:
         self._up_filename = root + "_update" + ext
         self._bg_filename = os.path.join(self._filepath, bg_file)
         self.azure_key = user_settings["azure_key"]
+
+        self.changed_status_filepath = os.path.join(self._filepath, self.changed_status_filename)
+        self.changed_project_status_filepath = os.path.join(self._filepath, self.changed_project_status_filename)
 
     def _download(self, url, filename):
 
@@ -134,7 +136,9 @@ class Syncronizer:
                 h2.update(f2.read())
                 return h1.hexdigest() == h2.hexdigest()
 
-    def _update(self, active_layer_name, source_filepath, file2_path, idstr):
+    def _update(self, active_layer_name):
+
+        source_filepath = self._filename
 
         # Get the active layer from the QGIS interface
         active_layer = QgsVectorLayer(
@@ -143,9 +147,12 @@ class Syncronizer:
                         "ogr")
         # Check if the active layer is valid
         if active_layer is None:
-            self.signal_warning_message("Active layer not found in the project.")
-            return
+            self.signal_warning_message("Active layer not found in the project: " + active_layer_name)
+        
 
+        active_layer_name = active_layer.name()
+        file2_path = self._up_filename
+        
         # Load the layer from file2.gpkg
         second_layer = QgsVectorLayer(
             f"{file2_path}|layername={active_layer_name}", 
@@ -164,7 +171,9 @@ class Syncronizer:
     
         listOfIds = [feat.id() for feat in active_layer.getFeatures()]
         active_layer.deleteFeatures( listOfIds )
-     
+
+        self.signal_progress(10)
+
         # Iterate through features in second_layer
         for feature in second_layer.getFeatures():
             feature.setAttribute(0, feature_id)
@@ -173,12 +182,9 @@ class Syncronizer:
             feature_id +=1
             
             new_features.append(feature)
-
-        changed_status_filepath = os.path.join(self._filepath, self.changed_status_filename)
-        changed_project_status_filepath = os.path.join(self._filepath, self.changed_project_status_filename)
         
-        if idstr == "lsid" and os.path.exists(changed_status_filepath):
-            changed_status_df = pd.read_csv(changed_status_filepath)
+        if active_layer_name == "Bestillinger" and os.path.exists(self.changed_status_filepath):
+            changed_status_df = pd.read_csv(self.changed_status_filepath)
         
             for _, row in changed_status_df.iterrows():
                 lsid = row["lsid"]
@@ -191,8 +197,8 @@ class Syncronizer:
                     feature = feature_to_change[0]
                     
                     feature["status_internal"] = status
-        elif idstr == "project_area_id" and os.path.exists(changed_project_status_filepath):
-            changed_project_status_df = pd.read_csv(changed_project_status_filepath)
+        elif active_layer_name == "Prosjekt" and os.path.exists(self.changed_project_status_filepath):
+            changed_project_status_df = pd.read_csv(self.changed_project_status_filepath)
         
             for _, row in changed_project_status_df.iterrows():
                 project_area_id = row["GlobalID"]
@@ -204,17 +210,19 @@ class Syncronizer:
                     feature = feature_to_change[0]
                     
                     feature["status"] = status
-
+                    
         # Add the feature to the active layer
         active_layer.addFeatures(new_features)
 
         # Commit the changes to the active layer immediately
         active_layer.commitChanges()
-
+        
+        self.signal_progress(90)
+        
         # Refresh the active layer to see the changes
         active_layer.triggerRepaint()
 
-        utils.save_and_write_project()
+        return active_layer
 
     def sync_now(self):
 
@@ -224,17 +232,21 @@ class Syncronizer:
         # Download new datafiles
         self._fetch()
         
-        # Merge local db file if updated file is different
-        if not self._equal(self._filename, self._up_filename):
+        # Merge local db file if updated file is different or there are local changes
+        if not self._equal(self._filename, self._up_filename) or os.path.exists(self.changed_project_status_filepath) or os.path.exists(self.changed_project_status_filepath):
+            
             layer_definition = self._layer_definitions
-            for layer_name, idstr in layer_definition.items():
-                self.signal_new_process_name(f"Oppdaterer lag {layer_name}...")
-                self.signal_progress(0)
+            for layer_name in layer_definition:
+                
+                self.signal_new_process_name(f"Oppdaterer lag {layer_name}... (kan ta et par minutter)")
+                self.signal_progress(1)
 
                 # Add new features to layer
-                self._update(layer_name, self._filename, self._up_filename, idstr)
-    
+                self._update(layer_name)
+     
                 self.signal_progress(100)
+
+            utils.save_and_write_project()
                 
         self.worker.finished.emit(False)
 

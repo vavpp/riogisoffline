@@ -121,10 +121,14 @@
         "Avløpsledning",
         "Vannledning"
     ],
-    "layer_definitions": {
-        "Bestillinger": "lsid",
-        "Prosjekt": "project_area_id"
-    },
+    "layer_definitions": [
+        "Bestillinger",
+        "Prosjekt",
+        "Avløpsledning",
+        "Vannledning",
+        "Kum",
+        "Stikkledninger"
+    ],
     "project_filename": "riogis.qgz",
     "changed_status_filename": "changed_status.csv",
     "changed_project_status_filename": "changed_project_status.csv"
