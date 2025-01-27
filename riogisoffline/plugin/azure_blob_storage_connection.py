@@ -6,6 +6,7 @@ import os
 from pathlib import Path
 import uuid
 import pandas as pd
+from azure.storage.queue import QueueServiceClient 
 
 class AzureBlobStorageConnection:
     """
@@ -24,12 +25,16 @@ class AzureBlobStorageConnection:
         self.connect_str = connect_str
         self.env = "prod"
 
+        self.queue_name = "jobs"
+        self.container_name = "wincan-files"
+
         if not utils.has_internet_connection():
             utils.printCriticalMessage("Finner ikke internett-tilkobling! Du må ha nett-tilgang for å synkronisere filer!")
             return
 
         try:
             self.blob_service_client = BlobServiceClient.from_connection_string(connect_str)
+            self.queue_service_client = QueueServiceClient.from_connection_string(connect_str, None)
             self.connected = True
             utils.printInfoMessage("Connected to Azure Blob Storage")
         except Exception as e:
@@ -100,7 +105,8 @@ class AzureBlobStorageConnection:
 
             # upload to azure
             chunk_size=4*1024*1024
-            container_client = self.blob_service_client.get_container_client(container="wincan-files")
+            container_client = self.blob_service_client.get_container_client(container=self.container_name)
+            queue_client = self.queue_service_client.get_queue_client(self.queue_name)
 
             # TODO: show how many files will be uploaded and show how many are left
             
@@ -128,6 +134,11 @@ class AzureBlobStorageConnection:
                                 
                                 progress = int((chunk_size*chunk_num)/os.path.getsize(os.path.join(fullsubdirpath, filename))*100)
                                 worker.progress.emit(min(progress, 100))
+
+                        # send message with db-file-name to jobs-queue
+                        if ".db3" in filename and not "_Meta." in filename:
+                            queue_client.send_message(filename)
+
 
                         worker.info.emit(f" - Lastet opp {dir_name}/{subdir_to_upload_name}/{filename}")
             
@@ -181,7 +192,7 @@ class AzureBlobStorageConnection:
         else:
             new_azure_path = os.path.join(self.env, "changed_project_status", f"{status_change_dict[row_id]}_status_change.json")
 
-        container_client = self.blob_service_client.get_container_client(container="wincan-files")
+        container_client = self.blob_service_client.get_container_client(container=self.container_name)
         blob_client = container_client.get_blob_client(new_azure_path)
 
         blob_client.upload_blob(json_object, overwrite=True)
