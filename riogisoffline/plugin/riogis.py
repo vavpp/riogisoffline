@@ -683,7 +683,7 @@ class RioGIS:
         config[f"Inspection1"] = self.data
 
         # write out the wincan file its a python config file format
-        with open(filename, "w") as f:
+        with open(filename, "w", encoding='utf-8') as f:
             config.write(f, space_around_delimiters=False)
 
         return filename
