@@ -24,11 +24,8 @@ class AzureBlobStorageConnection:
         """
         self.connect_str = connect_str
         self.env = "prod"
-
-        # db files are uploaded to jobs and path is pushed to jobs-queue
-        self.jobs_container_name = "jobs"
-        self.queue_name = "jobs"
-        # status-change files
+        
+        # status-change and db
         self.wincan_files_container_name = "wincan-files"
         # documents
         self.unprocessed_documents_container_name = "unprocessed-documents"
@@ -93,7 +90,6 @@ class AzureBlobStorageConnection:
         for dir_path in projects_to_upload_full_path:
 
             dir_name = os.path.split(dir_path)[-1]
-            new_azure_dir = os.path.join("tt", dir_name)
 
             worker.info.emit(f"Mappe: {dir_name}")
             
@@ -110,9 +106,8 @@ class AzureBlobStorageConnection:
 
             # upload to azure
             chunk_size=4*1024*1024
-            jobs_container_client = self.blob_service_client.get_container_client(container=self.jobs_container_name)
+            wincan_files_container_client = self.blob_service_client.get_container_client(container=self.wincan_files_container_name)
             documents_container_client = self.blob_service_client.get_container_client(container=self.unprocessed_documents_container_name)
-            queue_client = self.queue_service_client.get_queue_client(self.queue_name)
 
             # TODO: show how many files will be uploaded and show how many are left
             
@@ -123,14 +118,13 @@ class AzureBlobStorageConnection:
                         worker.progress.emit(0)
 
                         block_list = []
-                        full_path = os.path.join(new_azure_dir, subdir_to_upload_name, filename)
 
                         if ".db3" in filename:
-                            container_client = jobs_container_client    
+                            full_path = os.path.join("prod", "new", subdir_to_upload_name, filename)
+                            blob_client = wincan_files_container_client.get_blob_client(full_path)
                         else:
-                            container_client = documents_container_client    
-
-                        blob_client = container_client.get_blob_client(full_path)
+                            full_path = os.path.join("tt", subdir_to_upload_name, filename)
+                            blob_client = documents_container_client.get_blob_client(full_path)
                         chunk_num = 0
 
                         with  open(file=os.path.join(fullsubdirpath, filename), mode="rb") as  f:
@@ -147,10 +141,6 @@ class AzureBlobStorageConnection:
                                 
                                 progress = int((chunk_size*chunk_num)/os.path.getsize(os.path.join(fullsubdirpath, filename))*100)
                                 worker.progress.emit(min(progress, 100))
-
-                        # send message with db-file-name to jobs-queue
-                        if ".db3" in filename and not "_Meta." in filename:
-                            queue_client.send_message(full_path)
 
 
                         worker.info.emit(f" - Lastet opp {dir_name}/{subdir_to_upload_name}/{filename}")
