@@ -6,4 +6,3 @@ pyvirtualdisplay
 pandas
 
 azure-storage-blob
-azure-storage-queue
