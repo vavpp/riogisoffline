@@ -23,6 +23,11 @@ class AzureBlobStorageConnection:
         """
         self.connect_str = connect_str
         self.env = "prod"
+        
+        # status-change and db
+        self.wincan_files_container_name = "wincan-files"
+        # documents
+        self.unprocessed_documents_container_name = "unprocessed-documents"
 
         if not utils.has_internet_connection():
             utils.printCriticalMessage("Finner ikke internett-tilkobling! Du må ha nett-tilgang for å synkronisere filer!")
@@ -83,7 +88,6 @@ class AzureBlobStorageConnection:
         for dir_path in projects_to_upload_full_path:
 
             dir_name = os.path.split(dir_path)[-1]
-            new_azure_dir = os.path.join(self.env, "new", dir_name)
 
             worker.info.emit(f"Mappe: {dir_name}")
             
@@ -100,7 +104,8 @@ class AzureBlobStorageConnection:
 
             # upload to azure
             chunk_size=4*1024*1024
-            container_client = self.blob_service_client.get_container_client(container="wincan-files")
+            wincan_files_container_client = self.blob_service_client.get_container_client(container=self.wincan_files_container_name)
+            documents_container_client = self.blob_service_client.get_container_client(container=self.unprocessed_documents_container_name)
 
             # TODO: show how many files will be uploaded and show how many are left
             
@@ -111,7 +116,13 @@ class AzureBlobStorageConnection:
                         worker.progress.emit(0)
 
                         block_list = []
-                        blob_client = container_client.get_blob_client(os.path.join(new_azure_dir, subdir_to_upload_name, filename))
+
+                        if ".db3" in filename:
+                            full_path = os.path.join("prod", "new", subdir_to_upload_name, filename)
+                            blob_client = wincan_files_container_client.get_blob_client(full_path)
+                        else:
+                            full_path = os.path.join("tt", subdir_to_upload_name, filename)
+                            blob_client = documents_container_client.get_blob_client(full_path)
                         chunk_num = 0
 
                         with  open(file=os.path.join(fullsubdirpath, filename), mode="rb") as  f:
@@ -128,6 +139,7 @@ class AzureBlobStorageConnection:
                                 
                                 progress = int((chunk_size*chunk_num)/os.path.getsize(os.path.join(fullsubdirpath, filename))*100)
                                 worker.progress.emit(min(progress, 100))
+
 
                         worker.info.emit(f" - Lastet opp {dir_name}/{subdir_to_upload_name}/{filename}")
             
@@ -181,7 +193,7 @@ class AzureBlobStorageConnection:
         else:
             new_azure_path = os.path.join(self.env, "changed_project_status", f"{status_change_dict[row_id]}_status_change.json")
 
-        container_client = self.blob_service_client.get_container_client(container="wincan-files")
+        container_client = self.blob_service_client.get_container_client(container=self.wincan_files_container_name)
         blob_client = container_client.get_blob_client(new_azure_path)
 
         blob_client.upload_blob(json_object, overwrite=True)
