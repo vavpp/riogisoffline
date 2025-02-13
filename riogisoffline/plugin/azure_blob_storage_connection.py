@@ -6,7 +6,6 @@ import os
 from pathlib import Path
 import uuid
 import pandas as pd
-from azure.storage.queue import QueueServiceClient 
 
 class AzureBlobStorageConnection:
     """
@@ -36,7 +35,6 @@ class AzureBlobStorageConnection:
 
         try:
             self.blob_service_client = BlobServiceClient.from_connection_string(connect_str)
-            self.queue_service_client = QueueServiceClient.from_connection_string(connect_str, None)
             self.connected = True
             utils.printInfoMessage("Connected to Azure Blob Storage")
         except Exception as e:
