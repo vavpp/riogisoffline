@@ -117,6 +117,10 @@ class AzureBlobStorageConnection:
 
                         block_list = []
 
+                        # skips upload if txt-file
+                        if ".txt" in filename:
+                            continue
+
                         if ".db3" in filename:
                             full_path = os.path.join("prod", "new", subdir_to_upload_name, filename)
                             blob_client = wincan_files_container_client.get_blob_client(full_path)
