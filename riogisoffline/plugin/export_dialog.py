@@ -64,7 +64,7 @@ class ExportDialog(QtWidgets.QDialog, FORM_CLASS):
         utils.printSuccessMessage("Lagret som: " + filename)
 
         self.riogis.dlg.textLedningValgt.setText("Eksportert " + os.path.split(filename)[-1])        
-        self.riogis.dlg.btnEksport.setEnabled(False)
+        self.riogis.setButtonsEnabled(False)
 
         if self.riogis.selectedFeatureHasInternalStatus():
             feature = self.riogis.feature
