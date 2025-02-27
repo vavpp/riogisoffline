@@ -74,7 +74,12 @@ class ChangeStatusDialog(QtWidgets.QDialog, FORM_CLASS):
         layer.startEditing()
 
         selected_feature["status_internal"] = new_status
-        layer.updateFeature(selected_feature)
+
+        try:
+            layer.updateFeature(selected_feature)
+        except Exception as e:
+            utils.printCriticalMessage("Visuell endring av status i kartet feilet!")
+            utils.printCriticalMessage(f"Feilmelding: {e}")
 
         layer.commitChanges()
         layer.triggerRepaint()
