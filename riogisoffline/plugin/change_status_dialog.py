@@ -30,9 +30,11 @@ class ChangeStatusDialog(QtWidgets.QDialog, FORM_CLASS):
 
         lsid = selected_feature["lsid"]
         fcode = selected_feature["fcode"]
-        status = selected_feature["status_internal"]
-        
-        status_text = utils.get_status_text(status, self.status_items)
+        status_text = ""
+
+        if "status_internal" in utils.getFieldNames(selected_feature):
+            status = selected_feature["status_internal"]  
+            status_text = utils.get_status_text(status, self.status_items)
 
         text = f"Valgt: {fcode} {lsid} - {status_text}"
 

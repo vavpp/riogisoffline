@@ -288,6 +288,7 @@ class RioGIS:
                 self.setButtonsEnabled(True)
             else:
                 self.dlg.btnEksport.setEnabled(True)
+                self.dlg.btnMarker.setEnabled(False)
 
             data = self.get_feature_data()
             self.show_selected_feature(data)
@@ -447,7 +448,7 @@ class RioGIS:
         if not self.feature:
             return False
         
-        return "status_internal" in getFieldNames(self.feature)
+        return "status_internal" in utils.getFieldNames(self.feature)
 
     def show_selected_feature(self, data):
         if not data:
@@ -501,7 +502,7 @@ class RioGIS:
         nearest_feature_distances_without_duplicates = nearest_feature_distances.copy()
         feature_lsids = [feat["lsid"] for feat in nearest_feature_distances]
         for feat in nearest_feature_distances:
-            if feature_lsids.count(feat["lsid"]) > 1 and not "orderd_ident" in getFieldNames(feat):
+            if feature_lsids.count(feat["lsid"]) > 1 and not "orderd_ident" in utils.getFieldNames(feat):
                 del nearest_feature_distances_without_duplicates[feat]
         
         if not nearest_feature_distances_without_duplicates:
@@ -529,6 +530,10 @@ class RioGIS:
 
 
     def update_feature_status(self):
+
+        if not self.layer:
+            return
+
         # Side effect update status on export
         self.layer.startEditing()
 
@@ -603,7 +608,7 @@ class RioGIS:
         new_feature.setFields(self.layer.fields())
         
         for attr, val in selected_feature_fields.items():
-            if attr in getFieldNames(new_feature):
+            if attr in utils.getFieldNames(new_feature):
                 new_feature.setAttribute(attr, val)
         
         new_feature.setAttribute("status_internal", 2)
@@ -627,7 +632,7 @@ class RioGIS:
         """
 
         # convert field data to a dictionary
-        data = {atn: self.feature[atn] for atn in getFieldNames(self.feature)}
+        data = {atn: self.feature[atn] for atn in utils.getFieldNames(self.feature)}
         
         # if anything is a datetime object, convert it to a string
         for key in data.keys():
@@ -760,16 +765,3 @@ class RioGIS:
         self.dlg.textSync.setText(f"{default_text}\n(Synket sist: {datetime_last_sync})")
         
 
-def getFieldNames(obj):
-    """
-    Get field names from layer or feature
-
-    Args:
-        feature (QgsFeature or layer): feature or layer
-
-    Returns:
-        [str]: list of field names of given object 
-    """
-
-    fieldnames = [field.name() for field in obj.fields()]
-    return fieldnames

@@ -254,3 +254,18 @@ def get_status_text(status, status_items):
 
 def save_and_write_project():
     QgsProject.instance().write()
+
+
+def getFieldNames(obj):
+    """
+    Get field names from layer or feature
+
+    Args:
+        feature (QgsFeature or layer): feature or layer
+
+    Returns:
+        [str]: list of field names of given object 
+    """
+
+    fieldnames = [field.name() for field in obj.fields()]
+    return fieldnames
