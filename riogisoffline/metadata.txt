@@ -4,12 +4,19 @@
 
 [general]
 name=RioGIS 2
-qgisMinimumVersion=3.0
+qgisMinimumVersion=3.34
 description=RioGIS offline
-version=0.6.0
+version=0.6.1
 author=Vann- og avløpsetaten Oslo kommune
 email=gis@vav.oslo.kommune.no
-changelog=0.6.0
+changelog=0.6.1
+    Map printing: fixed crash when opening the layout designer, print area shown on the map, fixed scales 1:500-1:10000, legend shrinks to fit, new A4 layout.
+    Animated flow arrows now use QGIS symbol animation and work up to 1:5000.
+    Status changes are written to the correct layer; export keeps statuses other than "Bestilt".
+    Project status changes are uploaded even without pipe status changes; status files are kept if upload fails; empty comments are sent as "".
+    Sync no longer writes the QGIS project from a background thread and reports merge errors; buttons are re-enabled after failures.
+    Requires QGIS 3.34 or newer.
+    0.6.0
     Improved map-layer registration and refresh handling.
     Made Azure Storage an optional dependency until sync or upload.
     Added Qt5/Qt6 compatibility and expanded tests.

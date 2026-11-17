@@ -1,10 +1,23 @@
 # -*- coding: utf-8 -*-
 
-from qgis.core import QgsGeometry, QgsPointXY, QgsFeature, QgsFeatureRequest
+from qgis.core import (
+    QgsGeometry,
+    QgsPointXY,
+    QgsFeature,
+    QgsFeatureRequest,
+    QgsProject,
+)
 from qgis.gui import QgsMapToolEmitPoint
 from qgis.PyQt.QtCore import QSettings, QTranslator, QCoreApplication, Qt
 from qgis.PyQt.QtGui import QIcon, QColor
-from qgis.PyQt.QtWidgets import QAction, QDockWidget, QToolBar, QListWidgetItem, QMessageBox
+from qgis.PyQt.QtWidgets import (
+    QAction,
+    QDockWidget,
+    QToolBar,
+    QListWidgetItem,
+    QMessageBox,
+    QDialog,
+)
 
 # Initialize Qt resources from file resources.py
 from .resources import *
@@ -15,6 +28,8 @@ from .settings_dialog import SettingsDialog
 from .change_status_dialog import ChangeStatusDialog
 from .change_project_status_dialog import ChangeProjectStatusDialog
 from .export_dialog import ExportDialog
+from .print_controller import PrintController
+from .flow_arrows import FlowArrowAnimator
 from .upload_dialog import UploadDialog
 from .search_box import SearchBox
 from .multi_thread_job import MultiThreadJob
@@ -25,6 +40,9 @@ import datetime
 
 import riogisoffline.plugin.utils as utils
 
+
+FLOW_ARROW_ANIMATION_SETTING = "riogisoffline/animate_flow_arrows"
+PROJECT_LAYER_NAME = "Prosjekt"
 
 
 class RioGIS:
@@ -59,9 +77,16 @@ class RioGIS:
         self.first_refresh = True
         self.map_has_been_clicked = False
         self.feature = None
+        self.layer = None
+        self.dlg = None
         self.data = None
         self.azure_connection = None
         self.selected_project = None
+        self._flow_arrow_animator = None
+        self.print_controller = PrintController(self.iface, self.settings)
+        self._flow_arrow_animation_enabled = QSettings().value(
+            FLOW_ARROW_ANIMATION_SETTING, False, type=bool
+        )
 
     # noinspection PyMethodMayBeStatic
     def tr(self, message):
@@ -121,6 +146,18 @@ class RioGIS:
 
         self.dlg = RioGISDocked()
 
+        # created here (not only after "Last kart") so the checkbox also works
+        # for a map opened from the project file
+        self._flow_arrow_animator = FlowArrowAnimator(
+            self.iface.mapCanvas(), self._flow_arrow_animation_enabled
+        )
+        self.dlg.checkAnimateFlowArrows.setChecked(
+            self._flow_arrow_animation_enabled
+        )
+        self.dlg.checkAnimateFlowArrows.toggled.connect(
+            self._set_flow_arrow_animation_enabled
+        )
+
         # Select feature
         self.dlg.btnSelectMapClick.clicked.connect(lambda: self.handle_map_click(self.handle_select_feature))
 
@@ -139,6 +176,7 @@ class RioGIS:
         self.dlg.btnEksport.clicked.connect(self._handle_export)
         # disable export-button until a feature is selected
         self.dlg.btnEksport.setEnabled(False)
+        self.dlg.btnEksportPdf.clicked.connect(self._handle_pdf_export)
 
         # Upload
         def _handle_upload_button_click():
@@ -220,10 +258,35 @@ class RioGIS:
         export_dialog.update_label()
         export_dialog.exec()
 
+    def _handle_pdf_export(self):
+        # the controller switches to the pan tool so the print area can be moved
+        self.print_controller.settings = self.settings
+        self.print_controller.start()
+
     def unload(self):
+        if self._flow_arrow_animator is not None:
+            self._flow_arrow_animator.stop()
+
+        self.print_controller.close()
+
+        if self.dlg is not None:
+            self.iface.removeDockWidget(self.dlg)
+            self.dlg.deleteLater()
+            self.dlg = None
+
         for action in self.actions:
             self.iface.removePluginVectorMenu("&RioGIS", action)
             self.iface.removeToolBarIcon(action)
+
+    def _set_flow_arrow_animation_enabled(self, enabled):
+        self._flow_arrow_animation_enabled = bool(enabled)
+        QSettings().setValue(
+            FLOW_ARROW_ANIMATION_SETTING, self._flow_arrow_animation_enabled
+        )
+        if self._flow_arrow_animator is not None:
+            self._flow_arrow_animator.set_enabled(
+                self._flow_arrow_animation_enabled
+            )
 
     def setup(self):
         settings = utils.get_settings_path()
@@ -344,8 +407,6 @@ class RioGIS:
         Args:
             project (QgsFeature): selected project
         """
-
-        print(project.geometry().area())
 
         # get all orders in project
         all_order_features = self.get_layer_by_name("Bestillinger").getFeatures()
@@ -529,29 +590,63 @@ class RioGIS:
         return all_features
 
 
+    def get_layer_for_editing(self, name):
+        """
+        Resolve the layer to write to by name.
+
+        Writes must never go to whatever layer happens to be in self.layer,
+        since that changes with every selection in the UI. Updating a feature
+        in the wrong layer overwrites the feature with the same id there.
+
+        Returns:
+            QgsVectorLayer or None: the layer with the given name
+        """
+        layers = QgsProject.instance().mapLayersByName(name)
+        if layers:
+            return layers[0]
+
+        layer = self.get_layer_by_name(name)
+        if layer is not None:
+            return layer
+
+        if self.layer is not None and self.layer.name() == name:
+            return self.layer
+
+        return None
+
+    def get_order_layer(self):
+        return self.get_layer_for_editing(self.settings["feature_name"])
+
+    def get_project_layer(self):
+        return self.get_layer_for_editing(PROJECT_LAYER_NAME)
+
     def update_feature_status(self):
 
-        if not self.layer:
+        order_layer = self.get_order_layer()
+        if order_layer is None:
+            utils.printWarningMessage("Fant ikke laget med bestillinger")
             return
 
         # Side effect update status on export
-        self.layer.startEditing()
+        order_layer.startEditing()
 
         update_project_status = False
 
         # create new feature in "Bestilling" if feature is not in that layer
         if not self.selectedFeatureHasInternalStatus():
-            self.create_new_order_feature()
+            self.create_new_order_feature(order_layer)
         else:
             status = self.feature["status_internal"]
-            if int(status) < 4:
+            # only "bestilt" becomes "under utførelse" on export; every other
+            # status (3, 4, 5, 8) is kept as it is
+            if int(status) == 1:
                 self.feature["status_internal"] = 2
-            self.layer.updateFeature(self.feature)
+            order_layer.updateFeature(self.feature)
 
             update_project_status = True
 
-        self.layer.commitChanges()
-        self.layer.triggerRepaint()
+        order_layer.commitChanges()
+        order_layer.triggerRepaint()
 
         utils.save_and_write_project()
 
@@ -562,17 +657,16 @@ class RioGIS:
 
         # get project that belongs to feature
         project_area_id = feature_in_project["project_area_id"]
-        
-        feature_layer = "Prosjekt"
-        feature_layers = self.iface.mapCanvas().layers()
-        self.select_layer(feature_layers, feature_layer)
 
-        all_features = self.get_all_features_from_all_feature_layers(feature_layers, [feature_layer])
+        project_layer = self.get_project_layer()
+        if project_layer is None:
+            utils.printWarningMessage("Fant ikke tilhørende prosjekt til bestilling")
+            return
 
         near_features = list(
             filter(
                 lambda feat: feature_in_project.geometry().distance(feat.geometry()) < 10,
-                all_features,
+                project_layer.getFeatures(),
             )
         )
 
@@ -590,24 +684,25 @@ class RioGIS:
         if project["status"] == 1:
             new_status = 2
             comment = ""
-            utils.change_project_status(self.settings, self.layer, project, new_status, comment)
+            utils.change_project_status(self.settings, project_layer, project, new_status, comment)
 
-    def create_new_order_feature(self):
+    def create_new_order_feature(self, order_layer=None):
         """
         Create new feature and adds it to "Bestilling"-layer. Copies attributes and geometry from self.feature
 
         Returns:
             QgsFeature: new order feature
         """
-        if not self.layer or not self.feature:
+        layer = order_layer if order_layer is not None else self.get_order_layer()
+        if not layer or not self.feature:
             return None
 
-        layer_field_names = utils.getFieldNames(self.layer)
+        layer_field_names = utils.getFieldNames(layer)
         feature_field_names = utils.getFieldNames(self.feature)
 
         # create new feature
         new_feature = QgsFeature()
-        new_feature.setFields(self.layer.fields())
+        new_feature.setFields(layer.fields())
 
         for field_name in feature_field_names:
             if field_name not in layer_field_names:
@@ -623,10 +718,10 @@ class RioGIS:
         # set geometry
         new_feature.setGeometry(self.feature.geometry())
 
-        if hasattr(self.layer, "addFeature"):
-            res = self.layer.addFeature(new_feature)
-        elif self.layer.dataProvider() and hasattr(self.layer.dataProvider(), "addFeature"):
-            res = self.layer.dataProvider().addFeature(new_feature)
+        if hasattr(layer, "addFeature"):
+            res = layer.addFeature(new_feature)
+        elif layer.dataProvider() and hasattr(layer.dataProvider(), "addFeature"):
+            res = layer.dataProvider().addFeature(new_feature)
         else:
             res = False
 
@@ -634,7 +729,7 @@ class RioGIS:
             utils.printWarningMessage("Klarte ikke å opprette ny bestilling")
             return None
 
-        self.layer.triggerRepaint()
+        layer.triggerRepaint()
         return new_feature
 
     def get_feature_data(self):
@@ -678,9 +773,14 @@ class RioGIS:
             utils.printWarningMessage("Mangler data for å laste kart. Trykk \"Synkroniser\" først!")
             return
         
-        from .refresh_map import MapRefresher 
+        from .refresh_map import MapRefresher
         map_refresher = MapRefresher()
         map_refresher.refresh_map(project_filename)
+
+        # the animator also picks up new layers by itself; this makes sure
+        # the state is applied right after the map has been rebuilt
+        if self._flow_arrow_animator is not None:
+            self._flow_arrow_animator.refresh_layers()
 
         if self.first_refresh:
             map_refresher.zoom_to_extent()
@@ -733,11 +833,15 @@ class RioGIS:
         
         # TODO Split some gui-things into riogis_dockedwidget
 
-        if self.first_start:
-            self.first_start = False
-        self.initiate_gui_elements()
+        self.first_start = False
 
-        self.iface.addDockWidget(Qt.DockWidgetArea.RightDockWidgetArea, self.dlg)
+        # build the dock widget only once; later clicks just show it again
+        if self.dlg is None:
+            self.initiate_gui_elements()
+            self.iface.addDockWidget(Qt.DockWidgetArea.RightDockWidgetArea, self.dlg)
+
+        self.dlg.show()
+        self.dlg.raise_()
 
     def establish_azure_connection(self):
         if not os.path.exists(utils.get_user_settings_path()): 

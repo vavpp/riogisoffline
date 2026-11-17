@@ -126,8 +126,6 @@ class UploadDialog(QtWidgets.QDialog, FORM_CLASS):
             self.selected_items.append(item_text)
             self.selectedItemsWidget.addItem(item_text)
 
-        print(self.selected_items)
-
         if self.has_changed_project_status:
             self.selectedItemsWidget.addItem("Endret status på prosjekt(er)")
 

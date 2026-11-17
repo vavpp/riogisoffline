@@ -143,8 +143,9 @@ def has_internet_connection():
     try:
         requests.get("https://www.oslo.kommune.no", timeout=5)
         return True
-    except requests.ConnectionError:
-        return False  
+    except requests.RequestException:
+        # includes ConnectionError and all timeouts
+        return False
 
 def synced_files_exist():
     """

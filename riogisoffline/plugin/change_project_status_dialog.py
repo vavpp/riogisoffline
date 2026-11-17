@@ -53,7 +53,11 @@ class ChangeProjectStatusDialog(QtWidgets.QDialog, FORM_CLASS):
         comment = self.textComment.toPlainText()
         selected_status_index = self.cmbSelectStatus.currentIndex()
 
-        layer = self.riogis.layer
+        layer = self.riogis.get_project_layer()
+        if layer is None:
+            utils.printWarningMessage("Fant ikke prosjektlaget")
+            return
+
         selected_feature = self.riogis.selected_project
 
         status_values = self.status_items["values"]

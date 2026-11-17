@@ -1,5 +1,5 @@
 
-from qgis.core import QgsFeatureRequest, QgsWkbTypes
+from qgis.core import QgsExpression, QgsFeatureRequest, QgsWkbTypes
 
 class SearchBox:
 
@@ -40,7 +40,11 @@ class SearchBox:
 
             for layer in layers:
                 # Requests features that start with text
-                request = QgsFeatureRequest().setFilterExpression(f'LOWER("{layer_id_attr}") LIKE LOWER(\'{text}%\')')
+                # quote the user text so characters like ' cannot break the expression
+                search_value = QgsExpression.quotedString(f"{text}%")
+                request = QgsFeatureRequest().setFilterExpression(
+                    f'LOWER("{layer_id_attr}") LIKE LOWER({search_value})'
+                )
 
                 request_results = layer.getFeatures(request)
 
@@ -61,17 +65,21 @@ class SearchBox:
 
         layer_name = item.text().split(self.split_char)[-1].strip()
 
-        layer_id_attr = [id_attr for l_name, id_attr in self.search_layers.items() if l_name.lower() in layer_name.lower()][0]
-
+        id_attrs = [id_attr for l_name, id_attr in self.search_layers.items() if l_name.lower() in layer_name.lower()]
         layers = [l for l in canvas.layers() if l.name() == layer_name]
 
-        if not layers:
+        if not id_attrs or not layers:
             return
-        
+
+        layer_id_attr = id_attrs[0]
         layer = layers[0]
-            
-        request = QgsFeatureRequest().setFilterExpression(f'"{layer_id_attr}" = \'{text}\'')
-        feature = next(layer.getFeatures(request))
+
+        request = QgsFeatureRequest().setFilterExpression(
+            f'"{layer_id_attr}" = {QgsExpression.quotedString(text)}'
+        )
+        feature = next(iter(layer.getFeatures(request)), None)
+        if feature is None:
+            return
 
         if feature.geometry().type() == QgsWkbTypes.GeometryType.Point:
             canvas.zoomScale(self.zoom_level_for_point)

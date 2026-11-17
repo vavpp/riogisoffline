@@ -74,7 +74,11 @@ class ExportDialog(QtWidgets.QDialog, FORM_CLASS):
             lsid = feature["lsid"]
             project_area_id = feature["project_area_id"]
             comment = ""
-            new_status = 2
+            # report the status the feature has after export:
+            # 1 -> 2 (under utførelse; the backend sets 4 when its task has run),
+            # all other statuses (2, 3, 4, 5, 8) are reported unchanged, so a new
+            # export never sets e.g. a completed pipe back to "under utførelse".
+            new_status = int(feature["status_internal"])
             utils.write_changed_status_to_file(self.riogis.settings, lsid, new_status, comment, project_area_id)
 
         self.accept()

@@ -1,4 +1,5 @@
 import os
+from .flow_arrows import FLOW_ARROW_INITIAL_OFFSET_MM, FLOW_ARROW_INTERVAL_MM
 from qgis.PyQt.QtGui import QColor, QFont
 from qgis.core import (
     Qgis,
@@ -27,7 +28,6 @@ DEFAULT_BESTILLINGER_LINE_WIDTH = 1.1
 DEFAULT_LINE_WIDTH = 0.6
 DEFAULT_IKKE_KOMMUNAL_LINE_WIDTH = 0.5
 DEFAULT_STIKKLEDNING_WIDTH = 0.3
-
 STATUS_ERSTATTET_NEDLAGT = "\"status\" = 'E' OR \"status\" = 'EF' OR \"status\" = 'F' OR \"status\" = 'EN'"
 STATUS_PROSJEKTERT_IKKE_I_BRUK = "\"status\" = 'P' OR \"status\" = 'I'"
 
@@ -583,7 +583,16 @@ class MapRefresher:
         if layer.name() == "Avløpsledning":
             symbol = QgsSymbol.defaultSymbol(layer.geometryType())
             
-            marker_line_layer = QgsMarkerLineSymbolLayer.create({'interval': '25', 'interval_unit': 'MM', 'place_on_every_part': True, 'placements': 'Interval', 'ring_filter': '0', 'rotate': '1'})
+            marker_line_layer = QgsMarkerLineSymbolLayer.create(
+                {
+                    'interval': str(FLOW_ARROW_INTERVAL_MM),
+                    'interval_unit': 'MM',
+                    'place_on_every_part': True,
+                    'placements': 'Interval',
+                    'ring_filter': '0',
+                    'rotate': '1',
+                }
+            )
             
             registry = QgsSymbolLayerRegistry()
 
@@ -593,7 +602,8 @@ class MapRefresher:
             triangle = registry.symbolLayerMetadata("FilledMarker").createSymbolLayer({'name': 'triangle', 'color': '255,255,255', 'color_border': '100,100,100', 'angle': '90'})
             subSymbol.appendSymbolLayer(triangle)
             
-            marker_line_layer.setOffsetAlongLine(5)
+            marker_line_layer.setOffsetAlongLineUnit(Qgis.RenderUnit.Millimeters)
+            marker_line_layer.setOffsetAlongLine(FLOW_ARROW_INITIAL_OFFSET_MM)
             marker_line_layer.setWidth(2)
             marker_line_layer.setWidthUnit(Qgis.RenderUnit.MetersInMapUnits)
 

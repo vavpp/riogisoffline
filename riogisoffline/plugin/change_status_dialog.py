@@ -54,7 +54,11 @@ class ChangeStatusDialog(QtWidgets.QDialog, FORM_CLASS):
         comment = self.textComment.toPlainText()
         selected_status_index = self.cmbSelectStatus.currentIndex()
 
-        layer = self.riogis.layer
+        layer = self.riogis.get_order_layer()
+        if layer is None:
+            utils.printWarningMessage("Fant ikke laget med bestillinger")
+            return
+
         selected_feature = self.riogis.feature
 
         status_values = self.status_items["values"]

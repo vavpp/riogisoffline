@@ -4,6 +4,8 @@ from pyvirtualdisplay import Display
 import os
 import sys
 import builtins
+from types import SimpleNamespace
+
 import pytest
 
 from qgis.testing.mocked import get_iface
@@ -12,7 +14,15 @@ from riogisoffline.plugin import riogis as riogis_module
 from riogisoffline.plugin.riogis import RioGIS
 from riogisoffline.plugin.utils import get_plugin_dir
 from mock_extension import Layer, Point
-from qgis.core import QgsPointXY
+from qgis.core import (
+    QgsLayoutExporter,
+    QgsPointXY,
+    QgsProject,
+    QgsReadWriteContext,
+    QgsRectangle,
+    QgsVectorLayer,
+)
+from qgis.PyQt.QtWidgets import QDialog, QMenu, QWidget
 
 FEATURE_LAYER_NAME = "Bestillinger"
 
@@ -152,22 +162,39 @@ def test_update_feature_status(riogis):
 def test_refresh_map(riogis):
     riogis.refresh_map()
 
-def test_write_output_file(riogis):
+def test_flow_arrow_animation_toggle_is_persisted(riogis, monkeypatch):
+    from unittest.mock import Mock
+
+    settings = Mock()
+    animator = Mock()
+    monkeypatch.setattr(riogis_module, "QSettings", lambda: settings)
+    riogis._flow_arrow_animator = animator
+    checkbox = riogis.dlg.checkAnimateFlowArrows
+
+    checkbox.setChecked(not checkbox.isChecked())
+
+    assert (
+        riogis._flow_arrow_animation_enabled == checkbox.isChecked()
+    )
+    settings.setValue.assert_called_once_with(
+        riogis_module.FLOW_ARROW_ANIMATION_SETTING, checkbox.isChecked()
+    )
+    animator.set_enabled.assert_called_once_with(checkbox.isChecked())
+
+def test_write_output_file(riogis, tmp_path):
     riogis.select_layer([Layer()], FEATURE_LAYER_NAME)
     point = QgsPointXY(0,0)
     riogis.select_nearest_feature(point, layers=[Layer()])
     riogis.data = riogis.get_feature_data()
     riogis.settings.update({
         "operator": "Operator",
-        "output_folder": get_plugin_dir()
+        "output_folder": str(tmp_path)
     })
     riogis.map_attributes()
     riogis.iface.activeLayer = lambda: Layer()
     riogis.handle_select_feature(point, None)
     riogis.write_output_file()
-    output_dirlist = os.listdir(get_plugin_dir())
-    print(output_dirlist)
-    assert 'AF-123.txt' in output_dirlist
+    assert 'AF-123.txt' in os.listdir(tmp_path)
 
 def test_map_refresher_registers_fresh_layers_after_project_clear(
     riogis_without_run, tmp_path, monkeypatch

@@ -50,7 +50,10 @@ class MultiThreadJob:
         
         if not self.riogis.establish_azure_connection():
             return
-        
+
+        # GUI changes must happen here, on the main thread, not in worker.run()
+        worker.prepare()
+
         utils.set_busy_cursor(True)
 
         # start the worker in a new thread
@@ -119,6 +122,10 @@ class Worker(QtCore.QObject):
     def kill(self):
         self.killed = True
 
+    def prepare(self):
+        """Runs on the main thread before the worker thread starts"""
+        pass
+
     @abstractmethod
     def run(self):
         pass
@@ -139,12 +146,12 @@ class Worker(QtCore.QObject):
 
 class SyncWorker(Worker):
 
+    def prepare(self):
+        # disable button while running
+        self.riogis.dlg.btnSync.setEnabled(False)
+
     def run(self):
         try:
-
-            # disable button when running
-            self.riogis.dlg.btnSync.setEnabled(False)
-
             sync = Syncronizer(self, self.riogis.azure_connection)
             sync.sync_now()
         except Exception as e:
@@ -152,6 +159,9 @@ class SyncWorker(Worker):
             self.error.emit(e, traceback.format_exc())
 
     def finished_running(self, has_failed):
+        # enable button again, also after a failure so the user can retry
+        self.riogis.dlg.btnSync.setEnabled(True)
+
         if has_failed:
             utils.printWarningMessage("Noe gikk galt! Synkronisering avbrutt.")
             return
@@ -159,38 +169,36 @@ class SyncWorker(Worker):
         self.riogis.refresh_map()
         utils.printInfoMessage("Ferdig synkronisert", message_duration=1)
 
-        # enable button when finished
-        self.riogis.dlg.btnSync.setEnabled(True)
-
 class UploadWorker(Worker):
 
     def __init__(self, riogis, selected_projects):
         super().__init__(riogis)
         self.selected_projects = selected_projects
+        # read GUI state here (main thread), not in run()
+        self.parent_dir_path = riogis.dlg.selectUploadDir.filePath()
+
+    def prepare(self):
+        # disable button while running
+        self.riogis.dlg.btnUpload.setEnabled(False)
 
     def run(self):
         try:
-
-            # disable button when running
-            self.riogis.dlg.btnUpload.setEnabled(False)
-
             # upload changed statuses
-            self.riogis.azure_connection.upload_status_changes(self.riogis.settings)
+            self.riogis.azure_connection.upload_status_changes(self.riogis.settings, worker=self)
 
             # upload selected projects
-            parent_dir_path = self.riogis.dlg.selectUploadDir.filePath()
-            self.riogis.azure_connection.upload_projects(parent_dir_path, self.selected_projects, self)
+            self.riogis.azure_connection.upload_projects(self.parent_dir_path, self.selected_projects, self)
 
         except Exception as e:
             # forward the exception upstream
             self.error.emit(e, traceback.format_exc())
 
     def finished_running(self, has_failed):
+        # enable button again, also after a failure so the user can retry
+        self.riogis.dlg.btnUpload.setEnabled(True)
+
         if has_failed:
             utils.printWarningMessage("Noe gikk galt! Opplasting avbrutt.")
             return
-        
-        utils.printInfoMessage("Opplasting gjennomført", message_duration=1)
 
-        # enable button when finished
-        self.riogis.dlg.btnUpload.setEnabled(True)
+        utils.printInfoMessage("Opplasting gjennomført", message_duration=1)

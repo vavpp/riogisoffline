@@ -48,7 +48,8 @@ class Syncronizer:
 
         self.signal_new_process_name(f"Laster ned {short_file_name}...")
 
-        response = requests.get(url, stream=True)
+        # (connect, read) timeout so a stalled connection cannot hang the sync forever
+        response = requests.get(url, stream=True, timeout=(15, 120))
         if response.status_code != 200:
             self.signal_warning_message(f"Failed to download the new file {filename} from {url}")
             return
@@ -137,18 +138,26 @@ class Syncronizer:
                 return h1.hexdigest() == h2.hexdigest()
 
     def _update(self, active_layer_name):
+        """
+        Replace the features of one layer in the local db with those from the
+        downloaded update file, then re-apply local status changes.
+
+        Runs in the worker thread. It only uses layers created here, which are
+        never added to QgsProject, and talks to the GUI through signals only.
+
+        Raises:
+            RuntimeError: if the layer cannot be opened or the changes cannot be saved
+        """
 
         source_filepath = self._filename
 
-        # Get the active layer from the QGIS interface
+        # standalone layer on the local db (not the layer shown in the map)
         active_layer = QgsVectorLayer(
                         f"{source_filepath}|layername={active_layer_name}",
                         active_layer_name,
                         "ogr")
-        # Check if the active layer is valid
-        if active_layer is None:
-            self.signal_warning_message("Active layer not found in the project: " + active_layer_name)
-        
+        if not active_layer.isValid():
+            raise RuntimeError(f"Kunne ikke åpne laget {active_layer_name} i {source_filepath}")
 
         active_layer_name = active_layer.name()
         file2_path = self._up_filename
@@ -214,13 +223,13 @@ class Syncronizer:
         # Add the feature to the active layer
         active_layer.addFeatures(new_features)
 
-        # Commit the changes to the active layer immediately
-        active_layer.commitChanges()
-        
+        # Commit the changes to the local db
+        if not active_layer.commitChanges():
+            errors = "; ".join(active_layer.commitErrors())
+            active_layer.rollBack()
+            raise RuntimeError(f"Kunne ikke lagre endringer i laget {active_layer_name}: {errors}")
+
         self.signal_progress(90)
-        
-        # Refresh the active layer to see the changes
-        active_layer.triggerRepaint()
 
         return active_layer
 
@@ -233,7 +242,7 @@ class Syncronizer:
         self._fetch()
         
         # Merge local db file if updated file is different or there are local changes
-        if not self._equal(self._filename, self._up_filename) or os.path.exists(self.changed_project_status_filepath) or os.path.exists(self.changed_project_status_filepath):
+        if not self._equal(self._filename, self._up_filename) or os.path.exists(self.changed_status_filepath) or os.path.exists(self.changed_project_status_filepath):
             
             layer_definition = self._layer_definitions
             for layer_name in layer_definition:
@@ -243,11 +252,12 @@ class Syncronizer:
 
                 # Add new features to layer
                 self._update(layer_name)
-     
+
                 self.signal_progress(100)
 
-            utils.save_and_write_project()
-                
+        # The QGIS project must not be touched from this thread. The map is
+        # rebuilt and the project saved on the main thread when the worker
+        # finishes (SyncWorker.finished_running -> RioGIS.refresh_map).
         self.worker.finished.emit(False)
 
     def signal_progress(self, progress):

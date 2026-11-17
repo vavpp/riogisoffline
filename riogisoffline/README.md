@@ -21,4 +21,24 @@ Do not install the package into an unrelated system Python. See the
 QGIS's `plugin_dependencies` metadata is for other QGIS plugins, not Python packages
 ([QGIS plugin documentation](https://docs.qgis.org/latest/en/docs/pyqgis_developer_cookbook/plugins/plugins.html#metadata-txt)).
 
+## Map printout and templates
+
+Choose **Forhåndsvis og skriv ut kart** in the RioGIS panel, then select a layout and
+one of the fixed scales 1:500, 1:1000, 1:2000, 1:5000 or 1:10000. While the dialog is
+open, the area that will be printed is shown as a blue rectangle on the map; pan the
+map to move it. The last chosen scale and layout are remembered.
+
+**Åpne forhåndsvisning** opens QGIS Layout Designer with the finished A4 landscape
+printout. Adjust it there if needed, then use QGIS's PDF export. The standard layout has
+the map on the left and a panel on the right with title, date, operator name, scale,
+legend, north arrow, scale bar and a note about map-data limitations and attribution.
+
+The legend only lists thematic layers (not the background map) that have features in
+the printed area. It is shrunk (smaller text and symbols, then more columns) until it
+fits the space the layout has for it. If it still does not fit, a warning is shown.
+
+To keep an edited layout for later, choose **Layout > Save as RioGIS template...** in
+the designer. Templates are stored in the user's `output/print_templates` folder and
+appear in the layout selector the next time it opens. The standard layout is always
+available. A map with loaded layers and an operator name in user settings is required.
 

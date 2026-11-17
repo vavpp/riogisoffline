@@ -150,7 +150,23 @@ class AzureBlobStorageConnection:
 
         worker.finished.emit(False)
 
-    def upload_status_changes(self, settings):
+    def upload_status_changes(self, settings, worker=None):
+        """
+        Upload locally stored status changes (one CSV per kind) to Azure.
+
+        A CSV file is only deleted when every row in it has been uploaded, so
+        status changes are never lost silently.
+
+        Args:
+            settings (dict): plugin settings
+            worker (Worker, optional): used to report warnings from a background thread
+        """
+
+        def warn(message):
+            if worker is not None:
+                worker.warning.emit(message)
+            else:
+                utils.printWarningMessage(message)
 
         status_change_files = {
             "changed_status_filename": ["lsid", "new_status", "comment", "project_area_id"],
@@ -163,14 +179,25 @@ class AzureBlobStorageConnection:
         file_folder_path = user_settings["file_folder"]
 
         for file, fields in status_change_files.items():
-        
+
             changed_status_filename = os.path.join(file_folder_path, settings[file])
 
+            # each file is independent: a missing file must not stop the others
             if not os.path.exists(changed_status_filename):
-                return
+                continue
 
             changed_status_df = pd.read_csv(changed_status_filename)
-            changed_status_df.apply(lambda x: self._upload_status_file(x, fields), axis=1)
+
+            missing_fields = [field for field in fields if field not in changed_status_df.columns]
+            if missing_fields:
+                warn(
+                    f"FEIL: Kolonne(r) {', '.join(missing_fields)} mangler i "
+                    f"{changed_status_filename}. Filen er ikke lastet opp og er beholdt."
+                )
+                continue
+
+            for _, row in changed_status_df.iterrows():
+                self._upload_status_file(row, fields)
 
             os.remove(changed_status_filename)
 
@@ -178,17 +205,14 @@ class AzureBlobStorageConnection:
 
         row_id = fields[0]
 
+        # skip repeated header lines
         if row[row_id] == row_id:
             return
 
-        status_change_dict = {}
-
-        for field in fields:
-            if field not in row:
-                utils.printWarningMessage(f"FEIL: Kolonne '{field}' finnes ikke i " + str(row))
-                return
-            
-            status_change_dict[field] = row[field]
+        # pandas reads empty cells as NaN, which json.dumps writes as invalid JSON (NaN)
+        status_change_dict = {
+            field: "" if pd.isna(row[field]) else row[field] for field in fields
+        }
 
         json_object = json.dumps(status_change_dict, indent=4)
 
