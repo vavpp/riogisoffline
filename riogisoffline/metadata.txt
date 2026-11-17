@@ -6,10 +6,12 @@
 name=RioGIS 2
 qgisMinimumVersion=3.34
 description=RioGIS offline
-version=0.6.1
+version=0.6.2
 author=Vann- og avløpsetaten Oslo kommune
 email=gis@vav.oslo.kommune.no
-changelog=0.6.1
+changelog=0.6.2
+    Fixes the QGIS latest test suite for Qt 6.
+    0.6.1
     Map printing: fixed crash when opening the layout designer, print area shown on the map, fixed scales 1:500-1:10000, legend shrinks to fit, new A4 layout.
     Animated flow arrows now use QGIS symbol animation and work up to 1:5000.
     Status changes are written to the correct layer; export keeps statuses other than "Bestilt".

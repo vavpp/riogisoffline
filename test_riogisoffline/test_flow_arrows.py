@@ -80,7 +80,7 @@ def _repaints_within(layer, ms=600):
     layer.repaintRequested.connect(lambda deferred=False: calls.append(deferred))
     loop = QEventLoop()
     QTimer.singleShot(ms, loop.quit)
-    loop.exec_()
+    loop.exec()
     return [deferred for deferred in calls if deferred]
 
 
