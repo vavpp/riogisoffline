@@ -107,6 +107,16 @@ class MultiThreadJob:
     def workerError(self, e, exception_string):
         utils.printCriticalMessage('Worker thread raised an exception:\n{}'.format(exception_string))
 
+        reporter = getattr(self.riogis, "crash_reporter", None)
+        if reporter is not None:
+            try:
+                reporter.capture_text(
+                    "worker_error", "{}: {}".format(type(e).__name__, e), exception_string,
+                    context=type(self.worker).__name__,
+                )
+            except Exception:
+                pass
+
         self.workerFinished(has_failed=True)
 
     def workerWarning(self, msg):
@@ -125,6 +135,21 @@ class Worker(QtCore.QObject):
     def prepare(self):
         """Runs on the main thread before the worker thread starts"""
         pass
+
+    def send_crash_reports(self):
+        """
+        Send pending crash reports while we have a connection anyway.
+        Never lets a problem here stop the sync or upload.
+        """
+        reporter = getattr(self.riogis, "crash_reporter", None)
+        connection = getattr(self.riogis, "azure_connection", None)
+        if reporter is None or connection is None or not reporter.sending_enabled:
+            return
+        try:
+            connection.upload_crash_reports(reporter)
+        except Exception:
+            # e.g. container missing or no access; reports stay local and are tried again
+            pass
 
     @abstractmethod
     def run(self):
@@ -151,6 +176,7 @@ class SyncWorker(Worker):
         self.riogis.dlg.btnSync.setEnabled(False)
 
     def run(self):
+        self.send_crash_reports()
         try:
             sync = Syncronizer(self, self.riogis.azure_connection)
             sync.sync_now()
@@ -182,6 +208,7 @@ class UploadWorker(Worker):
         self.riogis.dlg.btnUpload.setEnabled(False)
 
     def run(self):
+        self.send_crash_reports()
         try:
             # upload changed statuses
             self.riogis.azure_connection.upload_status_changes(self.riogis.settings, worker=self)

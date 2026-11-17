@@ -21,6 +21,44 @@ Do not install the package into an unrelated system Python. See the
 QGIS's `plugin_dependencies` metadata is for other QGIS plugins, not Python packages
 ([QGIS plugin documentation](https://docs.qgis.org/latest/en/docs/pyqgis_developer_cookbook/plugins/plugins.html#metadata-txt)).
 
+## Crash and error reports
+
+The plugin writes a report when its own code raises an error, when sync or upload fails,
+and when a QGIS session using RioGIS ended unexpectedly (detected at the next start).
+Reports contain the error, the plugin/QGIS/Python versions, the user's last actions in
+RioGIS and the operator name from the user settings, so the GIS team can contact the user.
+The reports are therefore personal data. Azure keys and SAS signatures, user names in file
+paths and e-mail addresses are removed before a report is saved.
+
+Reports are stored in the QGIS profile (`riogisoffline/crash_reports`, at most 50) and
+sent to the `plugin-crash-reports` container at the next sync or upload, under a random
+id per installation. Users can turn sending off in the user settings
+("Send feilrapporter til GIS-teamet"). The container and a 90-day deletion rule must be
+set up in Azure by the GIS team; until the container exists, reports stay local.
+
+## WinCan live inspections
+
+In the **WinCan live** section of the RioGIS panel, choose the folder WinCan saves its
+projects in (for example `D:\TV-rapporter`) and tick **Følg aktive inspeksjoner**. The
+plugin follows the project folder WinCan wrote to most recently and draws the inspection
+observations on the pipes in the map while the inspection is running (within about two
+seconds of a change).
+
+- Pipes and manholes are matched on LSID and PSID. An inspection on a pipe that is not in
+  the map is listed in the status text.
+- The start manhole is read from the memo of the "Start inspeksjon" observation
+  (e.g. "I kum 396525"). Use **Snu retning** if the observations end up at the wrong end.
+- Length observations are paired on `OBS_CD_Code2` (1 = start, 9 = end) and the last two
+  digits of `OBS_CD_Code1`. A start without an end lasts until the end of the inspection,
+  or until the camera position while inspecting. Overlapping ones are drawn side by side.
+- Colours show the grade from VAV's condition calculator (same tables as the FME
+  workflow), using the pipe type (`fcode`) from the map. Info codes (SI, IF, VN, ANM, ME …)
+  are hidden unless **Vis info-koder** is ticked. Colours, shapes and layer names can be
+  changed in `settings.json` under `wincan`.
+- The plugin never opens WinCan's database directly. It copies the file and reads the
+  copy, and skips a read while WinCan is writing, so it cannot lock the database WinCan
+  is writing to.
+
 ## Map printout and templates
 
 Choose **Forhåndsvis og skriv ut kart** in the RioGIS panel, then select a layout and

@@ -30,6 +30,11 @@ from .change_project_status_dialog import ChangeProjectStatusDialog
 from .export_dialog import ExportDialog
 from .print_controller import PrintController
 from .flow_arrows import FlowArrowAnimator
+from .wincan_controller import WincanController, WincanPanel
+from .crash_reporter import CrashReporter, default_report_dir, plugin_version
+
+# free row in the dock's grid layout, just above the upload section
+WINCAN_PANEL_ROW = 38
 from .upload_dialog import UploadDialog
 from .search_box import SearchBox
 from .multi_thread_job import MultiThreadJob
@@ -84,6 +89,15 @@ class RioGIS:
         self.selected_project = None
         self._flow_arrow_animator = None
         self.print_controller = PrintController(self.iface, self.settings)
+        self.wincan_controller = None
+
+        # started in initGui (not here) so creating the plugin has no side effects
+        self.crash_reporter = CrashReporter(
+            default_report_dir(),
+            plugin_version(),
+            secrets_provider=lambda: [self.settings.get("azure_key")],
+            operator_provider=lambda: self.settings.get("operator", ""),
+        )
         self._flow_arrow_animation_enabled = QSettings().value(
             FLOW_ARROW_ANIMATION_SETTING, False, type=bool
         )
@@ -141,6 +155,14 @@ class RioGIS:
         # will be set False in run()
         self.first_start = True
 
+        # crash and error reports; a normal QGIS exit ends the session cleanly
+        try:
+            self.crash_reporter.start()
+            QCoreApplication.instance().aboutToQuit.connect(self.crash_reporter.stop)
+        except Exception:
+            # reporting must never stop the plugin from loading
+            pass
+
     def initiate_gui_elements(self):
         """ Initiates GUI elements the first time the plugin runs """
 
@@ -180,6 +202,7 @@ class RioGIS:
 
         # Upload
         def _handle_upload_button_click():
+            self.crash_reporter.breadcrumb("Last opp")
             uploadDialog = UploadDialog(self)
             upload_dir_is_valid = uploadDialog.setup_file_view(self.dlg.selectUploadDir.filePath())
             if upload_dir_is_valid:
@@ -208,7 +231,8 @@ class RioGIS:
         changeStatusDialog = ChangeStatusDialog(self)
         changeStatusDialog.populate_select_values()
 
-        def _handle_change_status_button_click():            
+        def _handle_change_status_button_click():
+            self.crash_reporter.breadcrumb("Endre status")
             changeStatusDialog.update_label()
             changeStatusDialog.exec_()
 
@@ -224,6 +248,7 @@ class RioGIS:
         changeProjectStatusDialog.populate_select_values()
   
         def _handle_change_project_status_button_click():
+            self.crash_reporter.breadcrumb("Endre prosjektstatus")
             changeProjectStatusDialog.update_label()
             changeProjectStatusDialog.exec_()
 
@@ -238,6 +263,16 @@ class RioGIS:
         search_box = SearchBox(self.dlg, self.iface)
         search_box.setup()
 
+        # WinCan live inspections
+        wincan_panel = WincanPanel(self.dlg)
+        self.dlg.gridLayout.addWidget(wincan_panel, WINCAN_PANEL_ROW, 0, 1, 2)
+        self.wincan_controller = WincanController(
+            self.iface,
+            self.settings,
+            wincan_panel,
+            default_root=self.dlg.selectUploadDir.filePath(),
+        )
+
     def show_necessary_panels(self):
         
         needed_panels = ['Layers', 'mPluginToolBar', 'mAttributesToolBar', 'mMapNavToolBar', 'MessageLog']
@@ -251,6 +286,7 @@ class RioGIS:
                 x.setVisible(False)
 
     def _handle_export(self):
+        self.crash_reporter.breadcrumb("Eksport")
         if self.map_has_been_clicked:
             self.iface.mapCanvas().unsetMapTool(self.mapTool)
         
@@ -259,6 +295,7 @@ class RioGIS:
         export_dialog.exec()
 
     def _handle_pdf_export(self):
+        self.crash_reporter.breadcrumb("Skriv ut kart")
         # the controller switches to the pan tool so the print area can be moved
         self.print_controller.settings = self.settings
         self.print_controller.start()
@@ -268,6 +305,16 @@ class RioGIS:
             self._flow_arrow_animator.stop()
 
         self.print_controller.close()
+
+        if self.wincan_controller is not None:
+            self.wincan_controller.stop(remove_layers=True)
+            self.wincan_controller = None
+
+        try:
+            QCoreApplication.instance().aboutToQuit.disconnect(self.crash_reporter.stop)
+        except (TypeError, RuntimeError):
+            pass
+        self.crash_reporter.stop()
 
         if self.dlg is not None:
             self.iface.removeDockWidget(self.dlg)
@@ -334,6 +381,7 @@ class RioGIS:
         self.canvas.setMapTool(self.mapTool)
 
     def handle_select_feature(self, point, mouse_button, layers=None):
+        self.crash_reporter.breadcrumb("Velg ledning i kart")
         
         feature_layers = layers if layers else self.iface.mapCanvas().layers()
         self.selected_layer = None
@@ -360,6 +408,7 @@ class RioGIS:
             self.setButtonsEnabled(False)
 
     def select_project(self, point, mouse_button, layers=None):
+        self.crash_reporter.breadcrumb("Velg prosjekt i kart")
 
         self.dlg.listOrdersInProject.clear()
         
@@ -751,6 +800,7 @@ class RioGIS:
         return data
 
     def refresh_map(self):
+        self.crash_reporter.breadcrumb("Last kart")
         
         if not os.path.exists(utils.get_user_settings_path()): 
             utils.printWarningMessage("Legg til bruker-innstillinger (bruker_settings.json)!")
@@ -781,6 +831,10 @@ class RioGIS:
         # the state is applied right after the map has been rebuilt
         if self._flow_arrow_animator is not None:
             self._flow_arrow_animator.refresh_layers()
+
+        # the map reload cleared the project; draw the WinCan observations again
+        if self.wincan_controller is not None:
+            self.wincan_controller.redraw()
 
         if self.first_refresh:
             map_refresher.zoom_to_extent()
@@ -878,6 +932,7 @@ class RioGIS:
         return True
     
     def run_syncronize_in_background(self):
+        self.crash_reporter.breadcrumb("Synkroniser")
         mtj = MultiThreadJob(self)
         mtj.startSyncWorker()
 

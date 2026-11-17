@@ -9,6 +9,8 @@ from qgis.core import Qgis, QgsProject, QgsUnitTypes
 
 import riogisoffline.plugin.utils as utils
 
+from .crash_reporter import breadcrumb
+
 from .print_layout import (
     PrintRequest,
     add_save_template_action,
@@ -157,6 +159,7 @@ class PrintController:
             self._cleanup()
 
     def _open_layout(self):
+        breadcrumb("Åpne utskrift i Layout Designer")
         project = QgsProject.instance()
         try:
             result = build_print_layout(project, self._current_request())

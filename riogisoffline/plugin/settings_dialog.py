@@ -31,7 +31,30 @@ class SettingsDialog(QtWidgets.QDialog, FORM_CLASS):
             self._set_line_edit_text(self.lineBGURL, "background_url", user_settings)
             self._set_line_edit_text(self.lineAzurekey, "azure_key", user_settings)
 
-    
+        self._add_crash_report_option()
+
+    def _add_crash_report_option(self):
+        """Opt-out for sending crash reports (saved immediately, not with the user settings file)."""
+        from qgis.PyQt.QtCore import QSettings
+        from .crash_reporter import SEND_SETTING
+
+        self.checkSendCrashReports = QtWidgets.QCheckBox("Send feilrapporter til GIS-teamet")
+        self.checkSendCrashReports.setChecked(QSettings().value(SEND_SETTING, True, type=bool))
+        self.checkSendCrashReports.setToolTip(
+            "Når RioGIS får en feil eller QGIS krasjer, lagres en rapport med feilmelding, "
+            "versjoner, de siste handlingene i RioGIS og operatørnavnet ditt, slik at "
+            "GIS-teamet kan kontakte deg om feilen. Den sendes til Vann- og avløpsetatens "
+            "GIS-team ved neste synkronisering eller opplasting.\n"
+            "Nøkler, brukernavn i filstier og e-postadresser fjernes før rapporten lagres. "
+            "Rapporter slettes etter 90 dager."
+        )
+        self.checkSendCrashReports.toggled.connect(
+            lambda checked: QSettings().setValue(SEND_SETTING, bool(checked))
+        )
+        # just above the save button
+        self.formLayout.insertRow(self.formLayout.rowCount() - 1, "", self.checkSendCrashReports)
+
+
     def _set_line_edit_text(self, line_edit_obj, key, user_settings):
         if not key in user_settings:
             return

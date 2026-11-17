@@ -131,5 +131,19 @@
     ],
     "project_filename": "riogis.qgz",
     "changed_status_filename": "changed_status.csv",
-    "changed_project_status_filename": "changed_project_status.csv"
+    "changed_project_status_filename": "changed_project_status.csv",
+    "wincan": {
+        "pipe_layers": ["Avløpsledning", "Vannledning", "Bestillinger"],
+        "node_layers": ["Kum", "Kum (ikke kommunalt)"],
+        "grade_colors": {"1": "#2e7d32", "2": "#f2c200", "3": "#f57c00", "4": "#c62828"},
+        "info_color": "#8a8f98",
+        "track_color": "#1565c0",
+        "shapes": {
+            "circle": ["SR", "DF", "KO", "IR"],
+            "square": ["PF", "FS", "SP", "DO"],
+            "triangle": ["SM", "HI", "RØ", "IS"],
+            "diamond": ["TF", "DG", "DH"]
+        },
+        "label_max_scale": 1000
+    }
 }

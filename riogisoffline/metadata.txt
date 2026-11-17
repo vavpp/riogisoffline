@@ -6,10 +6,16 @@
 name=RioGIS 2
 qgisMinimumVersion=3.34
 description=RioGIS offline
-version=0.6.2
+version=0.7.0
 author=Vann- og avløpsetaten Oslo kommune
 email=gis@vav.oslo.kommune.no
-changelog=0.6.2
+changelog=0.7.0
+    WinCan live: follows the WinCan project folder and draws inspection observations on the pipes in real time.
+    Length observations paired on CD codes, start manhole read from the "Start inspeksjon" memo, "Snu retning" to correct it.
+    Grades from VAV's condition calculator (FME tables), colours and symbols configurable in settings.json.
+    WinCan's database is copied before reading, so the plugin never locks it.
+    Crash and error reports (with operator name; keys removed) are sent to the GIS team at the next sync/upload; can be turned off in the user settings.
+    0.6.2
     Fixes the QGIS latest test suite for Qt 6.
     0.6.1
     Map printing: fixed crash when opening the layout designer, print area shown on the map, fixed scales 1:500-1:10000, legend shrinks to fit, new A4 layout.

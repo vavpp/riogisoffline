@@ -150,6 +150,20 @@ class AzureBlobStorageConnection:
 
         worker.finished.emit(False)
 
+    def upload_crash_reports(self, reporter):
+        """
+        Send pending crash reports to the GIS team's container.
+
+        Returns:
+            int: number of reports sent
+        """
+        from .crash_reporter import CRASH_CONTAINER
+
+        container = self.blob_service_client.get_container_client(container=CRASH_CONTAINER)
+        return reporter.upload_pending(
+            lambda name, data: container.upload_blob(name, data, overwrite=True)
+        )
+
     def upload_status_changes(self, settings, worker=None):
         """
         Upload locally stored status changes (one CSV per kind) to Azure.
