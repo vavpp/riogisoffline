@@ -104,7 +104,9 @@ def set_busy_cursor(set_busy=True):
         set_busy (bool, optional): Sets BusyCursor if True, and ArrowCursor if False. Defaults to True.
     """
     if set_busy:
-        QtWidgets.QApplication.setOverrideCursor(QtGui.QCursor(QtCore.Qt.BusyCursor))
+        QtWidgets.QApplication.setOverrideCursor(
+            QtGui.QCursor(QtCore.Qt.CursorShape.BusyCursor)
+        )
     else:
         QtWidgets.QApplication.restoreOverrideCursor()
 

@@ -15,7 +15,7 @@ class RioGISDocked(QtWidgets.QDockWidget, FORM_CLASS):
         super(RioGISDocked, self).__init__("RioGIS", parent)
         self.setupUi(self)
         
-        self.setAllowedAreas(QtCore.Qt.RightDockWidgetArea)
+        self.setAllowedAreas(QtCore.Qt.DockWidgetArea.RightDockWidgetArea)
 
         self.settingsButtonText = "Oppdater bruker-innstillinger..."
         self.refresh_dialog()

@@ -4,7 +4,7 @@ from qgis.core import QgsGeometry, QgsPointXY, QgsFeature, QgsFeatureRequest
 from qgis.gui import QgsMapToolEmitPoint
 from qgis.PyQt.QtCore import QSettings, QTranslator, QCoreApplication, Qt
 from qgis.PyQt.QtGui import QIcon, QColor
-from qgis.PyQt.QtWidgets import QAction, QDockWidget, QToolBar, QListWidgetItem
+from qgis.PyQt.QtWidgets import QAction, QDockWidget, QToolBar, QListWidgetItem, QMessageBox
 
 # Initialize Qt resources from file resources.py
 from .resources import *
@@ -12,7 +12,6 @@ from .resources import *
 # Import the code for the dialog
 from .riogis_dockedwidget import RioGISDocked
 from .settings_dialog import SettingsDialog
-from .azure_blob_storage_connection import AzureBlobStorageConnection
 from .change_status_dialog import ChangeStatusDialog
 from .change_project_status_dialog import ChangeProjectStatusDialog
 from .export_dialog import ExportDialog
@@ -426,13 +425,13 @@ class RioGIS:
 
             list_item_text = f"{fcode}{lsid} ({status_internal}) - {material} {dim} - {construction_year} - {owner} {pipe_status}"
             order_item = QListWidgetItem(list_item_text)
-            order_item.setData(Qt.UserRole, order_feature)
+            order_item.setData(Qt.ItemDataRole.UserRole, order_feature)
             self.dlg.listOrdersInProject.addItem(order_item)
 
         self.dlg.listOrdersInProject.show()
 
     def _list_item_clicked(self, item):
-        clicked_order_feature = item.data(Qt.UserRole)
+        clicked_order_feature = item.data(Qt.ItemDataRole.UserRole)
         self.feature = clicked_order_feature
         self.select_feature()        
 
@@ -493,18 +492,18 @@ class RioGIS:
                 all_features,
             )
         )
-        
+
         nearest_feature_distances = {
             feat: point_click.distance(feat.geometry()) for feat in near_features
         }
-        
+
         # remove duplicates that is not in layer "Bestilling" so that "Bestilling"-layer is prioritized
         nearest_feature_distances_without_duplicates = nearest_feature_distances.copy()
         feature_lsids = [feat["lsid"] for feat in nearest_feature_distances]
-        for feat in nearest_feature_distances:
-            if feature_lsids.count(feat["lsid"]) > 1 and not "orderd_ident" in utils.getFieldNames(feat):
+        for feat in list(nearest_feature_distances):
+            if feature_lsids.count(feat["lsid"]) > 1 and "orderd_ident" not in utils.getFieldNames(feat):
                 del nearest_feature_distances_without_duplicates[feat]
-        
+
         if not nearest_feature_distances_without_duplicates:
             self.feature = None
             return
@@ -512,7 +511,8 @@ class RioGIS:
         nearest_feature_distances_list = list(nearest_feature_distances_without_duplicates.values())
         min_dist = min(nearest_feature_distances_list)
         idx = nearest_feature_distances_list.index(min_dist)
-        self.feature = near_features[idx]
+        nearest_feature = list(nearest_feature_distances_without_duplicates.keys())[idx]
+        self.feature = nearest_feature
 
     def get_all_features_from_all_feature_layers(self, layers, feature_names):
         
@@ -599,30 +599,43 @@ class RioGIS:
         Returns:
             QgsFeature: new order feature
         """
+        if not self.layer or not self.feature:
+            return None
+
+        layer_field_names = utils.getFieldNames(self.layer)
+        feature_field_names = utils.getFieldNames(self.feature)
 
         # create new feature
         new_feature = QgsFeature()
-
-        selected_feature_fields = self.feature.attributeMap()
-
         new_feature.setFields(self.layer.fields())
-        
-        for attr, val in selected_feature_fields.items():
-            if attr in utils.getFieldNames(new_feature):
-                new_feature.setAttribute(attr, val)
-        
-        new_feature.setAttribute("status_internal", 2)
-        new_feature.setAttribute("objectid", 1000000)
+
+        for field_name in feature_field_names:
+            if field_name not in layer_field_names:
+                continue
+            target_index = layer_field_names.index(field_name)
+            new_feature.setAttribute(target_index, self.feature[field_name])
+
+        if "status_internal" in layer_field_names:
+            new_feature.setAttribute(layer_field_names.index("status_internal"), 2)
+        if "objectid" in layer_field_names:
+            new_feature.setAttribute(layer_field_names.index("objectid"), 1000000)
 
         # set geometry
         new_feature.setGeometry(self.feature.geometry())
 
-        # TODO: fails when adding feature. returns false
-        res = self.layer.dataProvider().addFeature(new_feature)
-        
-        self.layer.updateFeature(new_feature)
-        
-        return new_feature 
+        if hasattr(self.layer, "addFeature"):
+            res = self.layer.addFeature(new_feature)
+        elif self.layer.dataProvider() and hasattr(self.layer.dataProvider(), "addFeature"):
+            res = self.layer.dataProvider().addFeature(new_feature)
+        else:
+            res = False
+
+        if not res:
+            utils.printWarningMessage("Klarte ikke å opprette ny bestilling")
+            return None
+
+        self.layer.triggerRepaint()
+        return new_feature
 
     def get_feature_data(self):
         """Get data dictionary
@@ -724,7 +737,7 @@ class RioGIS:
             self.first_start = False
         self.initiate_gui_elements()
 
-        self.iface.addDockWidget(Qt.RightDockWidgetArea, self.dlg) 
+        self.iface.addDockWidget(Qt.DockWidgetArea.RightDockWidgetArea, self.dlg)
 
     def establish_azure_connection(self):
         if not os.path.exists(utils.get_user_settings_path()): 
@@ -732,6 +745,26 @@ class RioGIS:
             return False
         
         if not self.azure_connection:
+            try:
+                from .azure_blob_storage_connection import AzureBlobStorageConnection
+            except ModuleNotFoundError as error:
+                if error.name != "azure" and not (
+                    error.name and error.name.startswith("azure.")
+                ):
+                    raise
+
+                QMessageBox.warning(
+                    self.iface.mainWindow(),
+                    "Azure-pakke mangler",
+                    "Synkronisering og opplasting krever pakken "
+                    "'azure-storage-blob'.\n\n"
+                    "Lukk QGIS, åpne OSGeo4W Shell for samme QGIS-installasjon "
+                    "og kjør:\n\n"
+                    "python -m pip install --user azure-storage-blob\n\n"
+                    "Start deretter QGIS på nytt.",
+                )
+                return False
+
             self.azure_connection = AzureBlobStorageConnection(self.settings["azure_key"])
 
         if not self.azure_connection.connected:

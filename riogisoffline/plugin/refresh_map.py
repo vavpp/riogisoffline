@@ -542,7 +542,14 @@ class MapRefresher:
         canvas.refresh()
     
     def add_map_layers(self, group, maps, name):
-        layer = maps["geometry"]
+        source_layer = maps["geometry"]
+        if not source_layer.isValid():
+            utils.printWarningMessage(
+                f"Kan ikke laste ugyldig kartlag: {source_layer.name()}"
+            )
+            return
+
+        layer = source_layer.clone()
         label = maps.get("label")
         
         if label:
@@ -555,6 +562,7 @@ class MapRefresher:
         elif maps.get("raster"):
             pass
 
+        QgsProject.instance().addMapLayer(layer, False)
         group.addLayer(layer)
         
         collapsed = maps.get("collapsed")

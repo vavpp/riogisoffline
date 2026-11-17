@@ -41,14 +41,6 @@ def classFactory(iface):  # pylint: disable=invalid-name
     os.environ['PLUGIN_DIR'] = pdir
     
     
-    # Install requirements
-    try:
-        import azure.storage.blob
-    except:
-        from riogisoffline.plugin.dependency_installer import DependencyInstaller
-        deps = DependencyInstaller()
-        deps.install_requirements()
-
     # Run program
     from riogisoffline.plugin.riogis import RioGIS
     return RioGIS(iface)

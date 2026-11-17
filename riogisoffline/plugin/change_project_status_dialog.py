@@ -13,7 +13,7 @@ class ChangeProjectStatusDialog(QtWidgets.QDialog, FORM_CLASS):
         """Constructor."""
         super(ChangeProjectStatusDialog, self).__init__(parent)
         self.setupUi(self)
-        self.setWindowFlags(Qt.WindowStaysOnTopHint)
+        self.setWindowFlags(Qt.WindowType.WindowStaysOnTopHint)
 
         self.riogis = riogis
         

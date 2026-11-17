@@ -81,8 +81,8 @@ class UploadDialog(QtWidgets.QDialog, FORM_CLASS):
             else:
                 # display projects in list
                 list_item = QtWidgets.QListWidgetItem(dir_name)
-                list_item.setFlags(list_item.flags() | Qt.ItemIsUserCheckable)  
-                list_item.setCheckState(Qt.Unchecked)  
+                list_item.setFlags(list_item.flags() | Qt.ItemFlag.ItemIsUserCheckable)
+                list_item.setCheckState(Qt.CheckState.Unchecked)
                 self.listWidget.addItem(list_item)
 
         return True
@@ -102,10 +102,10 @@ class UploadDialog(QtWidgets.QDialog, FORM_CLASS):
 
     def _item_clicked(self, item):
 
-        if item.checkState() == Qt.Checked:
-            item.setCheckState(Qt.Unchecked)
+        if item.checkState() == Qt.CheckState.Checked:
+            item.setCheckState(Qt.CheckState.Unchecked)
         else:
-            item.setCheckState(Qt.Checked)
+            item.setCheckState(Qt.CheckState.Checked)
 
         self._update_selected_items_list_widget()
 
@@ -113,7 +113,7 @@ class UploadDialog(QtWidgets.QDialog, FORM_CLASS):
         list_widget = self.listWidget
         items = [list_widget.item(x) for x in range(list_widget.count())]
 
-        return [x for x in items if x.checkState() == Qt.Checked]
+        return [x for x in items if x.checkState() == Qt.CheckState.Checked]
 
     def _update_selected_items_list_widget(self):
         self.selectedItemsWidget.clear()

@@ -6,9 +6,13 @@
 name=RioGIS 2
 qgisMinimumVersion=3.0
 description=RioGIS offline
-version=0.0.17
+version=0.6.0
 author=Vann- og avløpsetaten Oslo kommune
 email=gis@vav.oslo.kommune.no
+changelog=0.6.0
+    Improved map-layer registration and refresh handling.
+    Made Azure Storage an optional dependency until sync or upload.
+    Added Qt5/Qt6 compatibility and expanded tests.
 
 about=This Exports attributes of a given feature to a Wincan consumable text file.
 

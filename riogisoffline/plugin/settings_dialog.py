@@ -16,7 +16,7 @@ class SettingsDialog(QtWidgets.QDialog, FORM_CLASS):
         """Constructor."""
         super(SettingsDialog, self).__init__(parent)
         self.setupUi(self)
-        self.setWindowFlags(Qt.WindowStaysOnTopHint)
+        self.setWindowFlags(Qt.WindowType.WindowStaysOnTopHint)
 
         user_settings_generator = UserSettingsGenerator(self)
         self.btnSubmitSettingsFile.clicked.connect(lambda: user_settings_generator.run())
