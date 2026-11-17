@@ -3,6 +3,12 @@ name: Build and publish RioGIS plugin to public Qgis plugin repo
 on:
   release:
     types: published
+  workflow_dispatch:
+    inputs:
+      version:
+        description: Plugin version to publish
+        required: true
+        type: string
     
 jobs:
   build:
@@ -12,12 +18,12 @@ jobs:
         os: [ubuntu-latest]
 
     steps:
-      - uses: actions/checkout@v2
+      - uses: actions/checkout@v4
 
-      - name: Set up Python 3.9
-        uses: actions/setup-python@v1
+      - name: Set up Python 3.12
+        uses: actions/setup-python@v5
         with:
-          python-version: 3.9
+          python-version: "3.12"
 
        # Needed if the plugin is using Transifex, to have the lrelease command
        # - name: Install Qt lrelease
@@ -41,9 +47,11 @@ jobs:
         run: ls ..
 
       - name: Deploy plugin
+        env:
+          RELEASE_VERSION: ${{ github.event.release.tag_name || inputs.version }}
         run: >-
           qgis-plugin-ci
-          release ${GITHUB_REF/refs\/tags\//}
+          release "$RELEASE_VERSION"
           --github-token ${{ secrets.GITHUB_TOKEN }}
           --osgeo-username ${{ secrets.OSGEO_USER }}
           --osgeo-password ${{ secrets.OSGEO_PASSWORD }}
